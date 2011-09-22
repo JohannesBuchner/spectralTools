@@ -1,7 +1,7 @@
-import numpy and np
+import numpy as np
 from numpy import exp
 
-def Band( x, alpha , beta , Ep , A ):
+def Band( x, A, Ep, alpha, beta):
 
         band = np.piecewise(x, \
 [x< (alpha-beta)*Ep/(2+alpha),x>= (alpha-beta)*Ep/(2+alpha)],
@@ -14,6 +14,6 @@ def BlackBody(x,A,kT):
 
     return A*x*x*exp(-x/kT)
 
-def PowerLaw(x,Epiv,index):
+def PowerLaw(x, A, Epiv, index):
 
     return A*(x/Epiv)**index
