@@ -18,16 +18,20 @@ def deriv(f):
 class fluxLightCurve:
 
 
-    def __init__(self,modelName):
+    def __init__(self,scat):
 
-        self.modelName = modelName
         
+        
+        
+
+        self.modelNames = ''
+
 
         self.fit = ''
 
         self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody}
 
-        self.model = modelDict[modelName]
+        #self.model = modelDict[modelName]
 
 
 
@@ -39,21 +43,24 @@ class fluxLightCurve:
         
         '''
 
+        self.scat = scat
+
         data = scat.models
 
 
         self.tBins = scat.tBins
         self.values = data[self.modelName]['values']
         self.errors = data[self.modelName]['errors']
-        self.allMods = scat.modelNames
+        self.modelNames = scat.modelNames
         
 
 
-    def CalculateFlux(self,params):
+    def CalculateFlux(self,modelName,params):
 
-        print params
+        model = self.modelDict[modelName]
 
-        val,err, = quadrature(self.model, self.eMin,self.eMax,args=params[0],maxiter=100)
+
+        val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],maxiter=100)
 
         return val
 
@@ -72,17 +79,26 @@ class fluxLightCurve:
             
 
 
+
+
+    
+
+
     
 
    
-    def FluxError(self, scat):
+    def FluxError(self, params):
+        '''
+        Params is a list of the params from each models
+        [mod1,mod2,...]
+
+        '''
 
 
         
-        for modName in scat.modelNames:
-
-            model = self.modelDict[modName]
-            params = 
+        for modName,par  in zip(scat.modelNames,params):
+            
+            
             
             
             
