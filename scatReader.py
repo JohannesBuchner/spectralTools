@@ -34,6 +34,7 @@ class scatReader:
 
         self.phtFlux = self.scat[2].data['PHTFLUX']
         self.phtFluence = self.scat[2].data['PHTFLNC']
+        self.covars = self.scat[2].data['COVARMAT']
 
 
     def ExtractModels(self):
@@ -44,6 +45,7 @@ class scatReader:
         # Sort out the models in the scat file
         tmp = filter (lambda x: type(x.value)==str ,header)
         tmp1 = filter (lambda x:'FIT' not in x.value and  'PARAM' in  x.value ,tmp)
+        self.numParams =  len(tmp1)
         
         tmp2 = map(lambda x: x.comment.split(':')[0].strip(), tmp1)
 

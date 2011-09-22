@@ -1,6 +1,7 @@
 from models import *
 from scatReader import scatReader
 from scipy.integrate import quadrature
+from numpy import array
 
 
 
@@ -18,10 +19,11 @@ def deriv(f):
 class fluxLightCurve:
 
 
-    def __init__(self,scat):
+    def __init__(self):
 
         
-        
+        self.eMin = 10
+        self.eMax = 1000
         
 
         self.modelNames = ''
@@ -49,8 +51,8 @@ class fluxLightCurve:
 
 
         self.tBins = scat.tBins
-        self.values = data[self.modelName]['values']
-        self.errors = data[self.modelName]['errors']
+     #   self.values = data[self.modelName]['values']
+     #   self.errors = data[self.modelName]['errors']
         self.modelNames = scat.modelNames
         
 
@@ -87,27 +89,81 @@ class fluxLightCurve:
     
 
    
-    def FluxError(self, params):
+    def FluxError(self, params, covar):
         '''
         Params is a list of the params from each models
         [mod1,mod2,...]
 
         '''
 
-
+        firstDerivates = []
         
-        for modName,par  in zip(scat.modelNames,params):
-            
-            
-            
-            
-            
+        for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
 
-            
+            model = self.modelDict[modName]
+
+            for parName in z:
+
+           #     print parName
+           #     print modName
+
+                def tmpFlux(currentPar):
+
+                    tmpParams = par.copy()
+
+                    tmpParams[parName]=currentPar
+
+                  
+
+                    return self.CalculateFlux(modName,tmpParams)
 
 
+                firstDerivates.append( deriv(tmpFlux)(par[parName]))
+
+
+    def FormatCovarMat(self):
+
+
+        length = self.scat.numParams
+        
+        self.covars = []
+        
         
 
+
+        for x in self.scat.covars:
+            
+            covar = []
+
+
+    
+
+            for i in range(length):
+                
+
+                tmp = []
+
+                for j in range(length):
+
+       
+
+                    tmp.append(x[i*length+j])
+
+                covar.append(tmp)
+                    
+            self.covars.append(array(covar))
+
+            
+
+
+                    
+
+
+                
+            
+            
+            
+            
 
    
 
