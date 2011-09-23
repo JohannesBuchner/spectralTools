@@ -1,13 +1,13 @@
 from models import *
 from scatReader import scatReader
 from scipy.integrate import quadrature
-from numpy import array, abs
+from numpy import array, sqrt
 
 
 
 def deriv(f):
 
-    def df(x, h=0.1e-5):
+    def df(x, h=0.1e-7):
         return ( f(x+h/2) - f(x-h/2) )/h
 
     return df
@@ -19,18 +19,25 @@ def deriv(f):
 class fluxLightCurve:
 
 
-    def __init__(self):
+    def __init__(self,scat,eMin,eMax):
 
         
-        self.eMin = 10
-        self.eMax = 1000
+        self.eMin = eMin
+        self.eMax = eMax
         
 
-        self.modelNames = ''
+        self.scat = scat
+
+#        data = scat.models
 
 
-        self.fit = ''
+        self.tBins = scat.tBins
+     #   self.values = data[self.modelName]['values']
+     #   self.errors = data[self.modelName]['errors']
+        self.modelNames = scat.modelNames
 
+
+ 
         self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody}
 
         #self.model = modelDict[modelName]
@@ -45,15 +52,7 @@ class fluxLightCurve:
         
         '''
 
-        self.scat = scat
-
-        data = scat.models
-
-
-        self.tBins = scat.tBins
-     #   self.values = data[self.modelName]['values']
-     #   self.errors = data[self.modelName]['errors']
-        self.modelNames = scat.modelNames
+ 
         
 
 
@@ -65,6 +64,7 @@ class fluxLightCurve:
         val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],maxiter=100)
 
         return val
+
 
    
     def FluxError(self, params, covar):
@@ -82,37 +82,37 @@ class fluxLightCurve:
 
             for parName in z:
 
-           #     print parName
-           #     print modName
+#                print parName
+#                print modName
 
                 def tmpFlux(currentPar):
 
                     tmpParams = par.copy()
+ #                   print "\nCurrent param:"
+ #                   print currentPar
 
+  #                  print "\nTmp Params:"
+   #                 print tmpParams
                     tmpParams[parName]=currentPar
 
-                  
+
+    #                print "\n New Tmp Params:"
+     #               print tmpParams
 
                     return self.CalculateFlux(modName,tmpParams)
 
 
-                firstDerivates.append( abs(deriv(tmpFlux)(par[parName])))
 
-        length = self.scat.numParams
+                firstDerivates.append( deriv(tmpFlux)(par[parName]))
 
-        print firstDerivates
+    
+        firstDerivates = array(firstDerivates)
 
+        tmp = firstDerivates.dot(covar)
 
-        error = 0 
+        return tmp.dot(firstDerivates)
 
-        for i in range(length):
-            for j in range(length):
-                
-                print [i,j]
-                
-                error += covar[i,j]*firstDerivates[i]*firstDerivates[j]
-
-        print error
+  
 
 
     def FormatCovarMat(self):
@@ -164,4 +164,42 @@ class fluxLightCurve:
 
 
         self.fluxes = dict(zip(self.modelNames,fluxes))
+
+
+        
+
+
+
+
+
+
+    def LightCurveErrors(self):
+
+        tmpParamArray = map(lambda x: [] ,self.tBins)
+        
+
+        for mod in self.modelNames:
+            
+            
+            for x,row in zip(self.scat.models[mod]['values'],tmpParamArray):
+
+                row.append(x)
+
+
+
+#        print tmpParamArray
+
+        self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov), tmpParamArray,self.covars  )
+
+            
+            
+
+
+
+
+
+
+
+
+
 
