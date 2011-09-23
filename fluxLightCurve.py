@@ -1,7 +1,7 @@
 from models import *
 from scatReader import scatReader
 from scipy.integrate import quadrature
-from numpy import array
+from numpy import array, abs
 
 
 
@@ -66,28 +66,6 @@ class fluxLightCurve:
 
         return val
 
-
-
-
-
-    def GeneralizeModel(self,f,params):
-        
-        def func(x):
-            
-            val = f(x, *params)
-            return val
-
-        return func
-            
-
-
-
-
-    
-
-
-    
-
    
     def FluxError(self, params, covar):
         '''
@@ -118,7 +96,23 @@ class fluxLightCurve:
                     return self.CalculateFlux(modName,tmpParams)
 
 
-                firstDerivates.append( deriv(tmpFlux)(par[parName]))
+                firstDerivates.append( abs(deriv(tmpFlux)(par[parName])))
+
+        length = self.scat.numParams
+
+        print firstDerivates
+
+
+        error = 0 
+
+        for i in range(length):
+            for j in range(length):
+                
+                print [i,j]
+                
+                error += covar[i,j]*firstDerivates[i]*firstDerivates[j]
+
+        print error
 
 
     def FormatCovarMat(self):
@@ -127,15 +121,10 @@ class fluxLightCurve:
         length = self.scat.numParams
         
         self.covars = []
-        
-        
-
-
+      
         for x in self.scat.covars:
             
             covar = []
-
-
     
 
             for i in range(length):
@@ -156,18 +145,23 @@ class fluxLightCurve:
             
 
 
-                    
+    def CreateLightCurve(self):
 
 
-                
-            
-            
-            
-            
+        fluxes = []
 
-   
+        for x in self.modelNames:
+
+            tmp = []
+
+            for pars in self.scat.models[x]['values']:
+
+                flux = self.CalculateFlux(x,pars)
+                tmp.append(flux)
 
 
-        
+            fluxes.append(tmp)
 
- 
+
+        self.fluxes = dict(zip(self.modelNames,fluxes))
+

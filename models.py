@@ -12,7 +12,7 @@ lambda x:A* ( pow( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)
 
 def BlackBody(x,A,kT):
 
-    return A*x*x*exp(-x/kT)
+    return A*x*x*1/(exp(-x/kT)-1)
 
 def PowerLaw(x, A, Epiv, index):
 
