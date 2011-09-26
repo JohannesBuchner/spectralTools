@@ -1,8 +1,7 @@
 from scipy.optimize import curve_fit
 from matplotlib.widgets import RadioButtons
 import matplotlib.pyplot as plt
-
-
+from numpy import mean
 
 
 
@@ -19,7 +18,11 @@ class pulseFit:
         self.errors = 0
         self.tBins = 0
 
-        self.fig = plt.figure() 
+        self.fig = plt.figure(1) 
+        self.ax = self.fig.add_subplot(111)
+        self.fig.subplots_adjust(left=0.3)
+
+      
 
 
 
@@ -37,30 +40,66 @@ class pulseFit:
         self.fluxes =  fluxLC.fluxes
 
         self.errors =  fluxLC.errors
-        self.tBins = flux.tBins
+        self.tBins = fluxLC.tBins
 
         self.models = fluxLC.modelNames
 
-        ax = plt.axes([0.05, 0.4, 0.15, 0.15], axisbg=axcolor)
 
-        self.data = self.fluxes['All']
+        axcolor = 'lightgoldenrodyellow'
+
+
+        self.radioFig = plt.figure(2)
+
+        ax = plt.axes([.01, 0.01, 0.2, 0.32], axisbg=axcolor)
+
+        self.data = self.fluxes['total']
+
+
+       
+     
+        
+        self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
+        
 
         
-        radio = RadioButtons(ax,tuple(self.models))
+
+        
+        self.radio.on_clicked(self.Selector)
+        
+        
 
 
 
 
-
-
-    def Selector(label):
+    def Selector(self,label):
 
         self.ax.cla()
-        self.data = self.fluxes['All']
-        self.ax.draw()
+        self.data = self.fluxes[label]
+        self.PlotData()
+        
+        #self.ax.draw()
         
 
-    
+    def PlotData(self):
+
+
+        pl, = self.ax.plot(map(mean,self.tBins),self.data,"go")
+        self.fig.canvas.draw()
+      #  pl.xlabel("T")
+      #  pl.ylabel("Flux")
+        
+        
+
+        
+
+
+    def FitPulse(self):
+
+        for n in numPulse:
+            
+        
+
+
 
 
 

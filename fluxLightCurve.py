@@ -1,7 +1,7 @@
 from models import *
 from scatReader import scatReader
 from scipy.integrate import quadrature
-from numpy import array, sqrt
+from numpy import array, sqrt, zeros
 
 
 
@@ -110,7 +110,7 @@ class fluxLightCurve:
 
         tmp = firstDerivates.dot(covar)
 
-        return tmp.dot(firstDerivates)
+        self.errors =  tmp.dot(firstDerivates)
 
   
 
@@ -162,8 +162,20 @@ class fluxLightCurve:
 
             fluxes.append(tmp)
 
+       
+        fluxes = map(array,fluxes)
 
-        self.fluxes = dict(zip(self.modelNames,fluxes))
+        totFlux = zeros(len(fluxes[0]))
+
+        for x in fluxes:
+            totFlux+=x
+
+        fluxes.append(totFlux)
+
+        tmp = list(self.modelNames)
+        tmp.append('total')
+
+        self.fluxes = dict(zip(tmp,fluxes))
 
 
         
