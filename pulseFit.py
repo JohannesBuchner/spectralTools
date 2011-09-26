@@ -1,8 +1,8 @@
 from scipy.optimize import curve_fit
-from matplotlib.widgets import RadioButtons
+from matplotlib.widgets import RadioButtons, Button
 import matplotlib.pyplot as plt
-from numpy import mean
-
+from numpy import mean, zeros
+import TmaxSelector
 
 
 
@@ -21,6 +21,10 @@ class pulseFit:
         self.fig = plt.figure(1) 
         self.ax = self.fig.add_subplot(111)
         self.fig.subplots_adjust(left=0.3)
+        self.numPulse = 1
+
+
+        self.pulseLookup=[self.f1,self.f2,self.f3]
 
       
 
@@ -50,26 +54,15 @@ class pulseFit:
 
         self.radioFig = plt.figure(2)
 
-        ax = plt.axes([.01, 0.01, 0.2, 0.32], axisbg=axcolor)
+        ax = plt.axes([.5, 0.5, 0.2, 0.32], axisbg=axcolor)
 
         self.data = self.fluxes['total']
 
-
-       
-     
-        
         self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
-        
-
-        
-
-        
         self.radio.on_clicked(self.Selector)
         
-        
 
-
-
+###### Plotting
 
     def Selector(self,label):
 
@@ -80,7 +73,43 @@ class pulseFit:
         #self.ax.draw()
         
 
+    def AddPulse(self):
+
+        self.numPulse+=1
+        self.tmax = zeros(self.numPulse)-1000
+
+
+    def SelectTMax(self):
+
+        if self.pulseCounter==self.numPulse:
+            self.pulseCounter=1
+        else:
+            self.pulseCounter+=1
+
+
+        self.tmac[self.pulseCounter-1]=1 
+
+        self.UpdatePulseLines()
+
+
+    def UpdatePulseLines(self):
+
+        
+
+        
+
+
+
+
+
     def PlotData(self):
+
+
+        ax = plt.axes([.05, 0.05, 0.2, 0.32], axisbg=axcolor)
+        self.addButton = Button(ax,'Add Pulse ('+self.numPulse+')')
+
+        self.addButton.on_clicked(self.AddPulse)
+
 
 
         pl, = self.ax.plot(map(mean,self.tBins),self.data,"go")
@@ -90,26 +119,41 @@ class pulseFit:
         
         
 
-        
+###### Pulse Fitting
 
 
     def FitPulse(self):
 
-        for n in numPulse:
-            
+       func = self.pulseLookup[self.numPulse-1]
+       
+       initialValues=[]
+
+       for x in self.tmax:
+           initialValues.extend([1,1,1,x,1])
+
+
+       popt, pcov = curve_fit(func, self.tBins, self.data, sigma=self.errors,p0=initialValues)
+
+
         
 
+    def KRLPulse(t,c,r,d,tmax,fmax):
+
+        f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
+	return f
 
 
 
+    def f1(t,c,r,d,tmax,fmax):
+        return self.KRLPulse(t,c,r,d,tmax,fmax)
 
+    def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
+        return self.KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)
 
-
-
-
-
+    def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
+        return self.KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)+self.KRLPulse(t,c3,r3,d3,tmax3,fmax3)
     
-            
+    
 
 
 
