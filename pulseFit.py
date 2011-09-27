@@ -2,7 +2,7 @@ from scipy.optimize import curve_fit
 from matplotlib.widgets import RadioButtons, Button
 import matplotlib.pyplot as plt
 from numpy import mean, zeros
-import TmaxSelector
+from TmaxSelector import TmaxSelector
 
 
 
@@ -73,46 +73,32 @@ class pulseFit:
         #self.ax.draw()
         
 
-    def AddPulse(self):
+    def AddPulse(self,event):
 
         self.numPulse+=1
-        self.tmax = zeros(self.numPulse)-1000
+        self.tMaxSelector.SetNumPoints(self.numPulse)
 
 
-    def SelectTMax(self):
-
-        if self.pulseCounter==self.numPulse:
-            self.pulseCounter=1
-        else:
-            self.pulseCounter+=1
-
-
-        self.tmac[self.pulseCounter-1]=1 
-
-        self.UpdatePulseLines()
-
-
-    def UpdatePulseLines(self):
-
-        
-
-        
-
-
-
+   
 
 
     def PlotData(self):
 
 
-        ax = plt.axes([.05, 0.05, 0.2, 0.32], axisbg=axcolor)
-        self.addButton = Button(ax,'Add Pulse ('+self.numPulse+')')
-
-        self.addButton.on_clicked(self.AddPulse)
+     
 
 
 
         pl, = self.ax.plot(map(mean,self.tBins),self.data,"go")
+
+        self.tMaxSelector = TmaxSelector(pl)
+
+
+        ax = plt.axes([.05, 0.05, 0.2, 0.32])
+        self.addButton = Button(ax,'Add Pulse ('+str(self.numPulse)+')')
+
+        self.addButton.on_clicked(self.AddPulse)
+
         self.fig.canvas.draw()
       #  pl.xlabel("T")
       #  pl.ylabel("Flux")
@@ -127,6 +113,9 @@ class pulseFit:
        func = self.pulseLookup[self.numPulse-1]
        
        initialValues=[]
+
+       self.tmax=self.tMaxSelector.GetData()
+
 
        for x in self.tmax:
            initialValues.extend([1,1,1,x,1])
