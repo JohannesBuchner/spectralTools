@@ -10,7 +10,7 @@ class TmaxSelector:
         self.lines=[]
         self.yMax = max(plot.get_ydata())
       
-
+        self.numPulse = 1
         self.points=[]
 
 
@@ -19,6 +19,12 @@ class TmaxSelector:
         self.numPulse = num
         self.tmax = zeros(num)
 
+
+
+    def Kill(self):
+
+        self.plot.figure.canvas.mpl_disconnect(self.cid)
+     
 
 
     def Reset(self):

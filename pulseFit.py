@@ -22,9 +22,9 @@ class pulseFit:
         self.ax = self.fig.add_subplot(111)
         self.fig.subplots_adjust(left=0.3)
         self.numPulse = 1
+        self.flcFlag = False
 
-
-        self.pulseLookup=[self.f1,self.f2,self.f3]
+        self.pulseLookup=[f1,f2,f3]
 
       
 
@@ -38,28 +38,32 @@ class pulseFit:
         self.tBins = tBins
 
 
-    def ReadFLuxLC(self,fluxLC):
+    def ReadFluxLC(self,fluxLC):
 
 
         self.fluxes =  fluxLC.fluxes
 
-        self.errors =  fluxLC.errors
+        self.errors =  fluxLC.fluxErrors
         self.tBins = fluxLC.tBins
 
         self.models = fluxLC.modelNames
 
 
+        self.flcFlag =True
+
+
         axcolor = 'lightgoldenrodyellow'
 
 
-        self.radioFig = plt.figure(2)
-
-        ax = plt.axes([.5, 0.5, 0.2, 0.32], axisbg=axcolor)
+ #       self.radioFig = plt.figure(2)
+#
+        ax = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
 
         self.data = self.fluxes['total']
 
         self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
         self.radio.on_clicked(self.Selector)
+        self.PlotData()
         
 
 ###### Plotting
@@ -68,12 +72,17 @@ class pulseFit:
 
         self.ax.cla()
         self.data = self.fluxes[label]
-        self.PlotData()
+        self.tMaxSelector.Kill()
         
-        #self.ax.draw()
+        del self.tMaxSelector
+        self.PlotData()
+
         
 
-    def AddPulse(self,event):
+    def AddPulse(self,event=0):
+
+        if self.numPulse>3:
+            self.numPulse=1
 
         self.numPulse+=1
         self.tMaxSelector.SetNumPoints(self.numPulse)
@@ -84,31 +93,40 @@ class pulseFit:
 
     def PlotData(self):
 
-
-     
-
-
+    
+       # plt.axes(self.fig.get_axes()[0])
 
         pl, = self.ax.plot(map(mean,self.tBins),self.data,"go")
+        self.pl = pl
 
         self.tMaxSelector = TmaxSelector(pl)
-
+        self.tMaxSelector.SetNumPoints(self.numPulse)
 
         ax = plt.axes([.05, 0.05, 0.2, 0.32])
-        self.addButton = Button(ax,'Add Pulse ('+str(self.numPulse)+')')
+        self.addButton = Button(ax,'Add Pulse')
 
         self.addButton.on_clicked(self.AddPulse)
+
+   #     ax = plt.axes([.06, 0.05, 0.2, 0.32])
+   #     self.fitButton = Button(ax,'Fit')
+
+    #    self.fitButton.on_clicked(self.FitPulse)
+
+
 
         self.fig.canvas.draw()
       #  pl.xlabel("T")
       #  pl.ylabel("Flux")
         
-        
+    def ResetPlot(self):
+
+      #   self.pl.remove()
+        del self.pl
 
 ###### Pulse Fitting
 
 
-    def FitPulse(self):
+    def FitPulse(self,event=0):
 
        func = self.pulseLookup[self.numPulse-1]
        
@@ -120,27 +138,30 @@ class pulseFit:
        for x in self.tmax:
            initialValues.extend([1,1,1,x,1])
 
+       print initialValues
 
-       popt, pcov = curve_fit(func, self.tBins, self.data, sigma=self.errors,p0=initialValues)
+       popt, pcov = curve_fit(func, map(mean,self.tBins), self.data.tolist(), sigma=self.errors,p0=initialValues)
 
+
+       print popt
 
         
 
-    def KRLPulse(t,c,r,d,tmax,fmax):
+def KRLPulse(t,c,r,d,tmax,fmax):
 
-        f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
-	return f
+    f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
+    return f
 
 
 
-    def f1(t,c,r,d,tmax,fmax):
-        return self.KRLPulse(t,c,r,d,tmax,fmax)
+def f1(t,c,r,d,tmax,fmax):
+    return KRLPulse(t,c,r,d,tmax,fmax)
 
-    def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
-        return self.KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)
+def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
+    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)
 
-    def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
-        return self.KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)+self.KRLPulse(t,c3,r3,d3,tmax3,fmax3)
+def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
+    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)+self.KRLPulse(t,c3,r3,d3,tmax3,fmax3)
     
     
 

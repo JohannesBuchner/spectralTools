@@ -110,8 +110,8 @@ class fluxLightCurve:
 
         tmp = firstDerivates.dot(covar)
 
-        self.errors =  tmp.dot(firstDerivates)
-
+        errors =  tmp.dot(firstDerivates)
+        return errors
   
 
 
