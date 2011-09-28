@@ -1,8 +1,8 @@
 from models import *
 from scatReader import scatReader
 from scipy.integrate import quadrature
-from numpy import array, sqrt, zeros
-
+from numpy import array, sqrt, zeros, vstack
+import pickle
 
 
 def deriv(f):
@@ -28,33 +28,49 @@ class fluxLightCurve:
 
         self.scat = scat
 
-#        data = scat.models
-
 
         self.tBins = scat.tBins
-     #   self.values = data[self.modelName]['values']
-     #   self.errors = data[self.modelName]['errors']
         self.modelNames = scat.modelNames
 
-
- 
         self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody}
 
-        #self.model = modelDict[modelName]
 
 
+    def __add__(self,other):
 
-    def ImportDataFromSCAT(self,scat):
-        ''' 
-        This method is used to read in an 
-        from the scatreader object. It will then seperate 
-        out the required info. 
+        if other.eMin != self.eMin:
+            print "eMins do not match"
+            return
+
+
+        if other.eMax != self.eMax:
+            print "eMaxs do not match"
+            return
+
+
+        if other.modelNames != self.modelNames:
+            print "modelNames do not match"
+            return
+          
+        new = fluxLightCurve(self.scat,self.eMin,self.eMax)
+        tBins = array(self.tBins.tolist().extend(other.tBins.tolist()) )
+        new.tBins = tBins
+
+        new.fluxes = dict(self.fluxes)
+        new.fluxErrors = list(self.fluxErrors)
+        new.fluxErrors.extend(other.fluxErrors)
         
-        '''
+        for x in self.modelNames:
+            new.fluxes[x].extend(other.fluxes[x])
+              
+
+        return new 
+          
+
+
+
 
  
-        
-
 
     def CalculateFlux(self,modelName,params):
 
@@ -205,6 +221,18 @@ class fluxLightCurve:
 
             
             
+
+
+
+    def Save(self):
+
+
+        dicString=['fluxes','errors','tBins','energies']
+        save = dict(zip(dicString,[self.fluxes,self.fluxErrors,self.tBins,[self.eMin,self.eMax]]))
+
+        pickle.dump(save,open('fluxSave.p','w'))
+        
+
 
 
 

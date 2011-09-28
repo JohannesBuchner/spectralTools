@@ -1,9 +1,9 @@
 from scipy.optimize import curve_fit
 from matplotlib.widgets import RadioButtons, Button
 import matplotlib.pyplot as plt
-from numpy import mean, zeros
+from numpy import mean, zeros, matrix, sqrt
 from TmaxSelector import TmaxSelector
-
+import pickle
 
 
 
@@ -29,6 +29,26 @@ class pulseFit:
       
 
 
+    def LoadFlux(self,fileName):
+
+        flux  = pickle.load(open(fileName))
+        
+        self.fluxes = flux['fluxes']
+        self.errors = flux['errors']
+        self.tBins = flux['tBins']
+        
+        axcolor = 'lightgoldenrodyellow'
+
+
+ #       self.radioFig = plt.figure(2)
+#
+        ax = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
+
+        self.data = self.fluxes['total']
+
+        self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
+        self.radio.on_clicked(self.Selector)
+        self.PlotData()
 
 
     def SetData(self, flux, errors, tBins):
@@ -36,6 +56,11 @@ class pulseFit:
         self.data = flux
         self.errors = errors
         self.tBins = tBins
+
+
+  
+
+
 
 
     def ReadFluxLC(self,fluxLC):
@@ -83,9 +108,13 @@ class pulseFit:
 
         if self.numPulse>3:
             self.numPulse=1
+            self.tMaxSelector.SetNumPoints(self.numPulse)
 
-        self.numPulse+=1
-        self.tMaxSelector.SetNumPoints(self.numPulse)
+        else:
+            
+
+            self.numPulse+=1
+            self.tMaxSelector.SetNumPoints(self.numPulse)
 
 
    
@@ -135,17 +164,68 @@ class pulseFit:
        self.tmax=self.tMaxSelector.GetData()
 
 
+       print "Initial guess(es) for Tmax"
        for x in self.tmax:
+           print x
+       print  "\n___________\n"
+
+
+
+       for x in self.tmax:
+           #initialValues.extend([.1,-1,-.5,x,1])
            initialValues.extend([1,1,1,x,1])
 
-       print initialValues
+       #print initialValues
 
        popt, pcov = curve_fit(func, map(mean,self.tBins), self.data.tolist(), sigma=self.errors,p0=initialValues)
 
 
-       print popt
+       self.fitResults = popt
+       self.fitCov = pcov
 
+
+
+    def DisplayFitResults(self):
+
+
+        fitParams = ['c: ','r: ','d: ','tmax: ', 'fmax: ']
+
+        for i in range(self.numPulse-1):
+            fitParams.extend(fitParams)
+
+
+        fitParams = tuple(fitParams)
+
+        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
+
+        print '\n\n*****************************'
+        print 'Fit Results:\n'
+
+        for x,y,z in zip(fitParams,self.fitResults,errors):
+
+            print x+str(y)+' +/- '+str(z)
+
+
+
+        print '\n\n******************************\n'
+
+
+    def SaveFit(self):
+         
+
+        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
+         
+        f=open('pulsefitresults.txt','w')
+        for x,y in zip(self.fitResults,errors):
+            write(str(x)+'\t'+str(y))
         
+        print "\nWrote \'pulsefitresults.txt\'\n\n"
+
+
+    
+
+
+ ####################################################       
 
 def KRLPulse(t,c,r,d,tmax,fmax):
 
@@ -158,10 +238,10 @@ def f1(t,c,r,d,tmax,fmax):
     return KRLPulse(t,c,r,d,tmax,fmax)
 
 def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
-    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)
+    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)
 
 def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
-    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+self.KRLPulse(t,c2,r2,d2,tmax2,fmax2)+self.KRLPulse(t,c3,r3,d3,tmax3,fmax3)
+    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)+KRLPulse(t,c3,r3,d3,tmax3,fmax3)
     
     
 

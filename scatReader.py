@@ -1,5 +1,5 @@
 import pyfits as pf
-from numpy import mean, dtype, float64, array, shape
+from numpy import mean, dtype, float64, array, shape, concatenate, vstack
 
 
 def f5(seq, idfun=None):  
@@ -24,6 +24,10 @@ class scatReader:
 
     def __init__(self, fileName):
         
+
+        if fileName == "summed":
+            return
+        
         self.modelNames = []
         self.models = []
 
@@ -35,6 +39,68 @@ class scatReader:
         self.phtFlux = self.scat[2].data['PHTFLUX']
         self.phtFluence = self.scat[2].data['PHTFLNC']
         self.covars = self.scat[2].data['COVARMAT']
+
+        # I may take this out at some point
+
+        self.ExtractModels()
+
+
+
+    def __add__(self,other):
+
+        
+
+        if other.modelNames != self.modelNames:
+            print "modelNames do not match"
+            return
+          
+        new = scatReader('summed')
+        new.modelNames = self.modelNames
+        new.numParams = self.numParams
+        new.paramNames = self.paramNames
+
+        new.tBins = concatenate((self.tBins,other.tBins))
+        new.meanTbins=map(mean,new.tBins)
+        
+        new.phtFlux = concatenate((self.phtFlux,other.phtFlux))
+
+        new.phtFluence = concatenate((self.phtFluence,other.phtFluence))
+
+        new.covars = concatenate((self.covars,other.covars))
+
+
+
+
+
+        tmp1 = []
+
+    
+        dicString = ['values','errors']
+
+        
+        for x in self.modelNames:
+            
+            
+            errors = concatenate((self.models[x]['errors'], other.models[x]['errors']  ))
+            values = concatenate((self.models[x]['values'], other.models[x]['values'] ) )
+
+
+
+            tmp = dict(zip(dicString,[values,errors]))
+            
+            tmp1.append(tmp)
+
+
+        new.models = dict(zip(self.modelNames,tmp1))
+
+            
+              
+
+        return new 
+
+
+
+
 
 
     def ExtractModels(self):
