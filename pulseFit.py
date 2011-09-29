@@ -1,7 +1,7 @@
 from scipy.optimize import curve_fit
 from matplotlib.widgets import RadioButtons, Button
 import matplotlib.pyplot as plt
-from numpy import mean, zeros, matrix, sqrt
+from numpy import mean, zeros, matrix, sqrt, array, linspace
 from TmaxSelector import TmaxSelector
 import pickle
 
@@ -106,7 +106,7 @@ class pulseFit:
 
     def AddPulse(self,event=0):
 
-        if self.numPulse>3:
+        if self.numPulse>=3:
             self.numPulse=1
             self.tMaxSelector.SetNumPoints(self.numPulse)
 
@@ -124,8 +124,19 @@ class pulseFit:
 
     
        # plt.axes(self.fig.get_axes()[0])
+        
+        lowerT=[]
+        upperT=[]
 
-        pl, = self.ax.plot(map(mean,self.tBins),self.data,"go")
+        for x,y in zip (self.tBins, map(mean,self.tBins)  ):
+
+            lowerT.append(abs(x[0]-y))
+            upperT.append(abs(x[1]-y))
+
+
+        
+
+        pl,er,bar, = self.ax.errorbar(map(mean,self.tBins),self.data,fmt='o', color='g', yerr=array(self.errors), xerr=[lowerT,upperT])
         self.pl = pl
 
         self.tMaxSelector = TmaxSelector(pl)
@@ -151,6 +162,49 @@ class pulseFit:
 
       #   self.pl.remove()
         del self.pl
+
+
+    def DisplayFitPlot(self):
+            
+        x = linspace(0,self.tBins.flatten().max(),2)
+
+        def f(t):
+            
+            tmp=[t]
+            #print tmp
+            tmp.extend(self.fitResults.tolist())
+            print tmp
+
+            return apply(self.pulseLookup[self.numPulse-1],tmp.extend(self.fitResults.tolist()))
+
+
+        
+
+        y=f(x)
+
+          
+        lowerT=[]
+        upperT=[]
+
+        for x,y in zip (self.tBins, map(mean,self.tBins)  ):
+
+            lowerT.append(abs(x[0]-y))
+            upperT.append(abs(x[1]-y))
+
+        self.resultFig = figure(2)
+
+
+        resultAx = self.resultFig.add_subplot(111)
+
+
+        resultAx.errorbar(map(mean,self.tBins),self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
+        resultAx.plot(x,y,'r')
+        self.resultFig.canvas.draw()
+
+
+
+
+
 
 ###### Pulse Fitting
 
@@ -222,7 +276,12 @@ class pulseFit:
         print "\nWrote \'pulsefitresults.txt\'\n\n"
 
 
-    
+   
+
+
+
+
+
 
 
  ####################################################       
