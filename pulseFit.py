@@ -34,7 +34,7 @@ class pulseFit:
         flux  = pickle.load(open(fileName))
         
         self.fluxes = flux['fluxes']
-        self.errors = flux['errors']
+        self.errors = array(flux['errors'])
         self.tBins = flux['tBins']
         
         axcolor = 'lightgoldenrodyellow'
@@ -68,7 +68,7 @@ class pulseFit:
 
         self.fluxes =  fluxLC.fluxes
 
-        self.errors =  fluxLC.fluxErrors
+        self.errors =  array(fluxLC.fluxErrors)
         self.tBins = fluxLC.tBins
 
         self.models = fluxLC.modelNames
@@ -166,23 +166,20 @@ class pulseFit:
 
     def DisplayFitPlot(self):
             
-        x = linspace(0,self.tBins.flatten().max(),2)
+        m = linspace(0,self.tBins.flatten().max(),1000)
 
         def f(t):
             
             tmp=[t]
             #print tmp
             tmp.extend(self.fitResults.tolist())
-            print tmp
+         
+            return apply(self.pulseLookup[self.numPulse-1],tmp)
 
-            return apply(self.pulseLookup[self.numPulse-1],tmp.extend(self.fitResults.tolist()))
 
+        n = array(map(f,m))
 
-        
-
-        y=f(x)
-
-          
+   
         lowerT=[]
         upperT=[]
 
@@ -191,14 +188,14 @@ class pulseFit:
             lowerT.append(abs(x[0]-y))
             upperT.append(abs(x[1]-y))
 
-        self.resultFig = figure(2)
+        self.resultFig = plt.figure(2)
 
 
         resultAx = self.resultFig.add_subplot(111)
 
 
         resultAx.errorbar(map(mean,self.tBins),self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
-        resultAx.plot(x,y,'r')
+        resultAx.plot(m,n,'r')
         self.resultFig.canvas.draw()
 
 
@@ -236,6 +233,35 @@ class pulseFit:
 
        self.fitResults = popt
        self.fitCov = pcov
+
+       self.GoodnessOfFit()
+
+
+    def GoodnessOfFit(self):
+
+
+        def f(t):
+            
+            tmp=[t]
+            #print tmp
+            tmp.extend(self.fitResults.tolist())
+         
+            return apply(self.pulseLookup[self.numPulse-1],tmp)
+        
+
+        n = array(map(f, map(mean,self.tBins)  ))
+
+
+        tmp = ((self.data - n)**2)/self.errors**2
+
+        chi2 =  tmp.sum()
+
+        dof = len(self.data) - 5*self.numPulse - 1
+
+        print "\nReduced Chi2: "+str(chi2/dof)
+
+
+
 
 
 
