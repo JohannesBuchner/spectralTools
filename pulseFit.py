@@ -291,15 +291,42 @@ class pulseFit:
 
 
     def SaveFit(self):
-         
+        '''
+        Save the fit results to a dictionary in the form of dic['<param>'][pulseNumber][val,err]
+
+        '''
+
+        fitParams = ['c','r','d','tmax', 'fmax']
 
         errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
-         
-        f=open('pulsefitresults.txt','w')
-        for x,y in zip(self.fitResults,errors):
-            write(str(x)+'\t'+str(y))
         
-        print "\nWrote \'pulsefitresults.txt\'\n\n"
+        saveList = []
+
+        for i in range( len(fitParams) ):
+            
+            tmpRow=[]
+
+            for j in range(self.numPulse):
+                
+                tmp = [self.fitResults[i+j*len(fitParams)],errors[i+j*len(fitParams)]]
+                tmpRow.append(tmp)
+            saveList.append(tmpRow)
+
+
+        saveDic = dict (zip(fitParams ,saveList) )
+        
+        pickle.dump(saveDic,open('fitSave.p','w'))
+
+
+
+        
+
+     #   f=open('pulsefitresults.txt','w')
+     
+#   for x,y in zip(self.fitResults,errors):
+ #           f.write(str(x)+'\t'+str(y))
+        
+  #      print "\nWrote \'pulsefitresults.txt\'\n\n"
 
 
    

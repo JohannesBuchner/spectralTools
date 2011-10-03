@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from numpy import log10, log, linspace
-from fitexy import fitexy
-
+from mpfitexy import mpfitexy
+import pickle
 
 def HIC(x,E0,F0,index):
 
@@ -20,7 +20,7 @@ def HFC(x,E0,phi0):
 class correlation:
 
 
-    def __init__(self,scat,model='Band'):
+    def __init__(self,scat,model='Band\'s GRB, Epeak'):
 
     
 
@@ -28,9 +28,10 @@ class correlation:
 
         self.params = scat.models[model]
         
-        self.tBins = self.scat.tBins
+        self.tBins = scat.tBins
 
-
+        self.timeIndex = 0
+        self.tStop = -1
         self.multiPlot = False
 
 
@@ -39,7 +40,10 @@ class correlation:
         self.figAll = plt.figure()
 
 
-    def LoadFromFluxSave(self,flux,model='total'):
+    def LoadFromFluxSave(self,flux,model='Band\'s GRB, Epeak'):
+
+        flux=pickle.load(open(flux))
+        
 
         self.flux=flux['fluxes'][model]
         self.fluxError = flux['errors']
@@ -60,38 +64,81 @@ class correlation:
         self.t90 = self.fluence.cumsum()
 
 
-    def SetDecatPhase(self, fitResult, pulseNum = 1   , tStop=None):
+    def SetDecayPhase(self, fitResult, pulseNum = 1, tStop=-1,param='Epeak'):
 
+
+        fit =  pickle.load(open(fitResult))
+
+
+        # Select the max time of the flux from the fit
+        # This allows one to use onlt the decay phase of hte pulse in the correlations
+        tmax = fit['tmax'][pulseNum-1][0]
+    
+        self.tStop = tStop
         
+        for i in range(len(self.tBins)):
+            
+            if (self.tBins[i,0]<tmax) and (self.tBins[i,1]>tmax):
+
+                self.timeIndex = i
 
 
+        self.F0 = fit['fmax'][pulseNum-1][0]
+        self.E0 = self.params['values'][param][self.timeIndex]
 
 
-    def ComputeHIC(self,param='Epeak',F0,E0):
+    def HICfromPulseFit(self):
+
+        self.ComputeHIC(self.F0,self.E0)
 
 
-        xData = self.params['values'][param]/E0
-        xErr = self.params['errors'][param]
-        yData = self.flux
-        yErr = self.fluxError 
+    def ComputeHIC(self,F0,E0,param='Epeak'):
+
+
+        xData = self.params['values'][param][self.timeIndex:self.tStop]/E0
+        xErr = self.params['errors'][param][self.timeIndex:self.tStop]/E0
+        yData = self.flux[self.timeIndex:self.tStop]
+        yErr = self.fluxError[self.timeIndex:self.tStop]
 
         logXdata, logXerr, = self.ConvertData2Log(xData,xErr)
         logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
+    
 
+       # results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [1,log10(F0)], fixint=True)
 
-        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [1,F0], fixint=True)
+       # index = results[0]
+        
 
         self.hicFig = plt.figure(1)
 
         self.hicAx = self.hicFig.add_subplot(111)
 
+       # x = linspace(xData.min(),xData.max(),1000)
+        #y = HIC(x,E0,F0,index)
+
+
+
+
+        #self.hicAx.loglog(x,y,'r')
+      #  self.hicAx.errorbar(xData,yData,xerr=xErr,yerr=yErr,fmt='o',color='b')
+        self.hicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='o',color='b')
         
+
+    def ComputeHFC(self,E0):
         
+        xData = self.params['values']['Epeak'][self.timeIndex:self.tStop]
+        xErr = self.params['errors']['Epeak'][self.timeIndex:self.tStop]
+
+        self.ComputeFluence()
+
+        yData = self.fluence
+        yErr = self.fluxError
 
         
         
 
-        self.hicAx.loglog()
+
+
 
 
     def ConvertData2Log(self,data,err):
