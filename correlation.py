@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from numpy import log10, log, linspace
+from fitexy import fitexy
 
 
 def HIC(x,E0,F0,index):
@@ -58,16 +60,26 @@ class correlation:
         self.t90 = self.fluence.cumsum()
 
 
+    def SetDecatPhase(self, fitResult, pulseNum = 1   , tStop=None):
+
+        
 
 
-    def ComputeHIC(self,param='Epeak'):
 
 
-        xData = self.params['values'][param]
+    def ComputeHIC(self,param='Epeak',F0,E0):
+
+
+        xData = self.params['values'][param]/E0
         xErr = self.params['errors'][param]
         yData = self.flux
         yErr = self.fluxError 
 
+        logXdata, logXerr, = self.ConvertData2Log(xData,xErr)
+        logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
+
+
+        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [1,F0], fixint=True)
 
         self.hicFig = plt.figure(1)
 
@@ -82,7 +94,17 @@ class correlation:
         self.hicAx.loglog()
 
 
+    def ConvertData2Log(self,data,err):
+
+        logData = log10(data)
+        logErr = err/(data*log(10))
         
+        return [logData,logErr]
+
+
+        
+        
+   
 
         
 
