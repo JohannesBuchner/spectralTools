@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from numpy import log10, log, linspace
+from numpy import log10, log, linspace, array, e, exp
 from mpfitexy import mpfitexy
 import pickle
 
@@ -31,7 +31,7 @@ class correlation:
         self.tBins = scat.tBins
 
         self.timeIndex = 0
-        self.tStop = -1
+        self.tStop = None
         self.multiPlot = False
 
 
@@ -73,7 +73,8 @@ class correlation:
         # Select the max time of the flux from the fit
         # This allows one to use onlt the decay phase of hte pulse in the correlations
         tmax = fit['tmax'][pulseNum-1][0]
-    
+        print tmax
+
         self.tStop = tStop
         
         for i in range(len(self.tBins)):
@@ -84,7 +85,7 @@ class correlation:
 
 
         self.F0 = fit['fmax'][pulseNum-1][0]
-        self.E0 = self.params['values'][param][self.timeIndex]
+        self.E0 = self.params['values'][param][self.timeIndex][0]
 
 
     def HICfromPulseFit(self):
@@ -122,19 +123,58 @@ class correlation:
         #self.hicAx.loglog(x,y,'r')
       #  self.hicAx.errorbar(xData,yData,xerr=xErr,yerr=yErr,fmt='o',color='b')
         self.hicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='o',color='b')
-        
+       
+
+    def HFCfromPulseFit(self):
+
+        self.ComputeHFC(self.E0)
+ 
 
     def ComputeHFC(self,E0):
         
-        xData = self.params['values']['Epeak'][self.timeIndex:self.tStop]
-        xErr = self.params['errors']['Epeak'][self.timeIndex:self.tStop]
+        print 
+
+        yData = self.params['values']['Epeak'][self.timeIndex:self.tStop].flatten()
+        yErr = self.params['errors']['Epeak'][self.timeIndex:self.tStop].flatten()
 
         self.ComputeFluence()
 
-        yData = self.fluence
-        yErr = self.fluxError
+        xData = self.t90[self.timeIndex:self.tStop]
+        xErr = self.fluxError[self.timeIndex:self.tStop]
+
+           
+
+     
+        logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
+
+     
+        self.hfcFig = plt.figure(2)
+        self.hfcAx = self.hfcFig.add_subplot(111)
 
         
+      
+     
+
+
+        results, errors, =  mpfitexy(xData,logYdata,xErr,logYerr, guess = [-2,log10(E0)], fixint=True)
+
+
+        phi0 = -log10(e)/results[0]
+        phi0err = log10(e)/errors[0] ## This is not right
+
+
+        x = linspace(xData.min(),xData.max(),1000)
+        y = HFC(x,E0,phi0)
+
+
+        print phi0
+        print phi0err
+     
+
+
+        self.hfcAx.semilogy(x,y,'r')
+
+        self.hfcAx.errorbar(xData,yData,xerr=xErr,yerr=yErr,fmt='o',color='b')
         
 
 
@@ -146,7 +186,7 @@ class correlation:
         logData = log10(data)
         logErr = err/(data*log(10))
         
-        return [logData,logErr]
+        return [array(logData),array(logErr)]
 
 
         
