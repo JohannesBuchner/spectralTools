@@ -61,7 +61,7 @@ class correlation:
 
         deltaT= array(map(lambda x: x[1]-x[0]  ,self.tBins))
         self.fluence = self.flux*deltaT
-        self.t90 = self.fluence.cumsum()
+        self.t90 = self.fluence[self.timeIndex:self.tStop].cumsum()
 
 
     def SetDecayPhase(self, fitResult, pulseNum = 1, tStop=-1,param='Epeak'):
@@ -139,9 +139,13 @@ class correlation:
 
         self.ComputeFluence()
 
-        xData = self.t90[self.timeIndex:self.tStop]
+        xData = self.t90
         xErr = self.fluxError[self.timeIndex:self.tStop]
 
+   #     print yData
+   #     print yErr
+   #     print xData
+   #     print xErr
            
 
      
@@ -163,7 +167,7 @@ class correlation:
         phi0err = log10(e)/errors[0] ## This is not right
 
 
-        x = linspace(xData.min(),xData.max(),1000)
+        x = linspace(0,xData.max(),1000)
         y = HFC(x,E0,phi0)
 
 
