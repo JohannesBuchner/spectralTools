@@ -12,12 +12,14 @@ class TmaxSelector:
       
         self.numPulse = 1
         self.points=[]
+        #self.tmax=[0]
+        self.points=[]
 
 
     def SetNumPoints(self,num):
 
         self.numPulse = num
-        self.tmax = zeros(num)
+        #self.tmax = zeros(num)
 
 
 

@@ -1,18 +1,30 @@
 import numpy as np
-from numpy import exp
+from numpy import exp, power, float64, array
 
 def Band( x, A, Ep, alpha, beta):
 
-        band = np.piecewise(x, \
-[x< (alpha-beta)*Ep/(2+alpha),x>= (alpha-beta)*Ep/(2+alpha)],
-[lambda x: A*( pow(x/100., alpha) * exp(-x*(2+alpha)/Ep) ), \
-lambda x:A* ( pow( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*pow(x/100,beta))])
+
+	cond1 = x < (alpha-beta)*Ep/(2+alpha)
+	cond2 = x >= (alpha-beta)*Ep/(2+alpha)
+
+
+
+        band = np.piecewise(x, [cond1, cond2],\
+				    [lambda x: A*( power(x/100., alpha) * exp(-x*(2+alpha)/Ep) ), \
+					     lambda x:A* ( power( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*power(x/100,beta))])
 
         return band
 
 def BlackBody(x,A,kT):
 
-    return A*x*x* (1.0/ (exp(x/kT)-1))
+	
+#	print A
+#	print kT
+#	print x
+	val = A*power(x,2)*power(exp(x/float64(kT))-1,-1)
+#	print val
+	#print val
+	return val
 
 def PowerLaw(x, A, Epiv, index):
 

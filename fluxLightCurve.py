@@ -1,6 +1,6 @@
 from models import *
 from scatReader import scatReader
-from scipy.integrate import quadrature
+from scipy.integrate import quad, quadrature
 from numpy import array, sqrt, zeros, vstack
 import pickle
 
@@ -75,9 +75,13 @@ class fluxLightCurve:
     def CalculateFlux(self,modelName,params):
 
         model = self.modelDict[modelName]
+        
+        if modelName == 'Band\'s GRB, Epeak':
+            val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],maxiter=200)
+            return val
+            
 
-
-        val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],maxiter=100)
+        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist())
 
         return val
 
@@ -158,7 +162,44 @@ class fluxLightCurve:
                     
             self.covars.append(array(covar))
 
-            
+    
+
+
+
+    def CreateVariableLightCurve(self,eMin,eMax):
+
+        fluxes = []
+
+        for x in self.modelNames:
+
+            tmp = []
+
+            for pars,emin,emax in zip(self.scat.models[x]['values'],eMin,eMax):
+
+                self.eMin = emin 
+                self.eMax = emax 
+                flux = self.CalculateFlux(x,pars)
+                tmp.append(flux)
+
+
+            fluxes.append(tmp)
+
+       
+        fluxes = map(array,fluxes)
+
+        totFlux = zeros(len(fluxes[0]))
+
+        for x in fluxes:
+            totFlux+=x
+
+        fluxes.append(totFlux)
+
+        tmp = list(self.modelNames)
+        tmp.append('total')
+
+        self.fluxes = dict(zip(tmp,fluxes))
+        
+
 
 
     def CreateLightCurve(self):

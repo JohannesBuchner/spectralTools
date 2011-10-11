@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from numpy import mean, zeros, matrix, sqrt, array, linspace
 from TmaxSelector import TmaxSelector
 import pickle
-
-
+from mpCurveFit import mpCurveFit
+import pyfits as pf
 
 class pulseFit:
 
@@ -23,10 +23,18 @@ class pulseFit:
         self.fig.subplots_adjust(left=0.3)
         self.numPulse = 1
         self.flcFlag = False
+        self.timeOffset = 0.0
+        self.initialValues=[0,1,1,1]
+        self.fixPar = [1,0,0,1,1]
 
         self.pulseLookup=[f1,f2,f3]
 
       
+
+    def ReadTTE(self,tteFile):
+
+        return
+
 
 
     def LoadFlux(self,fileName):
@@ -48,7 +56,9 @@ class pulseFit:
 
         self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
         self.radio.on_clicked(self.Selector)
+        
         self.PlotData()
+        self.FindMax() # Must happen after data is plotted!
 
 
     def SetData(self, flux, errors, tBins):
@@ -61,6 +71,19 @@ class pulseFit:
   
 
 
+    def FindMax(self):
+
+        self.fmax = self.data.max()
+
+        for i in range(len(self.data)):
+            if self.data[i]==self.fmax:
+                self.tmax=[mean(self.tBins[i])]
+                break
+
+        self.initialValues[3]=self.fmax
+        self.tMaxSelector.points  =self.tmax
+        print self.tmax
+        print self.fmax
 
 
     def ReadFluxLC(self,fluxLC):
@@ -88,7 +111,9 @@ class pulseFit:
 
         self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
         self.radio.on_clicked(self.Selector)
+        
         self.PlotData()
+        self.FindMax()
         
 
 ###### Plotting
@@ -136,7 +161,7 @@ class pulseFit:
 
         
 
-        pl,er,bar, = self.ax.errorbar(map(mean,self.tBins),self.data,fmt='o', color='g', yerr=array(self.errors), xerr=[lowerT,upperT])
+        pl,er,bar, = self.ax.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b', yerr=array(self.errors), xerr=[lowerT,upperT])
         self.pl = pl
 
         self.tMaxSelector = TmaxSelector(pl)
@@ -166,13 +191,16 @@ class pulseFit:
 
     def DisplayFitPlot(self):
             
-        m = linspace(0,self.tBins.flatten().max(),1000)
+        m = linspace(0,self.tBins.flatten().max(),1000)+self.timeOffset
+
+        tmpFitResults = array(self.fitResults)
+        tmpFitResults[3]+=self.timeOffset
 
         def f(t):
             
             tmp=[t]
             #print tmp
-            tmp.extend(self.fitResults.tolist())
+            tmp.extend(tmpFitResults.tolist())
          
             return apply(self.pulseLookup[self.numPulse-1],tmp)
 
@@ -188,16 +216,61 @@ class pulseFit:
             lowerT.append(abs(x[0]-y))
             upperT.append(abs(x[1]-y))
 
+        lowerT =array(lowerT)+self.timeOffset
+        upperT = array(upperT)+self.timeOffset
         self.resultFig = plt.figure(2)
 
 
         resultAx = self.resultFig.add_subplot(111)
 
 
-        resultAx.errorbar(map(mean,self.tBins),self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
+        resultAx.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
         resultAx.plot(m,n,'r')
         self.resultFig.canvas.draw()
 
+
+
+
+    def DisplayTestPlot(self,c,r,d,tmax,fmax):
+
+
+            
+        m = linspace(0,self.tBins.flatten().max(),1000)+self.timeOffset
+
+        tmpFitResults = array([c,r,d,tmax,fmax])
+        tmpFitResults[3]+=self.timeOffset
+
+        def f(t):
+            
+            tmp=[t]
+            #print tmp
+            tmp.extend(tmpFitResults.tolist())
+         
+            return apply(self.pulseLookup[self.numPulse-1],tmp)
+
+
+        n = array(map(f,m))
+
+   
+        lowerT=[]
+        upperT=[]
+
+        for x,y in zip (self.tBins, map(mean,self.tBins)  ):
+
+            lowerT.append(abs(x[0]-y))
+            upperT.append(abs(x[1]-y))
+
+        lowerT =array(lowerT)+self.timeOffset
+        upperT = array(upperT)+self.timeOffset
+        self.testFig = plt.figure(2)
+
+
+        resultAx = self.testFig.add_subplot(111)
+
+        resultAx.loglog(m,n,'r')
+        resultAx.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
+        
+        self.testFig.canvas.draw()
 
 
 
@@ -211,6 +284,7 @@ class pulseFit:
        func = self.pulseLookup[self.numPulse-1]
        
        initialValues=[]
+       print 
 
        self.tmax=self.tMaxSelector.GetData()
 
@@ -224,16 +298,21 @@ class pulseFit:
 
        for x in self.tmax:
            #initialValues.extend([.1,-1,-.5,x,1])
-           initialValues.extend([1,1,1,x,1])
+           initialValues.extend([self.initialValues[0],self.initialValues[1],self.initialValues[2],x,self.initialValues[3]])
 
-       #print initialValues
+        #popt, pcov = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues)
+ 
+       limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
 
-       popt, pcov = curve_fit(func, map(mean,self.tBins), self.data.tolist(), sigma=self.errors,p0=initialValues)
+       fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=self.fixPar,limits=limits,maxiter=400) 
 
+       
 
-       self.fitResults = popt
-       self.fitCov = pcov
+   
 
+       self.fitResults = fit.params 
+       self.fitCov = fit.errors
+       self.fitResults[3]-=self.timeOffset
        self.GoodnessOfFit()
 
 
@@ -275,8 +354,8 @@ class pulseFit:
 
 
         fitParams = tuple(fitParams)
-
-        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
+        errors = self.fitCov
+       # errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
 
         print '\n\n*****************************'
         print 'Fit Results:\n'
@@ -298,8 +377,8 @@ class pulseFit:
 
         fitParams = ['c','r','d','tmax', 'fmax']
 
-        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
-        
+#        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
+        errors=self.fitCon
         saveList = []
 
         for i in range( len(fitParams) ):
