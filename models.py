@@ -29,3 +29,7 @@ def BlackBody(x,A,kT):
 def PowerLaw(x, A, Epiv, index):
 
     return A*(x/Epiv)**index
+
+def Compt(x,A,Ep,index,Epiv):
+
+	return A*exp(-x*(2+index)/Ep )*power(x/Epiv,index)

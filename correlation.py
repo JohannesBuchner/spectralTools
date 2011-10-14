@@ -130,7 +130,7 @@ class correlation:
 
      
 
-        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [-1,log10(F0)], fixint=True)
+        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [1,log10(F0)], fixint=True)
 
         index = results[0]
         
@@ -156,10 +156,10 @@ class correlation:
  
 
 
-    def ShowHFC(self, E0):
+    def ShowHFC(self, E0,param='Epeak'):
 
-        yData = self.params['values']['Epeak'][self.timeIndex:self.tStop].flatten()
-        yErr = self.params['errors']['Epeak'][self.timeIndex:self.tStop].flatten()
+        yData = self.params['values'][param][self.timeIndex:self.tStop].flatten()
+        yErr = self.params['errors'][param][self.timeIndex:self.tStop].flatten()
 
         self.ComputeFluence()
 

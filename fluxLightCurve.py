@@ -32,7 +32,7 @@ class fluxLightCurve:
         self.tBins = scat.tBins
         self.modelNames = scat.modelNames
 
-        self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody}
+        self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody,'Comptonized, Epeak':Compt }
 
 
 
