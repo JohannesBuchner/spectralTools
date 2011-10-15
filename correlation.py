@@ -88,9 +88,13 @@ class correlation:
         self.E0 = self.params['values'][param][self.timeIndex][0]
 
 
-    def HICfromPulseFit(self):
+    def HICfromPulseFit(self,indexGuess=2):
 
-        self.ComputeHIC(self.F0,self.E0)
+        #print self.F0
+        #print self.E0
+
+             
+        self.ComputeHIC(self.F0,self.E0,indexGuess=indexGuess)
         
 
 
@@ -105,21 +109,22 @@ class correlation:
         logXdata, logXerr, = self.ConvertData2Log(xData,xErr)
         logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
 
-        self.hicFig = plt.figure(1)
+        self.thicFig = plt.figure(3)
 
-        self.hicAx = self.hicFig.add_subplot(111)
+        self.thicAx = self.thicFig.add_subplot(111)
 
-        self.hicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='-',color='b')
+        plt.xlabel("log("+param+")")
+        plt.ylabel('log(Flux)')
+
+        self.thicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='-',color='b')
       
 
 
-    def ComputeHIC(self,F0,E0,param='Epeak'):
+    def ComputeHIC(self,F0,E0,param='Epeak',indexGuess=2):
 
 
-
-
-        xData = self.params['values'][param][self.timeIndex:self.tStop]/E0
-        xErr = self.params['errors'][param][self.timeIndex:self.tStop]/E0
+        xData = self.params['values'][param][self.timeIndex:self.tStop].flatten()/E0
+        xErr = self.params['errors'][param][self.timeIndex:self.tStop].flatten()/E0
         yData = self.flux[self.timeIndex:self.tStop]
         yErr = self.fluxError[self.timeIndex:self.tStop]
 
@@ -127,27 +132,36 @@ class correlation:
         logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
     
 
+      #  print logYdata
+      #  print logYerr
+      #  print logXerr
+      #  print logXdata
 
      
 
-        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [1,log10(F0)], fixint=True)
+        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [indexGuess,log10(F0)], fixint=True, quiet=0)
 
         index = results[0]
-        
+   
+           
 
         self.hicFig = plt.figure(1)
 
         self.hicAx = self.hicFig.add_subplot(111)
 
-        x = linspace(xData.min(),xData.max(),1000)
+
+        plt.xlabel("log("+param+")")
+        plt.ylabel('log(Flux)')
+        x = linspace(xData.min()*E0,xData.max()*E0,1000)
         y = HIC(x,E0,F0,index)
-
-
-
+        #print yData
+        #print log10(yData)
+    
+        logXdata, logXerr, = self.ConvertData2Log(xData*E0,xErr*E0)
 
         self.hicAx.loglog(x,y,'r')
-      #  self.hicAx.errorbar(xData,yData,xerr=xErr,yerr=yErr,fmt='o',color='b')
-        self.hicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='o',color='b')
+        self.hicAx.errorbar(xData*E0,yData,xerr=xErr*E0,yerr=yErr,fmt='o',color='b')
+        #self.hicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='o',color='b')
        
 
     def HFCfromPulseFit(self):
@@ -168,12 +182,14 @@ class correlation:
 
         logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
 
-        self.hfcFig = plt.figure(2)
-        self.hfcAx = self.hfcFig.add_subplot(111)
+        self.thfcFig = plt.figure(4)
+        self.thfcAx = self.hfcFig.add_subplot(111)
 
 
-        self.hfcAx.errorbar(xData,logYdata,xerr=xErr,yerr=logYerr,fmt='o',color='b')
+        self.thfcAx.errorbar(xData,logYdata,xerr=xErr,yerr=logYerr,fmt='o',color='b')
 
+        plt.xlabel("Time Running Fluence")
+        plt.ylabel("log("+param+")")
         
 
     def ComputeHFC(self,E0):
@@ -200,7 +216,8 @@ class correlation:
      
         self.hfcFig = plt.figure(2)
         self.hfcAx = self.hfcFig.add_subplot(111)
-
+        plt.xlabel("Time Running Fluence")
+        plt.ylabel("log("+param+")")
       
         results, errors, =  mpfitexy(xData,logYdata,xErr,logYerr, guess = [-2,log10(E0)], fixint=True)
 
@@ -217,7 +234,7 @@ class correlation:
         print phi0err
      
 
-
+        
         self.hfcAx.semilogy(x,y,'r')
 
         self.hfcAx.errorbar(xData,yData,xerr=xErr,yerr=yErr,fmt='o',color='b')

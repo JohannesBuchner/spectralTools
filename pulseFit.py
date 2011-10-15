@@ -378,7 +378,7 @@ class pulseFit:
         fitParams = ['c','r','d','tmax', 'fmax']
 
 #        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
-        errors=self.fitCon
+        errors=self.fitCov
         saveList = []
 
         for i in range( len(fitParams) ):
