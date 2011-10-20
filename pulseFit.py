@@ -7,6 +7,8 @@ import pickle
 from mpCurveFit import mpCurveFit
 import pyfits as pf
 
+from lightCurve import lightCurve
+
 class pulseFit:
 
 
@@ -31,7 +33,19 @@ class pulseFit:
 
       
 
-    def ReadTTE(self,tteFile):
+    def ReadTTE(self,tteFile,eMin,eMax,tMin,tMax,dt):
+
+        lc = lightCurve('') # Give it a fake parfile
+        lc.infiles = list(tteFile)
+        lc.ImportData()
+        lc.dt=dt
+        lc.tMax=tMax
+        lc.tMin=tMin
+        lc.eBins = [[eMin,eMax]]
+        lc.bkgFlag=True
+        lc.EnergyBinning()
+        lc.TimeBinning()
+
 
         return
 

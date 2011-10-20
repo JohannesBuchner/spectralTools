@@ -88,13 +88,13 @@ class correlation:
         self.E0 = self.params['values'][param][self.timeIndex][0]
 
 
-    def HICfromPulseFit(self,indexGuess=2):
+    def HICfromPulseFit(self,param='Epeak',indexGuess=2):
 
         #print self.F0
         #print self.E0
 
              
-        self.ComputeHIC(self.F0,self.E0,indexGuess=indexGuess)
+        self.ComputeHIC(self.F0,self.E0,param=param,indexGuess=indexGuess)
         
 
 
@@ -192,7 +192,7 @@ class correlation:
         plt.ylabel("log("+param+")")
         
 
-    def ComputeHFC(self,E0):
+    def ComputeHFC(self,E0,param='Epeak'):
         
         
 
