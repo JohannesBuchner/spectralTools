@@ -1,7 +1,7 @@
 from scipy.optimize import curve_fit
 from matplotlib.widgets import RadioButtons, Button
 import matplotlib.pyplot as plt
-from numpy import mean, zeros, matrix, sqrt, array, linspace
+from numpy import mean, zeros, matrix, sqrt, array, linspace, power
 from TmaxSelector import TmaxSelector
 import pickle
 from mpCurveFit import mpCurveFit
@@ -36,7 +36,7 @@ class pulseFit:
     def ReadTTE(self,tteFile,eMin,eMax,tMin,tMax,dt):
 
         lc = lightCurve('') # Give it a fake parfile
-        lc.infiles = list(tteFile)
+        lc.inFiles = [tteFile]
         lc.ImportData()
         lc.dt=dt
         lc.tMax=tMax
@@ -46,8 +46,11 @@ class pulseFit:
         lc.EnergyBinning()
         lc.TimeBinning()
 
+        self.data = lc.lcBkgSub[0]
+        self.errors = array(map(sqrt,lc.lcBkgSub[0]))
+        self.tBins = array(lc.tBins)
 
-        return
+        self.PlotData()
 
 
 
@@ -345,7 +348,7 @@ class pulseFit:
         n = array(map(f, map(mean,self.tBins)  ))
 
 
-        tmp = ((self.data - n)**2)/self.errors**2
+        tmp = (power((self.data - n),2))/power(self.errors,2)
 
         chi2 =  tmp.sum()
 
