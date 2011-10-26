@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from numpy import log10, log, linspace, array, e, exp
+from numpy import log10, log, linspace, array, e, exp, power, logical_and
 from mpfitexy import mpfitexy
 import pickle
-
+from regionSelector import regionSelector
 def HIC(x,E0,F0,index):
 
     val = F0*(x/E0)**index
@@ -33,6 +33,7 @@ class correlation:
         self.timeIndex = 0
         self.tStop = None
         self.multiPlot = False
+        self.regionSelector = False
 
 
     def SetMultiPlot(self):
@@ -88,13 +89,13 @@ class correlation:
         self.E0 = self.params['values'][param][self.timeIndex][0]
 
 
-    def HICfromPulseFit(self,param='Epeak',indexGuess=2):
+    def HICfromPulseFit(self,param='Epeak',indexGuess=2,fixint=True):
 
         #print self.F0
         #print self.E0
 
-             
-        self.ComputeHIC(self.F0,self.E0,param=param,indexGuess=indexGuess)
+
+        self.ComputeHIC(self.F0,self.E0,param=param,indexGuess=indexGuess,fixint=fixint)
         
 
 
@@ -116,11 +117,11 @@ class correlation:
         plt.xlabel("log("+param+")")
         plt.ylabel('log(Flux)')
 
-        self.thicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='-',color='b')
-      
+        pl, junk, junk2 = self.thicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='-',color='b')
+        return pl
 
 
-    def ComputeHIC(self,F0,E0,param='Epeak',indexGuess=2):
+    def ComputeHIC(self,F0,E0,param='Epeak',indexGuess=2,fixint=True):
 
 
         xData = self.params['values'][param][self.timeIndex:self.tStop].flatten()/E0
@@ -139,11 +140,11 @@ class correlation:
 
      
 
-        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [indexGuess,log10(F0)], fixint=True, quiet=0)
+        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [indexGuess,log10(F0)], fixint=fixint, quiet=0)
 
         index = results[0]
-   
-           
+        F0 = 10**results[1]
+        
 
         self.hicFig = plt.figure(1)
 
@@ -192,7 +193,7 @@ class correlation:
         plt.ylabel("log("+param+")")
         
 
-    def ComputeHFC(self,E0,param='Epeak'):
+    def ComputeHFC(self,E0,param='Epeak', fixint=True):
         
         
 
@@ -219,7 +220,7 @@ class correlation:
         plt.xlabel("Time Running Fluence")
         plt.ylabel("log("+param+")")
       
-        results, errors, =  mpfitexy(xData,logYdata,xErr,logYerr, guess = [-2,log10(E0)], fixint=True)
+        results, errors, =  mpfitexy(xData,logYdata,xErr,logYerr, guess = [-2,log10(E0)], fixint=fixint)
 
 
         phi0 = -log10(e)/results[0]
@@ -265,3 +266,70 @@ class correlation:
 
 
 
+    def RangedHIC(self,param):
+       
+        self.timeIndex = 0
+        self.tStop = None
+        
+        pl = self.ShowHIC(1,param=param)
+        self.rs = regionSelector(pl)
+      
+        print "Select a region  and then call HICfromPulseFit("+param+")"
+    
+
+    def ComputeRangedHIC(self, param):
+
+        
+        data = self.rs.GetData()
+
+        data.sort()
+
+        data = map(lambda x: power(10,x), data )
+        
+        tmp1 = self.params['values'][param].flatten() > data[0]
+        tmp2 = self.params['values'][param].flatten() < data[1]
+
+        truthTable = logical_and(tmp1,tmp2)
+
+        E0 = self.params['values'][param][truthTable].flatten().max()
+
+        xData = self.params['values'][param][truthTable].flatten()/E0
+        xErr = self.params['errors'][param][truthTable].flatten()/E0
+        yData = self.flux[truthTable]
+        yErr = array(self.fluxError)[truthTable]
+
+        logXdata, logXerr, = self.ConvertData2Log(xData,xErr)
+        logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
+
+        F0 = yData.max()
+    
+
+      #  print logYdata
+      #  print logYerr
+      #  print logXerr
+      #  print logXdata
+
+     
+
+        results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [2,log10(F0)], fixint=False, quiet=0)
+
+        index = results[0]
+        F0 = 10**results[1]
+        
+
+        self.hicFig = plt.figure(1)
+
+        self.hicAx = self.hicFig.add_subplot(111)
+
+
+        plt.xlabel("log("+param+")")
+        plt.ylabel('log(Flux)')
+        x = linspace(xData.min()*E0,xData.max()*E0,1000)
+        y = HIC(x,E0,F0,index)
+        #print yData
+        #print log10(yData)
+    
+        logXdata, logXerr, = self.ConvertData2Log(xData*E0,xErr*E0)
+
+        self.hicAx.loglog(x,y,'r')
+        self.hicAx.errorbar(xData*E0,yData,xerr=xErr*E0,yerr=yErr,fmt='o',color='b')
