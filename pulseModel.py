@@ -13,18 +13,16 @@ class pulseModel:
         self.pulseLookup=[self.f1,self.f2,self.f3]
 
 
-    def FixParams(fixArray):
+    def FixParams(self,fixArray):
 
         self.fixPar = fixArray
 
 
-    def SetInitialValues(intialArray):
+    def SetInitialValues(self,intialArray):
 
         self.initialValues = intialArray
 
-    def Refresh():
-
-        pass
+  
 
     
 
@@ -60,7 +58,7 @@ class NorrisPulse(pulseModel):
     def NorrisPulse(self,t,A,tr,td,ts):
 
        f = A*exp(2*(tr/ td)**(1/2) ) * exp( -tr / (t - ts) - (t - ts) / td )
-       return for
+       return f
 
     def f1(self,t,A,tr,td,ts):
         return self.NorrisPulse(t,A,tr,td,ts)
