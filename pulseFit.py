@@ -6,14 +6,15 @@ from TmaxSelector import TmaxSelector
 import pickle
 from mpCurveFit import mpCurveFit
 import pyfits as pf
-
+from pulseModel import KRLPulse, NorrisPulse
 from lightCurve import lightCurve
+from pulseModSelector import pulseModSelector
 
 class pulseFit:
 
 
 
-    def __init__(self):
+    def __init__(self, pms=False):
 
 
         self.data = 0
@@ -26,10 +27,19 @@ class pulseFit:
         self.numPulse = 1
         self.flcFlag = False
         self.timeOffset = 0.0
-        self.initialValues=[0,1,1,1]
-        self.fixPar = [1,0,0,1,1]
 
-        self.pulseLookup=[f1,f2,f3]
+        #check if a pulseModSelector has been passed
+        self.pms = pms
+        if not pms:
+            print "\n\nNo pulseModSelector has been passed"
+            print "Initial values must be set manually!\n\n!"
+
+        
+
+    #    self.initialValues=[0,1,1,1]
+    #    self.fixPar = [1,0,0,1,1]
+
+      #  self.pulseLookup=[f1,f2,f3]
 
       
 
@@ -298,30 +308,35 @@ class pulseFit:
 
     def FitPulse(self,event=0):
 
-       func = self.pulseLookup[self.numPulse-1]
+        if self.pms:
+            #If there is pms then we need to set the right models
+            self.pms.
+
+
+        func = self.pulseLookup[self.numPulse-1]
        
-       initialValues=[]
-       print 
+        initialValues=[]
+        print 
 
-       self.tmax=self.tMaxSelector.GetData()
+        self.tmax=self.tMaxSelector.GetData()
+       
+
+        print "Initial guess(es) for Tmax"
+        for x in self.tmax:
+            print x
+        print  "\n___________\n"
 
 
-       print "Initial guess(es) for Tmax"
-       for x in self.tmax:
-           print x
-       print  "\n___________\n"
 
-
-
-       for x in self.tmax:
+        for x in self.tmax:
            #initialValues.extend([.1,-1,-.5,x,1])
-           initialValues.extend([self.initialValues[0],self.initialValues[1],self.initialValues[2],x,self.initialValues[3]])
+            initialValues.extend([self.initialValues[0],self.initialValues[1],self.initialValues[2],x,self.initialValues[3]])
 
         #popt, pcov = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues)
  
-       limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
+        limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
 
-       fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=self.fixPar,limits=limits,maxiter=400) 
+        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=self.fixPar,limits=limits,maxiter=400) 
 
        
 
@@ -386,7 +401,7 @@ class pulseFit:
         print '\n\n******************************\n'
 
 
-    def SaveFit(self):
+    def SaveFit(self,fileName='fitSave.p'):
         '''
         Save the fit results to a dictionary in the form of dic['<param>'][pulseNumber][val,err]
 
@@ -411,7 +426,7 @@ class pulseFit:
 
         saveDic = dict (zip(fitParams ,saveList) )
         
-        pickle.dump(saveDic,open('fitSave.p','w'))
+        pickle.dump(saveDic,open(fileName,'w'))
 
 
 
@@ -435,21 +450,21 @@ class pulseFit:
 
  ####################################################       
 
-def KRLPulse(t,c,r,d,tmax,fmax):
+#def KRLPulse(t,c,r,d,tmax,fmax):
 
-    f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
-    return f
+#    f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
+#    return f
 
 
 
-def f1(t,c,r,d,tmax,fmax):
-    return KRLPulse(t,c,r,d,tmax,fmax)
+#def f1(t,c,r,d,tmax,fmax):
+#    return KRLPulse(t,c,r,d,tmax,fmax)
 
-def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
-    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)
+#def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
+#    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)
 
-def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
-    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)+KRLPulse(t,c3,r3,d3,tmax3,fmax3)
+#def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
+#    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)+KRLPulse(t,c3,r3,d3,tmax3,fmax3)
     
     
 

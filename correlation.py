@@ -102,8 +102,8 @@ class correlation:
 
     def ShowHIC(self,E0,param='Epeak'):
 
-        xData = self.params['values'][param][self.timeIndex:self.tStop]/E0
-        xErr = self.params['errors'][param][self.timeIndex:self.tStop]/E0
+        xData = self.params['values'][param][self.timeIndex:self.tStop].flatten()/E0
+        xErr = self.params['errors'][param][self.timeIndex:self.tStop].flatten()/E0
         yData = self.flux[self.timeIndex:self.tStop]
         yErr = self.fluxError[self.timeIndex:self.tStop]
 
@@ -126,6 +126,7 @@ class correlation:
 
         xData = self.params['values'][param][self.timeIndex:self.tStop].flatten()/E0
         xErr = self.params['errors'][param][self.timeIndex:self.tStop].flatten()/E0
+
         yData = self.flux[self.timeIndex:self.tStop]
         yErr = self.fluxError[self.timeIndex:self.tStop]
 
@@ -138,7 +139,7 @@ class correlation:
       #  print logXerr
       #  print logXdata
 
-     
+        
 
         results, errors, =  mpfitexy(logXdata,logYdata,logXerr,logYerr, guess = [indexGuess,log10(F0)], fixint=fixint, quiet=0)
 
@@ -161,8 +162,10 @@ class correlation:
         logXdata, logXerr, = self.ConvertData2Log(xData*E0,xErr*E0)
 
         self.hicAx.loglog(x,y,'r')
+
         self.hicAx.errorbar(xData*E0,yData,xerr=xErr*E0,yerr=yErr,fmt='o',color='b')
         #self.hicAx.errorbar(logXdata,logYdata,xerr=logXerr,yerr=logYerr,fmt='o',color='b')
+
        
 
     def HFCfromPulseFit(self):
@@ -184,7 +187,7 @@ class correlation:
         logYdata, logYerr, = self.ConvertData2Log(yData,yErr)
 
         self.thfcFig = plt.figure(4)
-        self.thfcAx = self.hfcFig.add_subplot(111)
+        self.thfcAx = self.thfcFig.add_subplot(111)
 
 
         self.thfcAx.errorbar(xData,logYdata,xerr=xErr,yerr=logYerr,fmt='o',color='b')
