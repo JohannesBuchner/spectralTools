@@ -60,36 +60,36 @@ class NorrisPulse(pulseModel):
 
 # Definitons for the KRL pulse shape
 
-def KRL(t,c,r,d,tmax,fmax):
+def KRL(t,tmax,c,r,d,fmax):
 
         f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
         return f
 
 
-def krl1(t,c,r,d,tmax,fmax):
+def krl1(t,tmax,c,r,d,fmax):
         return KRL(t,c,r,d,tmax,fmax)
 
-def krl2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
-        return KRL(t,c1,r1,d1,tmax1,fmax1)+KRL(t,c2,r2,d2,tmax2,fmax2)
+def krl2(t,tmax1,c1,r1,d1,fmax1,tmax2,c2,r2,d2,fmax2):
+        return KRL(t,tmax1,c1,r1,d1,fmax1)+KRL(t,tmax2,c2,r2,d2,fmax2)
 
-def krl3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
-        return KRL(t,c1,r1,d1,tmax1,fmax1)+KRL(t,c2,r2,d2,tmax2,fmax2)+KRL(t,c3,r3,d3,tmax3,fmax3)
+def krl3(t,tmax1,c1,r1,d1,fmax1,tmax2,c2,r2,d2,fmax2,tmax3,c3,r3,d3,fmax3):
+        return KRL(t,tmax1,c1,r1,d1,fmax1)+KRL(t,tmax2,c2,r2,d2,fmax2)+KRL(t,tmax3,c3,r3,d3,fmax3)
 
 
 
 # Definitons for the Norris pulse shape
 
 
-def Norris(t,A,tr,td,ts):
+def Norris(t,ts,A,tr,td):
 
        f = A*exp(2*(tr/ td)**(1/2) ) * exp( -tr / (t - ts) - (t - ts) / td )
        return f
 
-def n1(t,A,tr,td,ts):
-        return Norris(t,A,tr,td,ts)
+def n1(t,ts,A,tr,td):
+        return Norris(t,ts,A,tr,td)
 
-def n2(t,A1,tr1,td1,ts1,A2,tr2,td2,ts2):
-        return Norris(t,A1,tr1,td1,ts1)+Norris(t,A2,tr2,td2,ts2)
+def n2(t,ts1,A1,tr1,td1,ts2,A2,tr2,td2):
+        return Norris(t,ts1,A1,tr1,td1)+Norris(t,ts2,A2,tr2,td2)
 
-def n3(t,A1,tr1,td1,ts1,A2,tr2,td2,ts2,A3,tr3,td3,ts3):
-        return Norris(t,A1,tr1,td1,ts1)+Norris(t,A2,tr2,td2,ts2)+Norris(t,A3,tr3,td3,ts3)
+def n3(t,ts1,A1,tr1,td1,ts2,A2,tr2,td2,ts3,A3,tr3,td3):
+        return Norris(t,ts1,A1,tr1,td1)+Norris(t,ts2,A2,tr2,td2)+Norris(t,ts3,A3,tr3,td3)

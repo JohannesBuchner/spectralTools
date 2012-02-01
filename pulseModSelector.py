@@ -28,10 +28,10 @@ class pulseModSelector(Tkinter.Frame):
     Tkinter.Label(self, text="tMax").grid(row=1,column=4)
     Tkinter.Label(self, text="fMax").grid(row=1,column=5)
 
-    self.p1a = Tkinter.Entry(self,width=4)
     self.p1b = Tkinter.Entry(self,width=4)
     self.p1c = Tkinter.Entry(self,width=4)
     self.p1d = Tkinter.Entry(self,width=4)
+    self.p1a = Tkinter.Entry(self,width=4)
     self.p1e = Tkinter.Entry(self,width=4)
     self.p1a.grid(row=2,column=1)
     self.p1b.grid(row=2,column=2)
@@ -81,10 +81,10 @@ class pulseModSelector(Tkinter.Frame):
     Tkinter.Label(self, text="td").grid(row=5,column=3)
     Tkinter.Label(self, text="ts").grid(row=5,column=4)
 
-    self.p2a = Tkinter.Entry(self,width=4)
     self.p2b = Tkinter.Entry(self,width=4)
     self.p2c = Tkinter.Entry(self,width=4)
     self.p2d = Tkinter.Entry(self,width=4)
+    self.p2a = Tkinter.Entry(self,width=4)
     self.p2a.grid(row=6,column=1)
     self.p2b.grid(row=6,column=2)
     self.p2c.grid(row=6,column=3)

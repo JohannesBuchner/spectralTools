@@ -135,7 +135,7 @@ class pulseFit:
         # Tmax value to what is found
         if self.pms:
             if self.pms.pulseInt.get() == 0:
-                self.pms.p1d.insert(0,str(self.tmax[0]))
+                self.pms.p1a.insert(0,str(self.tmax[0]))
                 
 
     def ReadFluxLC(self,fluxLC):
@@ -365,11 +365,21 @@ class pulseFit:
         self.tmax=self.tMaxSelector.GetData()
        
 
-        print  "\n_________________________________\n"
+        print "\n_________________________________\n"
         print "Initial guess(es) for Tmax"
         for x in self.tmax:
             print x
-        print  "\n_________________________________\n"
+        print "\n_________________________________\n"
+
+
+        if len(self.tmax)>1:
+            tmp1 = []
+            for x in self.tmax:
+                tmp2 = initialValues
+                tmp2[0] = x
+                tmp1.extend(tmp2)
+            print tmp1
+            intialvalues = tmp1
 
 
 
@@ -388,15 +398,16 @@ class pulseFit:
         fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=pulseMod.GetFixedParams(),maxiter=400) 
 
        
-
-   
-
         self.fitResults = fit.params 
         self.fitCov = fit.errors
         self.fitResults[3]-=self.timeOffset
         self.GoodnessOfFit()
         self.DisplayFitResults()
         self.DisplayFitPlot()
+
+
+
+
 
 
     def GoodnessOfFit(self):
@@ -441,7 +452,7 @@ class pulseFit:
 
 
 
-        fitParams = [['c: ','r: ','d: ','tmax: ', 'fmax: '],['A: ','tr: ','td: ','ts: ']][pulseMod]
+        fitParams = [['tmax: ','c: ','r: ','d: ', 'fmax: '],['ts: ','A: ','tr: ','td: ']][pulseMod]
 
         for i in range(self.numPulse-1):
             fitParams.extend(fitParams)
@@ -468,8 +479,11 @@ class pulseFit:
         Save the fit results to a dictionary in the form of dic['<param>'][pulseNumber][val,err]
 
         '''
+        if self.pms:
+            #If there is pms then we need to set the right models
+            pulseMod = self.pms.pulseInt.get()
 
-        fitParams = ['c','r','d','tmax', 'fmax']
+        fitParams = (['tmax','c','r','d', 'fmax'],['ts','A','tr','td'])[pulseMod]
 
 #        errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
         errors=self.fitCov
