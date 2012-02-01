@@ -129,10 +129,10 @@ class fileDialog(Tkinter.Frame):
 
     # open file on your own
     if filename:
-     pf.SaveFit(filename)
+     self.pf.SaveFit(filename)
 
 
 if __name__=='__main__':
   root = Tkinter.Tk()
   fileDialog(root,'').pack()
-  root.mainloop()
+ # root.mainloop()

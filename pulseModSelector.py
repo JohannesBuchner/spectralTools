@@ -9,7 +9,7 @@ class pulseModSelector(Tkinter.Frame):
 
     #Grab the pulseFit module
     self.pf = pulsefit 
-
+    self.pf.SetPulseModSelector(self)
     # options for buttons
     button_opt = {'padx': 5, 'pady': 10}
 

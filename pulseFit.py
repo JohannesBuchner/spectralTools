@@ -14,7 +14,7 @@ class pulseFit:
 
 
 
-    def __init__(self, pms=False):
+    def __init__(self):
 
 
         self.data = 0
@@ -22,29 +22,44 @@ class pulseFit:
         self.tBins = 0
 
         self.fig = plt.figure(1) 
-        self.ax = self.fig.add_subplot(111)
+        self.ax = self.fig.add_subplot(111,title="Pulse Display")
         self.fig.subplots_adjust(left=0.3)
         self.numPulse = 1
         self.flcFlag = False
         self.timeOffset = 0.0
 
+        self.resultAx =False
+
         #check if a pulseModSelector has been passed
-        self.pms = pms
-        if not pms:
-            print "\n\nNo pulseModSelector has been passed"
-            print "Initial values must be set manually!\n\n!"
-
+        self.pms = False
         
-
     #    self.initialValues=[0,1,1,1]
     #    self.fixPar = [1,0,0,1,1]
 
       #  self.pulseLookup=[f1,f2,f3]
 
-      
+        ax = plt.axes([.05, 0.05, 0.12, 0.08])
+        self.addButton = Button(ax,'Add Pulse',color='0.95', hovercolor='0.45')
+        self.addButton.on_clicked(self.AddPulse)
+
+        ax2 = plt.axes([.05, 0.15, 0.12, 0.08])
+        self.findMaxButton = Button(ax2,'Find Max',color='0.95', hovercolor='0.45')
+        self.findMaxButton.on_clicked(self.FindMax)
+
+        ax3 = plt.axes([.05, 0.25, 0.12, 0.08])
+        self.fitButton = Button(ax3,'Fit',color='0.95', hovercolor='0.45')
+        self.fitButton.on_clicked(self.FitPulse)
+
+
+    def SetPulseModSelector(self,pms):
+
+        self.pms = pms
+
 
     def ReadTTE(self,tteFile,eMin,eMax,tMin,tMax,dt):
 
+
+        print "\n\nReading TTE data. This will CRASH if there are no background files!!!!\n\n"
         lc = lightCurve('') # Give it a fake parfile
         lc.inFiles = [tteFile]
         lc.ImportData()
@@ -98,7 +113,7 @@ class pulseFit:
   
 
 
-    def FindMax(self):
+    def FindMax(self,event=0):
 
         self.fmax = self.data.max()
 
@@ -107,11 +122,21 @@ class pulseFit:
                 self.tmax=[mean(self.tBins[i])]
                 break
 
-        self.initialValues[3]=self.fmax
+        #self.initialValues[3]=self.fmax
         self.tMaxSelector.points  =self.tmax
-        print self.tmax
-        print self.fmax
+     
+        print "\n\n###############\t###############\n"
+        print "TMAX: "+str(self.tmax[0])
+        print "FMAX: "+str(self.fmax)
 
+        print "\n\n###############\t###############\n"
+        
+        # This will set the initial value for the KRLPulse
+        # Tmax value to what is found
+        if self.pms:
+            if self.pms.pulseInt.get() == 0:
+                self.pms.p1d.insert(0,str(self.tmax[0]))
+                
 
     def ReadFluxLC(self,fluxLC):
 
@@ -176,6 +201,7 @@ class pulseFit:
 
     
        # plt.axes(self.fig.get_axes()[0])
+        self.ax.cla()
         
         lowerT=[]
         upperT=[]
@@ -194,15 +220,13 @@ class pulseFit:
         self.tMaxSelector = TmaxSelector(pl)
         self.tMaxSelector.SetNumPoints(self.numPulse)
 
-        ax = plt.axes([.05, 0.05, 0.2, 0.32])
-        self.addButton = Button(ax,'Add Pulse')
+       
+        
+     #   ax2 = plt.axes([.05, 0.05, 0.2, 0.32])
+     #   self.findMaxButton = Button(ax2,'Find Max')
+     #   self.findMaxButton.on_clicked(self.FindMax)
 
-        self.addButton.on_clicked(self.AddPulse)
-
-   #     ax = plt.axes([.06, 0.05, 0.2, 0.32])
-   #     self.fitButton = Button(ax,'Fit')
-
-    #    self.fitButton.on_clicked(self.FitPulse)
+  
 
 
 
@@ -217,7 +241,21 @@ class pulseFit:
 
 
     def DisplayFitPlot(self):
+        
+
+        if self.resultAx:
+            self.resultAx.cla()
+        else:  
+            self.resultFig = plt.figure(2)
+            self.resultAx = self.resultFig.add_subplot(111)
             
+
+
+        if self.pms:
+            #If there is pms then we need to set the right models
+            pulseMod = self.pms.GetPulseMod()
+            func = pulseMod.pulseLookup[self.numPulse-1]
+    
         m = linspace(0,self.tBins.flatten().max(),1000)+self.timeOffset
 
         tmpFitResults = array(self.fitResults)
@@ -229,7 +267,7 @@ class pulseFit:
             #print tmp
             tmp.extend(tmpFitResults.tolist())
          
-            return apply(self.pulseLookup[self.numPulse-1],tmp)
+            return apply(func,tmp)
 
 
         n = array(map(f,m))
@@ -245,14 +283,14 @@ class pulseFit:
 
         lowerT =array(lowerT)+self.timeOffset
         upperT = array(upperT)+self.timeOffset
-        self.resultFig = plt.figure(2)
+        
 
 
-        resultAx = self.resultFig.add_subplot(111)
+        
 
 
-        resultAx.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
-        resultAx.plot(m,n,'r')
+        self.resultAx.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
+        self.resultAx.plot(m,n,'r')
         self.resultFig.canvas.draw()
 
 
@@ -260,6 +298,11 @@ class pulseFit:
 
     def DisplayTestPlot(self,c,r,d,tmax,fmax):
 
+
+        if self.pms:
+            #If there is pms then we need to set the right models
+            pulseMod = self.pms.GetPulseMod()
+            func = pulseMod.pulseLookup[self.numPulse-1]
 
             
         m = linspace(0,self.tBins.flatten().max(),1000)+self.timeOffset
@@ -273,7 +316,7 @@ class pulseFit:
             #print tmp
             tmp.extend(tmpFitResults.tolist())
          
-            return apply(self.pulseLookup[self.numPulse-1],tmp)
+            return apply(func,tmp)
 
 
         n = array(map(f,m))
@@ -310,45 +353,58 @@ class pulseFit:
 
         if self.pms:
             #If there is pms then we need to set the right models
-            self.pms.
+            pulseMod = self.pms.GetPulseMod()
+            func = pulseMod.pulseLookup[self.numPulse-1]
 
 
-        func = self.pulseLookup[self.numPulse-1]
+       # func = self.pulseLookup[self.numPulse-1]
        
-        initialValues=[]
+        initialValues=pulseMod.GetInitialValues()
         print 
 
         self.tmax=self.tMaxSelector.GetData()
        
 
+        print  "\n_________________________________\n"
         print "Initial guess(es) for Tmax"
         for x in self.tmax:
             print x
-        print  "\n___________\n"
+        print  "\n_________________________________\n"
 
 
 
-        for x in self.tmax:
-           #initialValues.extend([.1,-1,-.5,x,1])
-            initialValues.extend([self.initialValues[0],self.initialValues[1],self.initialValues[2],x,self.initialValues[3]])
+        #for x in self.tmax:
+        #   #initialValues.extend([.1,-1,-.5,x,1])
+        #    initialValues.extend([self.initialValues[0],self.initialValues[1],self.initialValues[2],x,self.initialValues[3]])
 
         #popt, pcov = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues)
  
-        limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
+        #limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
 
-        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=self.fixPar,limits=limits,maxiter=400) 
+        #fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=pulseMod.GetFixedParams(),limits=limits,maxiter=400) 
+
+
+        # I've removed the limits for now I should add them in later.
+        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=pulseMod.GetFixedParams(),maxiter=400) 
 
        
 
    
 
-       self.fitResults = fit.params 
-       self.fitCov = fit.errors
-       self.fitResults[3]-=self.timeOffset
-       self.GoodnessOfFit()
+        self.fitResults = fit.params 
+        self.fitCov = fit.errors
+        self.fitResults[3]-=self.timeOffset
+        self.GoodnessOfFit()
+        self.DisplayFitResults()
+        self.DisplayFitPlot()
 
 
     def GoodnessOfFit(self):
+
+        if self.pms:
+            #If there is pms then we need to set the right models
+            pulseMod = self.pms.GetPulseMod()
+            func = pulseMod.pulseLookup[self.numPulse-1]
 
 
         def f(t):
@@ -357,7 +413,7 @@ class pulseFit:
             #print tmp
             tmp.extend(self.fitResults.tolist())
          
-            return apply(self.pulseLookup[self.numPulse-1],tmp)
+            return apply(func,tmp)
         
 
         n = array(map(f, map(mean,self.tBins)  ))
@@ -378,8 +434,14 @@ class pulseFit:
 
     def DisplayFitResults(self):
 
+        if self.pms:
+            #If there is pms then we need to set the right models
+            pulseMod = self.pms.pulseInt.get()
+            
 
-        fitParams = ['c: ','r: ','d: ','tmax: ', 'fmax: ']
+
+
+        fitParams = [['c: ','r: ','d: ','tmax: ', 'fmax: '],['A: ','tr: ','td: ','ts: ']][pulseMod]
 
         for i in range(self.numPulse-1):
             fitParams.extend(fitParams)
