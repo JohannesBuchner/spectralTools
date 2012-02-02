@@ -1,5 +1,5 @@
 from scipy.optimize import curve_fit
-from matplotlib.widgets import RadioButtons, Button
+from matplotlib.widgets import RadioButtons, Button, CheckButtons
 import matplotlib.pyplot as plt
 from numpy import mean, zeros, matrix, sqrt, array, linspace, power
 from TmaxSelector import TmaxSelector
@@ -9,7 +9,7 @@ import pyfits as pf
 from pulseModel import KRLPulse, NorrisPulse
 from lightCurve import lightCurve
 from pulseModSelector import pulseModSelector
-import matplotlib 
+#import matplotlib 
 
 
 
@@ -36,6 +36,7 @@ class pulseFit:
         self.timeOffset = 0.0
 
         self.resultAx =False
+        self.useSelector = False
 
         #check if a pulseModSelector has been passed
         self.pms = False
@@ -59,6 +60,22 @@ class pulseFit:
         self.fitButton.on_clicked(self.FitPulse)
 
 
+
+        ax4 = plt.axes([.05, 0.45, 0.12, 0.08])
+        self.useSelectorCheck = CheckButtons(ax4, ["Selector"], [False] )
+        self.useSelectorCheck.on_clicked(self.UseSelector)
+
+        
+    def UseSelector(self,event=0):
+        if self.useSelector:
+            self.useSelector = False
+        else:
+            self.useSelector = True
+
+     #   print self.useSelector
+
+
+
     def SetPulseModSelector(self,pms):
 
         self.pms = pms
@@ -79,8 +96,11 @@ class pulseFit:
         lc.EnergyBinning()
         lc.TimeBinning()
 
+        
+
+
         self.data = lc.lcBkgSub[0]
-        self.errors = array(map(sqrt,lc.lcBkgSub[0]))
+        self.errors = array(map(sqrt,lc.bkgSum[0]+lc.lc[0]))
         self.tBins = array(lc.tBins)
 
         self.PlotData()
@@ -101,7 +121,7 @@ class pulseFit:
  #       self.radioFig = plt.figure(2)
 
         if self.radio:
-            del self.radio
+            #del self.radio
             self.radioAx.cla()
 #
         self.radioAx = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
@@ -239,11 +259,11 @@ class pulseFit:
     def DisplayFitPlot(self):
         
 
-        if self.resultAx:
-            self.resultAx.cla()
-        else:  
-            self.resultFig = plt.figure(2)
-            self.resultAx = self.resultFig.add_subplot(111)
+        #if self.resultAx:
+        #    self.resultAx.cla()
+        #else:  
+        self.resultFig = plt.figure(2)
+        self.resultAx = self.resultFig.add_subplot(111)
 
 
         if self.pms:
@@ -365,22 +385,27 @@ class pulseFit:
 
        
         tmp1 = []
+        tmp3=[]
         for x in self.tmax:
             tmp2 = initialValues
-            tmp2[0] = x
+            if self.useSelector:
+                tmp2[0] = x
             tmp1.extend(tmp2)
-        print tmp1
+            tmp3.extend(pulseMod.GetFixedParams())
+        
         intialValues = tmp1
+        fixPar=tmp3
 
 
 
           #limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
 
-        print initialValues
+   #     print initialValues
+   #     print fixPar
 
 
         # I've removed the limits for now I should add them in later.
-        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=pulseMod.GetFixedParams(),maxiter=400) 
+        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400) 
 
        
         self.fitResults = fit.params 
@@ -447,7 +472,7 @@ class pulseFit:
         errors = self.fitCov
        # errors = map(sqrt, matrix(self.fitCov).diagonal().tolist()[0] )
 
-        print '\n\n*****************************'
+        print '\n\n********************************'
         print 'Fit Results:\n'
 
         for x,y,z in zip(fitParams,self.fitResults,errors):

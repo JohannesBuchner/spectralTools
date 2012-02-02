@@ -67,7 +67,7 @@ def KRL(t,tmax,c,r,d,fmax):
 
 
 def krl1(t,tmax,c,r,d,fmax):
-        return KRL(t,c,r,d,tmax,fmax)
+        return KRL(t,tmax,c,r,d,fmax)
 
 def krl2(t,tmax1,c1,r1,d1,fmax1,tmax2,c2,r2,d2,fmax2):
         return KRL(t,tmax1,c1,r1,d1,fmax1)+KRL(t,tmax2,c2,r2,d2,fmax2)
