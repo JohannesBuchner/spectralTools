@@ -33,10 +33,10 @@ class pulseModSelector(Tkinter.Frame):
     self.p1d = Tkinter.Entry(self,width=4)
     self.p1a = Tkinter.Entry(self,width=4)
     self.p1e = Tkinter.Entry(self,width=4)
-    self.p1a.grid(row=2,column=1)
+    self.p1a.grid(row=2,column=4)
     self.p1b.grid(row=2,column=2)
     self.p1c.grid(row=2,column=3)
-    self.p1d.grid(row=2,column=4)
+    self.p1d.grid(row=2,column=1)
     self.p1e.grid(row=2,column=5)
     
     
@@ -59,10 +59,10 @@ class pulseModSelector(Tkinter.Frame):
 
 
     Tkinter.Label(self, text="Fix: ", fg="blue").grid(row=3,column=0)
-    Tkinter.Checkbutton(self,variable=self.f1a, onvalue=1, offvalue=0 ).grid(row=3,column=1)
-    Tkinter.Checkbutton(self,variable=self.f1b, onvalue=1, offvalue=0 ).grid(row=3,column=2)
-    Tkinter.Checkbutton(self,variable=self.f1c, onvalue=1, offvalue=0 ).grid(row=3,column=3)
-    Tkinter.Checkbutton(self,variable=self.f1d, onvalue=1, offvalue=0 ).grid(row=3,column=4)
+    Tkinter.Checkbutton(self,variable=self.f1a, onvalue=1, offvalue=0 ).grid(row=3,column=4)
+    Tkinter.Checkbutton(self,variable=self.f1b, onvalue=1, offvalue=0 ).grid(row=3,column=1)
+    Tkinter.Checkbutton(self,variable=self.f1c, onvalue=1, offvalue=0 ).grid(row=3,column=2)
+    Tkinter.Checkbutton(self,variable=self.f1d, onvalue=1, offvalue=0 ).grid(row=3,column=3)
     Tkinter.Checkbutton(self,variable=self.f1e, onvalue=1, offvalue=0 ).grid(row=3,column=5)
 
    
@@ -76,19 +76,19 @@ class pulseModSelector(Tkinter.Frame):
     Tkinter.Radiobutton(self, text="Norris", variable=pulseInt, value=1).grid(row=4,column=0,**button_opt)
 
     # Lables and entry for the starting parameters for the KRL pulse model 
-    Tkinter.Label(self, text="A").grid(row=5,column=1)
-    Tkinter.Label(self, text="tr").grid(row=5,column=2)
-    Tkinter.Label(self, text="td").grid(row=5,column=3)
-    Tkinter.Label(self, text="ts").grid(row=5,column=4)
+    Tkinter.Label(self, text="A").grid(row=5,column=4)
+    Tkinter.Label(self, text="tr").grid(row=5,column=1)
+    Tkinter.Label(self, text="td").grid(row=5,column=2)
+    Tkinter.Label(self, text="ts").grid(row=5,column=3)
 
     self.p2b = Tkinter.Entry(self,width=4)
     self.p2c = Tkinter.Entry(self,width=4)
     self.p2d = Tkinter.Entry(self,width=4)
     self.p2a = Tkinter.Entry(self,width=4)
-    self.p2a.grid(row=6,column=1)
-    self.p2b.grid(row=6,column=2)
-    self.p2c.grid(row=6,column=3)
-    self.p2d.grid(row=6,column=4)
+    self.p2a.grid(row=6,column=4)
+    self.p2b.grid(row=6,column=1)
+    self.p2c.grid(row=6,column=2)
+    self.p2d.grid(row=6,column=3)
 
     self.p2a.insert(0,"1")
     self.p2b.insert(0,"1")

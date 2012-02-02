@@ -9,6 +9,13 @@ import pyfits as pf
 from pulseModel import KRLPulse, NorrisPulse
 from lightCurve import lightCurve
 from pulseModSelector import pulseModSelector
+import matplotlib 
+
+
+
+
+#plt.switch_backend( 'TkAgg')
+#plt.ion()
 
 class pulseFit:
 
@@ -32,6 +39,7 @@ class pulseFit:
 
         #check if a pulseModSelector has been passed
         self.pms = False
+        self.radio = False
         
     #    self.initialValues=[0,1,1,1]
     #    self.fixPar = [1,0,0,1,1]
@@ -91,16 +99,20 @@ class pulseFit:
 
 
  #       self.radioFig = plt.figure(2)
+
+        if self.radio:
+            del self.radio
+            self.radioAx.cla()
 #
-        ax = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
+        self.radioAx = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
 
         self.data = self.fluxes['total']
 
-        self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
+        self.radio = RadioButtons(self.radioAx,tuple(self.fluxes.keys()))
         self.radio.on_clicked(self.Selector)
         
         self.PlotData()
-        self.FindMax() # Must happen after data is plotted!
+        #self.FindMax() # Must happen after data is plotted!
 
 
     def SetData(self, flux, errors, tBins):
@@ -123,7 +135,7 @@ class pulseFit:
                 break
 
         #self.initialValues[3]=self.fmax
-        self.tMaxSelector.points  =self.tmax
+        self.tMaxSelector.points  = self.tmax
      
         print "\n\n###############\t###############\n"
         print "TMAX: "+str(self.tmax[0])
@@ -135,6 +147,7 @@ class pulseFit:
         # Tmax value to what is found
         if self.pms:
             if self.pms.pulseInt.get() == 0:
+                self.pms.p1a.delete(0,100)
                 self.pms.p1a.insert(0,str(self.tmax[0]))
                 
 
@@ -161,11 +174,16 @@ class pulseFit:
 
         self.data = self.fluxes['total']
 
-        self.radio = RadioButtons(ax,tuple(self.fluxes.keys()))
+        if self.radio:
+            del self.radio
+            self.radioAx.cla()
+
+
+        self.radio = RadioButtons(self.radioAx,tuple(self.fluxes.keys()))
         self.radio.on_clicked(self.Selector)
         
         self.PlotData()
-        self.FindMax()
+       # self.FindMax()
         
 
 ###### Plotting
@@ -186,15 +204,10 @@ class pulseFit:
         if self.numPulse>=3:
             self.numPulse=1
             self.tMaxSelector.SetNumPoints(self.numPulse)
-
         else:
-            
-
             self.numPulse+=1
             self.tMaxSelector.SetNumPoints(self.numPulse)
 
-
-   
 
 
     def PlotData(self):
@@ -211,32 +224,15 @@ class pulseFit:
             lowerT.append(abs(x[0]-y))
             upperT.append(abs(x[1]-y))
 
-
-        
-
         pl,er,bar, = self.ax.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b', yerr=array(self.errors), xerr=[lowerT,upperT])
         self.pl = pl
 
         self.tMaxSelector = TmaxSelector(pl)
         self.tMaxSelector.SetNumPoints(self.numPulse)
-
-       
-        
-     #   ax2 = plt.axes([.05, 0.05, 0.2, 0.32])
-     #   self.findMaxButton = Button(ax2,'Find Max')
-     #   self.findMaxButton.on_clicked(self.FindMax)
-
-  
-
-
-
         self.fig.canvas.draw()
-      #  pl.xlabel("T")
-      #  pl.ylabel("Flux")
+
         
     def ResetPlot(self):
-
-      #   self.pl.remove()
         del self.pl
 
 
@@ -248,7 +244,6 @@ class pulseFit:
         else:  
             self.resultFig = plt.figure(2)
             self.resultAx = self.resultFig.add_subplot(111)
-            
 
 
         if self.pms:
@@ -284,10 +279,6 @@ class pulseFit:
         lowerT =array(lowerT)+self.timeOffset
         upperT = array(upperT)+self.timeOffset
         
-
-
-        
-
 
         self.resultAx.errorbar(array(map(mean,self.tBins))+self.timeOffset,self.data,fmt='o', color='b',yerr=array(self.errors), xerr=[lowerT,upperT])
         self.resultAx.plot(m,n,'r')
@@ -360,7 +351,7 @@ class pulseFit:
        # func = self.pulseLookup[self.numPulse-1]
        
         initialValues=pulseMod.GetInitialValues()
-        print 
+       
 
         self.tmax=self.tMaxSelector.GetData()
        
@@ -372,26 +363,20 @@ class pulseFit:
         print "\n_________________________________\n"
 
 
-        if len(self.tmax)>1:
-            tmp1 = []
-            for x in self.tmax:
-                tmp2 = initialValues
-                tmp2[0] = x
-                tmp1.extend(tmp2)
-            print tmp1
-            intialvalues = tmp1
+       
+        tmp1 = []
+        for x in self.tmax:
+            tmp2 = initialValues
+            tmp2[0] = x
+            tmp1.extend(tmp2)
+        print tmp1
+        intialValues = tmp1
 
 
 
-        #for x in self.tmax:
-        #   #initialValues.extend([.1,-1,-.5,x,1])
-        #    initialValues.extend([self.initialValues[0],self.initialValues[1],self.initialValues[2],x,self.initialValues[3]])
+          #limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
 
-        #popt, pcov = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues)
- 
-        #limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
-
-        #fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=pulseMod.GetFixedParams(),limits=limits,maxiter=400) 
+        print initialValues
 
 
         # I've removed the limits for now I should add them in later.
