@@ -169,7 +169,10 @@ class lightCurve:
 
         tmp=array(bkg)
 
-        order = tmp.shape[1]
+        if len(tmp.shape)==1:
+            order = 0
+        else:
+            order = tmp.shape[1]
 
         del tmp
         
