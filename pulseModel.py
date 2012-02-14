@@ -37,6 +37,7 @@ class KRLPulse(pulseModel):
     def __init__(self):
         
         self.pulseLookup = [krl1,krl2,krl3]
+        self.limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[0,0],[0,0]],[[0,0],[0,0]],[[1,0],[0,0]] ]
     
 
 
@@ -46,12 +47,13 @@ class NorrisPulse(pulseModel):
 
     def __init__(self):
         self.pulseLookup = [n1,n2,n3]
+        self.limits = [ [[0,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]]]
 
 
 
 
 
-# The pulse shapes have to be help at local scope because 
+# The pulse shapes have to be held at local scope because 
 # mpfit adds extra arguments in at some point and doesn't
 # handle the class aspect of member functions when fitting
 

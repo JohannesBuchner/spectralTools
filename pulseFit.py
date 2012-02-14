@@ -35,6 +35,8 @@ class pulseFit:
         self.flcFlag = False
         self.timeOffset = 0.0
 
+        self.tMaxSelector = 0
+
         self.resultAx =False
         self.useSelector = False
 
@@ -82,6 +84,16 @@ class pulseFit:
 
 
     def ReadTTE(self,tteFile,eMin,eMax,tMin,tMax,dt):
+
+
+        self.data = 0
+        self.errors = 0
+        self.tBins = 0
+
+        self.numPulse = 1
+
+        if self.tMaxSelector != 0:
+            del self.tMaxSelector
 
 
         print "\n\nReading TTE data. This will CRASH if there are no background files!!!!\n\n"
@@ -375,37 +387,46 @@ class pulseFit:
 
         self.tmax=self.tMaxSelector.GetData()
        
+        if self.tmax == []:
+            fixPar = pulseMod.GetFixedParams()
+            limits = pulseMod.limits
+            initialValues = pulseMod.GetInitialValues()
 
-        print "\n_________________________________\n"
-        print "Initial guess(es) for Tmax"
-        for x in self.tmax:
-            print x
-        print "\n_________________________________\n"
+        else:
+
+            print "\n_________________________________\n"
+            print "Initial guess(es) for Tmax"
+            for x in self.tmax:
+                print x
+                print "\n_________________________________\n"
+
+
+            limits = []
+       
+            tmp1 = []
+            tmp3=[]
+            for x in self.tmax:
+                tmp2 = initialValues
+                if self.useSelector:
+                    tmp2[0] = x
+                tmp1.extend(tmp2)
+                tmp3.extend(pulseMod.GetFixedParams())
+                limits.extend(pulseMod.limits)
+            
+            
+        
+            intialValues = tmp1
+            fixPar=tmp3
 
 
        
-        tmp1 = []
-        tmp3=[]
-        for x in self.tmax:
-            tmp2 = initialValues
-            if self.useSelector:
-                tmp2[0] = x
-            tmp1.extend(tmp2)
-            tmp3.extend(pulseMod.GetFixedParams())
-        
-        intialValues = tmp1
-        fixPar=tmp3
-
-
-
-          #limits =[ [[1,0],[0,0]], [[1,0],[0,0]], [[1,0],[0,0]],[[1,0],[0,0]],[[1,0],[0,0]] ]
-
-   #     print initialValues
-   #     print fixPar
-
+        # print limits
+        # print initialValues
+        # print fixPar
+  
 
         # I've removed the limits for now I should add them in later.
-        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400) 
+        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
 
        
         self.fitResults = fit.params 
@@ -516,41 +537,7 @@ class pulseFit:
 
 
 
-        
 
-     #   f=open('pulsefitresults.txt','w')
-     
-#   for x,y in zip(self.fitResults,errors):
- #           f.write(str(x)+'\t'+str(y))
-        
-  #      print "\nWrote \'pulsefitresults.txt\'\n\n"
-
-
-   
-
-
-
-
-
-
-
- ####################################################       
-
-#def KRLPulse(t,c,r,d,tmax,fmax):
-
-#    f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
-#    return f
-
-
-
-#def f1(t,c,r,d,tmax,fmax):
-#    return KRLPulse(t,c,r,d,tmax,fmax)
-
-#def f2(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2):
-#    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)
-
-#def f3(t,c1,r1,d1,tmax1,fmax1,c2,r2,d2,tmax2,fmax2,c3,r3,d3,tmax3,fmax3):
-#    return KRLPulse(t,c1,r1,d1,tmax1,fmax1)+KRLPulse(t,c2,r2,d2,tmax2,fmax2)+KRLPulse(t,c3,r3,d3,tmax3,fmax3)
     
     
 
