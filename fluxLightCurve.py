@@ -33,7 +33,7 @@ class fluxLightCurve:
         self.tBins = scat.tBins
         self.modelNames = scat.modelNames
 
-        self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody,'Comptonized, Epeak':Compt }
+        self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody,'Comptonized, Epeak':Compt,'Total Test Synchrotron': TotalSynchrotron }
 
 
 
@@ -77,12 +77,13 @@ class fluxLightCurve:
 
         model = self.modelDict[modelName]
         
-        if modelName == 'Band\'s GRB, Epeak':
+        if (modelName == 'Band\'s GRB, Epeak'):# or (modelName =='Total Test Synchrotron'):
+            
             val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],maxiter=200)
             return val
             
 
-        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist())
+        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(),epsabs=0., epsrel= 1.e-5 )
 
         return val
 
@@ -128,7 +129,6 @@ class fluxLightCurve:
 
     
         firstDerivates = array(firstDerivates)
-
         tmp = firstDerivates.dot(covar)
 
         errors =  tmp.dot(firstDerivates)
@@ -157,7 +157,8 @@ class fluxLightCurve:
 
        
 
-                    tmp.append(x[i*length+j])
+                    #tmp.append(x[i*length+j])
+                    tmp.append(x[i][j])
 
                 covar.append(tmp)
                     
