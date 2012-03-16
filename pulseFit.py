@@ -34,6 +34,7 @@ class pulseFit:
         self.numPulse = 1
         self.flcFlag = False
         self.timeOffset = 0.0
+        self.currentModelName=[]
 
         self.tMaxSelector = 0
 
@@ -224,6 +225,7 @@ class pulseFit:
 
         self.ax.cla()
         self.data = self.fluxes[label]
+        self.currentModelName=label
         self.tMaxSelector.Kill()
         
         del self.tMaxSelector
@@ -423,10 +425,15 @@ class pulseFit:
         # print limits
         # print initialValues
         # print fixPar
-  
 
-        # I've removed the limits for now I should add them in later.
-        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
+        #### Testing!!!!!
+        dT = array(map(lambda x: x[1] - x[0] ,self.tBins))
+        wData = data*dT
+        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, wData.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
+
+
+        # place back if this does not work
+        #fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
 
        
         self.fitResults = fit.params 

@@ -200,8 +200,8 @@ class correlation:
         
         
 
-        yData = self.params['values']['Epeak'][self.timeIndex:self.tStop].flatten()
-        yErr = self.params['errors']['Epeak'][self.timeIndex:self.tStop].flatten()
+        yData = self.params['values'][param][self.timeIndex:self.tStop].flatten()
+        yErr = self.params['errors'][param][self.timeIndex:self.tStop].flatten()
 
         self.ComputeFluence()
 

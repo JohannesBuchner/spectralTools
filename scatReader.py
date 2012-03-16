@@ -1,6 +1,6 @@
 import pyfits as pf
-from numpy import mean, dtype, float64, array, shape, concatenate, vstack
-
+from numpy import mean, dtype, float64, array, shape, concatenate, vstack, asarray
+from copy import deepcopy
 
 def f5(seq, idfun=None):  
     # order preserving 
@@ -100,6 +100,14 @@ class scatReader:
 
 
 
+    def GetParamArray(self, model,param):
+        
+        paramArr = deepcopy(self.models[model]['values'][param])
+        paramErr = deepcopy(self.models[model]['errors'][param])
+        tmp = asarray([paramArr,paramErr]).transpose()[0]
+        #tmp.dtype = dtype([(float,'value'),(float,'error')])
+        return tmp
+        
 
 
 
