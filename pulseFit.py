@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 from numpy import mean, zeros, matrix, sqrt, array, linspace, power
 from TmaxSelector import TmaxSelector
 import pickle
-from mpCurveFit import mpCurveFit
+#from mpCurveFit import mpCurveFit
+from mpPulseFitEngine import mpPulseFitEngine
 import pyfits as pf
 from pulseModel import KRLPulse, NorrisPulse
 from lightCurve import lightCurve
-from pulseModSelector import pulseModSelector
+
 #import matplotlib 
 
 
@@ -428,8 +429,8 @@ class pulseFit:
 
         #### Testing!!!!!
         dT = array(map(lambda x: x[1] - x[0] ,self.tBins))
-        wData = data*dT
-        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, wData.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
+        wData = self.data*dT
+        fit = mpPulseFitEngine(func, array(map(mean,self.tBins))+self.timeOffset, wData.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits,tBins = self.tBins) 
 
 
         # place back if this does not work
