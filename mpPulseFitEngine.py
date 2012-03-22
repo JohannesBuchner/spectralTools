@@ -38,7 +38,7 @@ class mpPulseFitEngine:
 
 
         def intPulse(thesetBins, *args):
-            print args
+     
             val=[]
             for tBin in thesetBins:
                 

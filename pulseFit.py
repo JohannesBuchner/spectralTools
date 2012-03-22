@@ -45,11 +45,6 @@ class pulseFit:
         #check if a pulseModSelector has been passed
         self.pms = False
         self.radio = False
-        
-    #    self.initialValues=[0,1,1,1]
-    #    self.fixPar = [1,0,0,1,1]
-
-      #  self.pulseLookup=[f1,f2,f3]
 
         ax = plt.axes([.05, 0.05, 0.12, 0.08])
         self.addButton = Button(ax,'Add Pulse',color='0.95', hovercolor='0.45')

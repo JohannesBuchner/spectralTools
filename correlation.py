@@ -258,15 +258,7 @@ class correlation:
 
         
         
-   
-
         
-
-        
-
-
-        
-
 
 
     def RangedHIC(self,param):
