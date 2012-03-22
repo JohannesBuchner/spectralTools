@@ -19,15 +19,20 @@ def BrokenPL(x, norm, indx1, breakPoint, indx2, pivot=1):
                                              lambda x: norm * power( breakPoint / pivot ,indx1-indx2 ) * power(x/pivot, indx2)  ])
     return val
 
+
 def Gaussian(x, norm, mu, sigma):
 
     val = norm * exp(power(x-mu,2.)/(2*sigma**2))
     return val
     
     
-
+def Exponential(x, norm, x0=0.,a=1., b=-1.):
+    
+    val = norm * exp(a*power(x-x0,b))
+    return val
+    
     
 
 
 
-functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL}
+functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential}
