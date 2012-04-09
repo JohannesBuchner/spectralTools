@@ -154,8 +154,7 @@ class fluxLightCurve:
                 tmp = []
 
                 for j in range(length):
-
-       
+                    print len(x )
 
                     #tmp.append(x[i*length+j])
                     tmp.append(x[i][j])

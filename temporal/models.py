@@ -1,5 +1,6 @@
 import numpy as np
-from numpy import exp, power, float64, array, inf, logical_and
+from numpy import exp, power, float64, array, inf
+from instant import header_and_libs_from_pkgconfig, inline_with_numpy
 from pygsl.sf import synchrotron_1 
 import pygsl.errors
 from scipy.integrate import quad, quadrature
@@ -87,18 +88,3 @@ def EDist(A,gamma,eta, gammaTh, index):
 
 	return val
 
-def PowerLaw2Breaks(x, A, pivot, index1, breakE1, index1to2, breakE2, index2):
-	
-	cond1 = x <= breakE1
-	cond2 = logical_and(x > breakE1, x <= breakE2)
-	cond3 = x > breakE2
-	
-	pl2b = np.piecewise(x, [cond1,cond2,cond3],\
-				    [lambda x: power(x/pivot,index1),lambda x:power(breakE1/pivot,index1)*power(x/breakE1,index1to2),lambda x: power(breakE1/pivot,index1)*power(breakE2/breakE1,index1to2)*power(x/breakE2,index2)])
-
-	return A*pl2b
-
-
-
-modelLookup = {"Power Law w. 2 Breaks":PowerLaw2Breaks, "Band's GRB, Epeak": Band, "Total Test Synchrotron": TotalSynchrotron, "Black Body": BlackBody,\
-		"Comptonized, Epeak": Compt, "Power Law": PowerLaw }
