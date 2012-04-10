@@ -62,10 +62,21 @@ class spectraPlotter:
     def GetModel(self,energy):
         
         flux = zeros(len(energy))
+
+        
+
+
         
         for x,y in zip(self.model,self.params):
             
-            flux = flux + x(energy,*y[0][0])
+            if x == self.modelLookup["Total Test Synchrotron"]: # Have to do it bin my bin
+                tmpFlux =[]
+                for en in energy:
+                    tmpFlux.append(x(en,*y[0][0]))
+                tmpFlux = array(tmpFlux)
+                flux = flux +tmpFlux
+            else:
+                flux = flux + x(energy,*y[0][0])
        
         return flux
 
@@ -82,6 +93,7 @@ class spectraPlotter:
             
             if self.phtPlt:
                 self.PhotonPlot()
+
 
             if self.energyPlt:
                 self.EnergyPlot()

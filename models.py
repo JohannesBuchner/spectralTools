@@ -47,6 +47,7 @@ def TotalSynchrotron(x, A, eCrit, eta, index, gammaTh):
 	index = float(index)
 	gammaTh = float(gammaTh)
 
+
 	val,err, = quad(Integrand, 1,inf, args=(x,A,eCrit,eta,index,gammaTh),epsabs=0., epsrel= 1.e-5 )
 	val= val/(x)
 
@@ -54,7 +55,7 @@ def TotalSynchrotron(x, A, eCrit, eta, index, gammaTh):
 
 
 def Integrand( gamma, x ,A, eCrit, eta, index, gammaTh):
-	
+
 	try:
 		val = EDist(A,gamma,eta,gammaTh,index) * synchrotron_1(x/(eCrit*gamma*gamma))[0]
 	except pygsl.errors.gsl_Error, err:
@@ -64,6 +65,8 @@ def Integrand( gamma, x ,A, eCrit, eta, index, gammaTh):
 
 
 def EDist(A,gamma,eta, gammaTh, index):
+
+
 	
 	epsilon = (eta/gammaTh)**(2+index)*exp(-(eta/gammaTh))
 	cond1 = gamma <= eta
