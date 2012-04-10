@@ -6,7 +6,6 @@ from scipy.integrate import quad, quadrature
 
 def Band( x, A, Ep, alpha, beta):
 
-
 	cond1 = x < (alpha-beta)*Ep/(2+alpha)
 	cond2 = x >= (alpha-beta)*Ep/(2+alpha)
 
