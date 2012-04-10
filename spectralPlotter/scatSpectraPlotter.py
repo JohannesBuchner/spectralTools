@@ -12,7 +12,7 @@ class scatSpectraPlotter(spectraPlotter.spectraPlotter):
 
             modelNames = s.modelNames
             params = []
-            for x in modelsNames:
+            for x in modelNames:
                 params.append(s.models[x]['values'])
             
 

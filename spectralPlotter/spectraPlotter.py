@@ -1,35 +1,33 @@
 #from models import *
 import matplotlib.pyplot as plt
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from models import modelLookup
 from numpy import array, zeros
 
 class spectraPlotter:
-'''
-This class can plot several spectral models together
-it can be read from an SCAT or the fitfile made by fitReader
 
-
-
-
-'''
     def __init__(self, multi=True,pht=False,energy=False,vFv=False):
 
-        self.phtFig = plt.Figure(1)
-        self.energyFig = plt.Figure(2)
-        self.vFvFig = plt.Figure(3)
+        self.phtFig = plt.Figure()
+        self.energyFig = plt.Figure()
+        self.vFvFig = plt.Figure()
 
-        self.phtAx = phtFig.add_subplot(111)
-        self.energyAx = energyFig.add_subplot(111)
-        self.vFvAx = vFvFig.add_subplot(111)
+        self.phtAx = self.phtFig.add_subplot(111)
+        self.energyAx = self.energyFig.add_subplot(111)
+        self.vFvAx = self.vFvFig.add_subplot(111)
 
-        self.phtAx.xlabel("Energy (keV)")
-        self.phtAx.ylabel("pht/s/cm2")
+        self.phtAx.set_xlabel("Energy (keV)")
+        self.phtAx.set_ylabel("pht/s/cm2")
 
-        self.energyAx.xlabel("Energy (keV)")
-        self.energyAx.ylabel("ergs/s/cm2")
+        self.energyAx.set_xlabel("Energy (keV)")
+        self.energyAx.set_ylabel("ergs/s/cm2")
 
-        self.vFvAx.xlabel("Energy (keV)")
-        self.vFvAx.ylabel("pht/s/cm2")
+        self.vFvAx.set_xlabel("Energy (keV)")
+        self.vFvAx.set_ylabel("pht/s/cm2")
 
         self.energyPlt = energy
         self.phtPlt = pht
@@ -43,7 +41,7 @@ it can be read from an SCAT or the fitfile made by fitReader
 
 
     def SetFitsFile(self, fName):
-        self.fname = fName
+        self.fName = fName
 
     def SetParams(self,args):
         self.params=args
@@ -83,12 +81,6 @@ it can be read from an SCAT or the fitfile made by fitReader
                 self.vFvPlot()
            
                 
-            
-
-            
-
-
-
 
     def PhotonPlot(self):
 
@@ -111,7 +103,7 @@ it can be read from an SCAT or the fitfile made by fitReader
 
         self.energyAx.loglog(energy,energySpectra)
 
-     def vFvPlot(self):
+    def vFvPlot(self):
 
         eMin = self.GetEMin()
         eMax = self.GetEMax()
@@ -125,9 +117,9 @@ it can be read from an SCAT or the fitfile made by fitReader
      
 class Fit:
 
-    def __inti__(self, modelName, params):
+    def __init__(self, modelName, params):
 
-        self.modelName
+        self.modelName = modelName
         self.params = params
 
     def GetParams(self):
