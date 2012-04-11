@@ -1,6 +1,6 @@
 
-from models import *
-from scatReader import scatReader
+from spectralTools.models import modelLookup
+from spectralTools.scatReader import scatReader
 from scipy.integrate import quad, quadrature
 from numpy import array, sqrt, zeros, vstack
 import pickle
@@ -33,7 +33,7 @@ class fluxLightCurve:
         self.tBins = scat.tBins
         self.modelNames = scat.modelNames
 
-        self.modelDict = {'Band\'s GRB, Epeak': Band, 'Black Body': BlackBody,'Comptonized, Epeak':Compt,'Total Test Synchrotron': TotalSynchrotron }
+        self.modelDict = modelLookup
 
 
 
@@ -154,7 +154,7 @@ class fluxLightCurve:
                 tmp = []
 
                 for j in range(length):
-                    print len(x )
+                   
 
                     #tmp.append(x[i*length+j])
                     tmp.append(x[i][j])
@@ -266,13 +266,13 @@ class fluxLightCurve:
 
 
 
-    def Save(self):
+    def Save(self,fileName='fluxSave.p'):
 
 
         dicString=['fluxes','errors','tBins','energies']
         save = dict(zip(dicString,[self.fluxes,self.fluxErrors,self.tBins,[self.eMin,self.eMax]]))
 
-        pickle.dump(save,open('fluxSave.p','w'))
+        pickle.dump(save,open(fileName,'w'))
         
 
 

@@ -441,6 +441,7 @@ class binnedTTEBlockMaker:
         for x in self.lightcurves:
             times.extend(x[:,0])
 
+        
         times = unique(asarray(times))
         self.mergeTimes = times.tolist()
         
@@ -591,9 +592,10 @@ class binnedTTEBlockMaker:
 
         elif self.merge and self.multi:
             tmpBins = self.mergeTimes
+            step = 1
 
         else:
-            
+            step=2
             tmpBins = self.bb[:,0].tolist()
 
 ###############################################
@@ -606,7 +608,7 @@ class binnedTTEBlockMaker:
         tis=[]
         for j in self.fileTimes:
             ti = []
-            for i in range(0,len(tmpBins),2):
+            for i in range(0,len(tmpBins),step):
                 ti.append(tmpBins[i])
             ti.append(end)
             ti.insert(0,start)

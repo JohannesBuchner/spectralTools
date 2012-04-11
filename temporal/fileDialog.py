@@ -57,10 +57,11 @@ class fileDialog(Tkinter.Frame):
   #  Tkinter.Button(self, text='askdirectory', command=self.askdirectory).pack(**button_opt)
 
     # define options for opening or saving a file
+    lastDir = open(".lastDir").readlines()[0].strip()
     self.file_opt = options = {}
     options['defaultextension'] = '' # couldn't figure out how this works
     options['filetypes'] = [('tte', '*tte*.fit'), ('flux', '*.p')]
-    options['initialdir'] = 'C:\\'
+    options['initialdir'] =lastDir
     #options['initialfile'] = 'myfile.txt'
     options['parent'] = root
     options['title'] = 'Pulse Fitting File Dialog'
@@ -72,11 +73,12 @@ class fileDialog(Tkinter.Frame):
     #options['multiple'] = 1
 
     # defining options for opening a directory
-    self.dir_opt = options = {}
-    options['initialdir'] = 'C:\\'
-    options['mustexist'] = False
-    options['parent'] = root
-    options['title'] = 'This is a title'
+  #  self.dir_opt = options = {}
+  #  lastDir = open(".lastDir").readlines()[0].strip()
+  #  options['initialdir'] = lastDir
+  #  options['mustexist'] = False
+  #  options['parent'] = root
+  #  options['title'] = 'This is a title'
 
 #  def askopenfile(self):
 #
@@ -95,6 +97,7 @@ class fileDialog(Tkinter.Frame):
    # print filename
     if filename:
       self.pf.ReadTTE(filename,float(self.eMinBox.get()),float(self.eMaxBox.get()),float(self.tMinBox.get()),float(self.tMaxBox.get()),float(self.deltaTBox.get()))
+      self.WriteThisDirectory(filename)
     
 
 
@@ -110,6 +113,7 @@ class fileDialog(Tkinter.Frame):
 #    return filename
     if filename:
       self.pf.LoadFlux(filename)
+      self.WriteThisDirectory(filename)
 
 
 #  def asksaveasfile(self):
@@ -130,6 +134,20 @@ class fileDialog(Tkinter.Frame):
     # open file on your own
     if filename:
      self.pf.SaveFit(filename)
+     self.WriteThisDirectory(filename)
+
+  def WriteThisDirectory(self, fName):
+
+    tmp = map(lambda x: x+'/' ,fName.split('/')[:-1])
+    tmp1=''
+    for x in tmp:
+      tmp1=tmp1+x
+
+    f=open('.lastDir','w')
+    f.write(tmp1)
+    f.close()
+
+    
 
 
 if __name__=='__main__':
