@@ -79,7 +79,7 @@ class fluxLightCurve:
         
         if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
             
-            val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=500)
+            val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
             return val
             
 
