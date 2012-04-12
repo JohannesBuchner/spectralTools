@@ -55,6 +55,7 @@ class spectraPlotter:
         
     def SetModel(self,modelName):
         models = []
+        
         for x in modelName:
              models.append(self.modelLookup[x])
         self.model=models
