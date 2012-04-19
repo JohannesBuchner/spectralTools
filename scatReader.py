@@ -75,18 +75,19 @@ class scatReader:
         tmp1 = []
 
     
-        dicString = ['values','errors']
+        dicString = ['values','-','+']
 
         
         for x in self.modelNames:
             
             
-            errors = concatenate((self.models[x]['errors'], other.models[x]['errors']  ))
+            errorsplus = concatenate((self.models[x]['+'], other.models[x]['+']  ))
+            errorsminus = concatenate((self.models[x]['-'], other.models[x]['-']  ))
             values = concatenate((self.models[x]['values'], other.models[x]['values'] ) )
 
 
 
-            tmp = dict(zip(dicString,[values,errors]))
+            tmp = dict(zip(dicString,[values,errorsminus,errorsplus]))
             
             tmp1.append(tmp)
 
@@ -103,8 +104,9 @@ class scatReader:
     def GetParamArray(self, model,param):
         
         paramArr = deepcopy(self.models[model]['values'][param])
-        paramErr = deepcopy(self.models[model]['errors'][param])
-        tmp = asarray([paramArr,paramErr]).transpose()[0]
+        paramErrplus = deepcopy(self.models[model]['+'][param])
+        paramErrminus = deepcopy(self.models[model]['-'][param])
+        tmp = asarray([paramArr,paramErrminus,paramErrplus]).transpose()[0]
         #tmp.dtype = dtype([(float,'value'),(float,'error')])
         return tmp
         
@@ -149,7 +151,7 @@ class scatReader:
                 z.dtype = dtype(y)
                 #z.dtype = dtype(y)
 
-        dicString = ['values','+','-']
+        dicString = ['values','-','+']
         
         tmp = map(lambda x: dict(zip(dicString,x))   ,tmp)
 

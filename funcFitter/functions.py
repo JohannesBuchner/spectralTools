@@ -1,6 +1,10 @@
 from numpy import power, exp, log, log10, sqrt, piecewise
 
 
+def Linear(x,m,b):
+    val = m*x+b 
+    return val
+    
 
 
 def PowerLaw(x,norm,index,pivot=1.):
@@ -35,4 +39,4 @@ def Exponential(x, norm, x0=0.,a=1., b=-1.):
 
 
 
-functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential}
+functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear}

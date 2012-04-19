@@ -3,7 +3,7 @@ from mpfitexy import mpfitexy
 from mpCurveFit import mpCurveFit
 from functions import functionLookup
 import inspect
-from numpy import array, linspace
+from numpy import array, linspace, log10, log
 import matplotlib.pyplot as plt
 
 class funcFitter:
@@ -81,7 +81,7 @@ class funcFitter:
         return [array(logData),array(logErr)]  
 
 
-    def Fit(self,showLog=False):
+    def Fit(self,showLog=False,showGuess=False):
         
         print "Fitting with "+self.funcName 
 
@@ -89,9 +89,33 @@ class funcFitter:
             pass
 
         else:
+
+            resultFig = plt.figure(2)
+            resultAx = resultFig.add_subplot(111)
             
-            fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed)
+
+            xRange = linspace(self.xData.min(),self.xData.max(),100)
+            yGuess = self.fitFunc(xRange,*self.iVals)
+          
+            
+            if showLog:
+                
+                resultAx.loglog(self.xData,self.yData,'b.')
+                if showGuess:
+                    
+                    resultAx.loglog(xRange,yGuess,'r')
+            if showGuess:
+                print "here"
+                resultAx.plot(xRange,yGuess,'r')
+                
+
+            resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
+            
+                
+
+            fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=0)
             params, errors = [fit.params, fit.errors]
+            
 
             print "\nFit results: "
             for x,y,z in zip(self.params, params, errors):
@@ -103,8 +127,7 @@ class funcFitter:
 
          
 
-            resultFig = plt.figure(2)
-            resultAx = resultFig.add_subplot(111)
+            
 
             if showLog:
                 resultAx.loglog(xRange,yResult,"g")
