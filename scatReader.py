@@ -134,25 +134,22 @@ class scatReader:
 
         self.paramNames  =  map(lambda x: map(lambda y: y.comment.split(':')[1].strip() ,filter(lambda z: x in z.comment  ,header) ), self.modelNames)
         
-        tmpParam =  map(lambda x: map(lambda y: y.value ,filter(lambda z: x in z.comment  ,header) ), self.modelNames)
-
-        tmp =  map(lambda x:array( map(lambda y: self.scat[2].data[y].tolist() ,x)).transpose().tolist()  , tmpParam)
-
-        tmp = map(lambda x: map(array,x) ,tmp)
-
-
-
-        tmp2 =  map (lambda x:   map(lambda y:  (y, float64)    ,x)  , self.paramNames)
-
+        tmpParam =  map( lambda x: map(lambda y: y.value ,filter(lambda z: x in z.comment  ,header) ), self.modelNames)
+        tmp =  map( lambda x: array( map(lambda y: self.scat[2].data[y].tolist() ,x)).transpose().tolist()  , tmpParam)
+        tmp = map( lambda x: map(array,x) ,tmp)
+        tmp2 =  map ( lambda x:   map(lambda y:  (y, float64)    ,x)  , self.paramNames)
+        #tmp3 = map ( lambda x:   map(lambda y:  ([y,y], (float64, flo))    ,x)  , self.paramNames)
         #Assign dtypes to the params
    
+        
+        
 
         for x,y in zip(tmp,tmp2):
             for z in x:
                 z.dtype = dtype(y)
-                z.dtype = dtype(y)
+                #z.dtype = dtype(y)
 
-        dicString = ['values','errors']
+        dicString = ['values','+','-']
         
         tmp = map(lambda x: dict(zip(dicString,x))   ,tmp)
 

@@ -71,8 +71,10 @@ class binnedTTEBlockMaker:
         if self.summed:
             print "Summing detectors"
             self._SumDetectors()
-        #else:
-        self.contents=self.correctedCounts[0][0]
+            self.contents=self.correctedCounts[-1][0]
+            #self.fileList = self.fileTimes[-1]
+        else:
+            self.contents=self.correctedCounts[0][0]
         self.binSizes = self.dt*ones(len(self.contents))
 
 
@@ -524,8 +526,9 @@ class binnedTTEBlockMaker:
     def _Make_ti_File(self):
         
 
-        if self.multi and not self.merge:
+        if self.multi and (not self.merge):
             print "Creating folders for .ti files in each energy bin"
+            
              #Create legend string
             folderStrings = []
 
