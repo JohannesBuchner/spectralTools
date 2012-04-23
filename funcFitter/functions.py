@@ -7,9 +7,9 @@ def Linear(x,m,b):
     
 
 
-def PowerLaw(x,norm,index,pivot=1.):
+def PowerLaw(x, norm, index, t0=0., pivot=1.):
 
-    val = norm * power(x/pivot,index)
+    val = norm * power((x-t0)/pivot,index)
     return val
 
 def BrokenPL(x, norm, indx1, breakPoint, indx2, pivot=1):
