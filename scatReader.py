@@ -39,6 +39,10 @@ class scatReader:
         self.phtFlux = self.scat[2].data['PHTFLUX']
         self.phtFluence = self.scat[2].data['PHTFLNC']
         self.covars = self.scat[2].data['COVARMAT']
+        
+        self.dof = self.scat[2].data['CHSQDOF']
+        self.cstat = [self.scat[2].data['REDCHSQ'][0][1]*self.dof]
+        
 
         # I may take this out at some point
 
@@ -67,7 +71,8 @@ class scatReader:
         new.phtFluence = concatenate((self.phtFluence,other.phtFluence))
 
         new.covars = concatenate((self.covars,other.covars))
-
+        new.dof = concatenate((self.dof,other.dof))
+        new.cstat = concatenate((self.cstat,other.cstat))
 
 
 
