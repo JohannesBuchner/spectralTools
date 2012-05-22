@@ -3,7 +3,7 @@ from mpfitexy import mpfitexy
 from mpCurveFit import mpCurveFit
 from functions import functionLookup
 import inspect
-from numpy import array, linspace, log10, log
+from numpy import array, linspace, log10, log, dtype
 import matplotlib.pyplot as plt
 
 class funcFitter:
@@ -14,6 +14,11 @@ class funcFitter:
         self.interactive = interactive
         self.twoD_flag = False
         self.funcTable =  functionLookup
+        self.xName="x"
+        self.yName="y"
+        self.title="fit"
+        self.yErr =None
+        self.xErr = None
 
         if self.interactive:
             self.PrintFuncs()
@@ -72,6 +77,8 @@ class funcFitter:
     def SetYname(self,yName):
         self.yName = str(yName)
 
+    def SetTitle(self,title):
+        self.title=str(title)
     
     def ConvertData2Log(self,data,err):
 
@@ -124,6 +131,9 @@ class funcFitter:
 
             xRange = linspace(self.xData.min(),self.xData.max(),100)
             yResult = self.fitFunc(xRange,*params)
+            self.result = array( zip(params,errors))
+            
+            
 
          
 
@@ -131,9 +141,13 @@ class funcFitter:
 
             if showLog:
                 resultAx.loglog(xRange,yResult,"g")
+                
             else:
                 resultAx.plot(xRange,yResult,"g")
             resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
+            resultAx.set_xlabel(self.xName)
+            resultAx.set_ylabel(self.yName)
+            resultAx.set_title(self.title)
            
             
             

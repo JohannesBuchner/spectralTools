@@ -26,7 +26,7 @@ def BrokenPL(x, norm, indx1, breakPoint, indx2, t0=0., pivot=1):
 
 def Gaussian(x, norm, mu, sigma):
 
-    val = norm * exp(power(x-mu,2.)/(2*sigma**2))
+    val = norm * exp(-power(x-mu,2.)/(2*sigma**2))
     return val
     
     
