@@ -12,13 +12,13 @@ class funcFitter:
 
         print "Start Up"
         self.interactive = interactive
-        self.twoD_flag = False
+        #self.twoD_flag = False
         self.funcTable =  functionLookup
         self.xName="x"
         self.yName="y"
         self.title="fit"
         self.yErr =None
-        self.xErr = None
+        
 
         if self.interactive:
             self.PrintFuncs()
@@ -63,8 +63,7 @@ class funcFitter:
 
 
     def SetXErr(self, xErr):
-        self.twoD_flag = True
-        self.xErr = xErr
+        
 
 
     def SetYErr(self, yErr):
@@ -92,46 +91,43 @@ class funcFitter:
         
         print "Fitting with "+self.funcName 
 
-        if self.twoD_flag:
-            pass
 
-        else:
 
-            resultFig = plt.figure(2)
-            resultAx = resultFig.add_subplot(111)
+        resultFig = plt.figure(2)
+        resultAx = resultFig.add_subplot(111)
             
 
-            xRange = linspace(self.xData.min(),self.xData.max(),100)
-            yGuess = self.fitFunc(xRange,*self.iVals)
+        xRange = linspace(self.xData.min(),self.xData.max(),100)
+        yGuess = self.fitFunc(xRange,*self.iVals)
           
             
-            if showLog:
+        if showLog:
                 
-                resultAx.loglog(self.xData,self.yData,'b.')
-                if showGuess:
-                    
-                    resultAx.loglog(xRange,yGuess,'r')
+            resultAx.loglog(self.xData,self.yData,'b.')
             if showGuess:
-                print "here"
-                resultAx.plot(xRange,yGuess,'r')
+                    
+                resultAx.loglog(xRange,yGuess,'r')
+        if showGuess:
+            print "here"
+            resultAx.plot(xRange,yGuess,'r')
                 
 
-            resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
+        resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
             
                 
 
-            fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=0)
-            params, errors = [fit.params, fit.errors]
+        fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=0)
+        params, errors = [fit.params, fit.errors]
             
 
-            print "\nFit results: "
-            for x,y,z in zip(self.params, params, errors):
-                print x+": "+str(y)+" +/- "+str(z)
+        print "\nFit results: "
+        for x,y,z in zip(self.params, params, errors):
+            print x+": "+str(y)+" +/- "+str(z)
         
 
-            xRange = linspace(self.xData.min(),self.xData.max(),100)
-            yResult = self.fitFunc(xRange,*params)
-            self.result = array( zip(params,errors))
+        xRange = linspace(self.xData.min(),self.xData.max(),100)
+        yResult = self.fitFunc(xRange,*params)
+        self.result = array( zip(params,errors))
             
             
 
@@ -139,15 +135,15 @@ class funcFitter:
 
             
 
-            if showLog:
-                resultAx.loglog(xRange,yResult,"g")
+        if showLog:
+            resultAx.loglog(xRange,yResult,"g")
                 
-            else:
-                resultAx.plot(xRange,yResult,"g")
-            resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
-            resultAx.set_xlabel(self.xName)
-            resultAx.set_ylabel(self.yName)
-            resultAx.set_title(self.title)
+        else:
+            resultAx.plot(xRange,yResult,"g")
+        resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
+        resultAx.set_xlabel(self.xName)
+        resultAx.set_ylabel(self.yName)
+        resultAx.set_title(self.title)
            
             
             
