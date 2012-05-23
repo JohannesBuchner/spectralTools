@@ -62,10 +62,6 @@ class funcFitter:
         self.yData = yData
 
 
-    def SetXErr(self, xErr):
-        
-
-
     def SetYErr(self, yErr):
         
         self.yErr = yErr

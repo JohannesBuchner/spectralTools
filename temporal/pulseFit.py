@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from numpy import mean, zeros, matrix, sqrt, array, linspace, power
 from TmaxSelector import TmaxSelector
 import pickle
-#from mpCurveFit import mpCurveFit
-from mpPulseFitEngine import mpPulseFitEngine
+from mpCurveFit import mpCurveFit
+#from mpPulseFitEngine import mpPulseFitEngine
 import pyfits as pf
 from pulseModel import KRLPulse, NorrisPulse
 from lightCurve import lightCurve
@@ -424,12 +424,13 @@ class pulseFit:
 
         #### Testing!!!!!
         dT = array(map(lambda x: x[1] - x[0] ,self.tBins))
+        wErrors = self.errors*dT
         wData = self.data*dT
-        fit = mpPulseFitEngine(func, array(map(mean,self.tBins))+self.timeOffset, wData.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits,tBins = self.tBins) 
+        #fit = mpPulseFitEngine(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=wErrors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits,tBins = self.tBins) 
 
 
         # place back if this does not work
-        #fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
+        fit = mpCurveFit(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=self.errors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits) 
 
        
         self.fitResults = fit.params 

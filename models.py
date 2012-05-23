@@ -13,19 +13,14 @@ def Band( x, A, Ep, alpha, beta):
 
         band = np.piecewise(x, [cond1, cond2],\
 				    [lambda x: A*( power(x/100., alpha) * exp(-x*(2+alpha)/Ep) ), \
-					     lambda x:A* ( power( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*power(x/100,beta))])
+					     lambda x:A* ( power( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*power(x/100.,beta))])
 
         return band
 
 def BlackBody(x,A,kT):
 
-	
-#	print A
-#	print kT
-#	print x
 	val = A*power(x,2)*power(exp(x/float64(kT))-1,-1)
-#	print val
-	#print val
+
 	return val
 
 def PowerLaw(x, A, Epiv, index):
