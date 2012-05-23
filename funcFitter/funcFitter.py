@@ -18,7 +18,11 @@ class funcFitter:
         self.yName="y"
         self.title="fit"
         self.yErr =None
-        
+        self.dataColor="b"
+        self.fitColor="g"
+        self.guessColor="r"
+        self.dataMarker="o"
+        self.fitLineStyle="-"
 
         if self.interactive:
             self.PrintFuncs()
@@ -66,10 +70,10 @@ class funcFitter:
         
         self.yErr = yErr
 
-    def SetXname(self,xName):
+    def SetXName(self,xName):
         self.xName = str(xName)
 
-    def SetYname(self,yName):
+    def SetYName(self,yName):
         self.yName = str(yName)
 
     def SetTitle(self,title):
@@ -81,6 +85,16 @@ class funcFitter:
         logErr = err/(data*log(10))
         
         return [array(logData),array(logErr)]  
+
+    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-"):
+
+        self.dataColor=dataColor
+        self.fitColor=fitColor
+        self.guessColor=guessColor
+        self.dataMarker=dataMarker
+        self.fitLineStyle=fitLineStyle
+
+
 
 
     def Fit(self,showLog=False,showGuess=False):
@@ -99,16 +113,16 @@ class funcFitter:
             
         if showLog:
                 
-            resultAx.loglog(self.xData,self.yData,'b.')
+            resultAx.loglog(self.xData,self.yData,self.dataColor+self.dataMarker)
             if showGuess:
                     
-                resultAx.loglog(xRange,yGuess,'r')
+                resultAx.loglog(xRange,yGuess,self.guessColor+self.fitLineStyle)
         if showGuess:
             print "here"
-            resultAx.plot(xRange,yGuess,'r')
+            resultAx.plot(xRange,yGuess,self.guessColor+self.fitLineStyle)
                 
 
-        resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
+        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
             
                 
 
@@ -132,11 +146,11 @@ class funcFitter:
             
 
         if showLog:
-            resultAx.loglog(xRange,yResult,"g")
+            resultAx.loglog(xRange,yResult,self.fitColor+self.fitLineStyle)
                 
         else:
-            resultAx.plot(xRange,yResult,"g")
-        resultAx.errorbar(self.xData,self.yData,fmt='o', color='b',yerr=self.yErr)
+            resultAx.plot(xRange,yResult,self.fitColor+self.fitLineStyle)
+        #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
         resultAx.set_xlabel(self.xName)
         resultAx.set_ylabel(self.yName)
         resultAx.set_title(self.title)
