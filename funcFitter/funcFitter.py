@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class funcFitter:
 
-    def __init__(self, interactive = False):
+    def __init__(self, interactive = False,plotNum=1000):
 
         print "Start Up"
         self.interactive = interactive
@@ -23,6 +23,7 @@ class funcFitter:
         self.guessColor="r"
         self.dataMarker="o"
         self.fitLineStyle="-"
+        self.plotNum = plotNum
 
         if self.interactive:
             self.PrintFuncs()
