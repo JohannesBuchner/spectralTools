@@ -62,7 +62,7 @@ class funcFitter2D(funcFitter):
         print ">>>\t"+self.dataLog+" data has been converted to log10 space"
         
 
-        resultFig = plt.figure(1000)
+        resultFig = plt.figure(self.plotNum)
         resultAx = resultFig.add_subplot(111)
 
         xRange = linspace(self.xData.min(),self.xData.max(),100)

@@ -28,7 +28,7 @@ class funcFitter:
         if self.interactive:
             self.PrintFuncs()
 
-    def SetPlotNum(self, plotnum):
+    def SetPlotNum(self, plotNum):
         self.plotNum = plotNum
 
     def SelectFunction(self, funcName = ""):
@@ -106,7 +106,7 @@ class funcFitter:
 
 
 
-        resultFig = plt.figure(2)
+        resultFig = plt.figure(self.plotNum)
         resultAx = resultFig.add_subplot(111)
             
 
