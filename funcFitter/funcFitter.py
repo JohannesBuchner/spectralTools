@@ -134,8 +134,12 @@ class funcFitter:
             
 
         print "\nFit results: "
-        for x,y,z in zip(self.params, params, errors):
-            print x+": "+str(y)+" +/- "+str(z)
+        try:
+            for x,y,z in zip(self.params, params, errors):
+                print x+": "+str(y)+" +/- "+str(z)
+        except TypeError:
+            print "-----------> FIT FAILED!!!!!"
+            return
         
 
         xRange = linspace(self.xData.min(),self.xData.max(),100)

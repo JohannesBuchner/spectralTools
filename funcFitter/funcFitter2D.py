@@ -28,6 +28,7 @@ class funcFitter2D(funcFitter):
         self.guessColor="r"
         self.dataMarker="o"
         self.fitLineStyle="-"
+        self.plotNum=1000
         
 
 
@@ -84,9 +85,15 @@ class funcFitter2D(funcFitter):
         params, errors = fit
 
         print "\nFit results: "
-        for x,y,z in zip(self.params, params, errors):
-            print x+": "+str(y)+" +/- "+str(z)
-        
+                
+        try:
+            for x,y,z in zip(self.params, params, errors):
+                print x+": "+str(y)+" +/- "+str(z)
+        except TypeError:
+            print "-----------> FIT FAILED!!!!!"
+            return
+
+
 
         xRange = linspace(self.xData.min(),self.xData.max(),100)
         yResult = self.fitFunc(xRange,*params)
