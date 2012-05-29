@@ -89,12 +89,15 @@ class fluxLightCurve:
 
 
    
-    def FluxError(self, params, covar):
+    def FluxError(self, params, covar, currentModel):
         '''
         Params is a list of the params from each models
         [mod1,mod2,...]
 
         '''
+
+
+        
 
         firstDerivates = []
         
@@ -125,7 +128,14 @@ class fluxLightCurve:
 
 
 
-                firstDerivates.append( deriv(tmpFlux)(par[parName]))
+
+                if modName == currentModel:
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+
+                if currentModel == "total":
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+                else:
+                    firstDerivates.append(0.0)
 
     
         firstDerivates = array(firstDerivates)
@@ -256,8 +266,6 @@ class fluxLightCurve:
                 row.append(x)
 
 
-
-#        print tmpParamArray
 
         self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov), tmpParamArray,self.covars  )
 
