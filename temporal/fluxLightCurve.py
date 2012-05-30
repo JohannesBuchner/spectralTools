@@ -104,7 +104,7 @@ class fluxLightCurve:
         for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
 
             model = self.modelDict[modName]
-            print modName
+            #print modName
             for parName in z:
 
                 print parName
@@ -113,8 +113,8 @@ class fluxLightCurve:
                 def tmpFlux(currentPar):
 
                     tmpParams = par.copy()
-                    print "\nCurrent param:"
-                    print currentPar
+                    #print "\nCurrent param:"
+                    #print currentPar
 
   #                  print "\nTmp Params:"
    #                 print tmpParams
@@ -130,17 +130,17 @@ class fluxLightCurve:
 
 
                 if modName == currentModel:
-                    print "in currentModel"
+                    #print "in currentModel"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
 
                 elif currentModel == "total":
-                    print "in total"
+                    #print "in total"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
                 else:
-                    print "not currentModel"
+                    #print "not currentModel"
                     firstDerivates.append(0.0)
 
-        print firstDerivates
+        #print firstDerivates
     
         firstDerivates = array(firstDerivates)
         tmp = firstDerivates.dot(covar)
