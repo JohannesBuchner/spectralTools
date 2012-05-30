@@ -104,17 +104,17 @@ class fluxLightCurve:
         for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
 
             model = self.modelDict[modName]
-
+            print modName
             for parName in z:
 
-#                print parName
-#                print modName
+                print parName
+               
 
                 def tmpFlux(currentPar):
 
                     tmpParams = par.copy()
- #                   print "\nCurrent param:"
- #                   print currentPar
+                    print "\nCurrent param:"
+                    print currentPar
 
   #                  print "\nTmp Params:"
    #                 print tmpParams
@@ -130,13 +130,17 @@ class fluxLightCurve:
 
 
                 if modName == currentModel:
+                    print "in currentModel"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
 
-                if currentModel == "total":
+                elif currentModel == "total":
+                    print "in total"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
                 else:
+                    print "not currentModel"
                     firstDerivates.append(0.0)
 
+        print firstDerivates
     
         firstDerivates = array(firstDerivates)
         tmp = firstDerivates.dot(covar)
@@ -255,19 +259,26 @@ class fluxLightCurve:
 
     def LightCurveErrors(self):
 
+        self.FormatCovarMat()
+
         tmpParamArray = map(lambda x: [] ,self.tBins)
         
 
+        individualFluxError=[]
         for mod in self.modelNames:
             
             
             for x,row in zip(self.scat.models[mod]['values'],tmpParamArray):
-
                 row.append(x)
 
-
-
-        self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov), tmpParamArray,self.covars  )
+        for mod in self.modelNames:
+            
+            individualFluxError.append(map(lambda par,cov:self.FluxError(par,cov,mod), tmpParamArray,self.covars  ))
+        
+        
+        individualFluxError.append ( map(lambda par,cov:self.FluxError(par,cov,"total"), tmpParamArray,self.covars  ))
+        #self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov,"total"), tmpParamArray,self.covars  )
+        self.fluxErrors=dict(zip(self.modelNames+['total'],individualFluxError))
 
             
             
