@@ -1,4 +1,4 @@
-from numpy import exp
+from numpy import exp, power
 
 
 class pulseModel:
@@ -64,7 +64,7 @@ class NorrisPulse(pulseModel):
 
 def KRL(t,tmax,c,r,d,fmax):
 
-        f = (fmax*(((((t+c)/(tmax+c)))**r)/(((d+(r*((((t+c)/(tmax+c)))**(1+r))))/(d+r))**((d+r)/(1+r)))))
+        f = (fmax*(power((((t+c)/(tmax+c))),r)/power(((d+(r*power((((t+c)/(tmax+c))),(1+r))))/(d+r)),((d+r)/(1+r)))))
         return f
 
 

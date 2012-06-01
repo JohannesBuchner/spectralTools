@@ -121,7 +121,7 @@ class pulseFit:
         flux  = pickle.load(open(fileName))
         
         self.fluxes = flux['fluxes']
-        self.errors = array(flux['errors'])
+        self.fluxErrors = flux['errors']
         self.tBins = flux['tBins']
         
         axcolor = 'lightgoldenrodyellow'
@@ -136,6 +136,7 @@ class pulseFit:
         self.radioAx = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
 
         self.data = self.fluxes['total']
+        self.errors = self.fluxErrors['total']
 
         self.radio = RadioButtons(self.radioAx,tuple(self.fluxes.keys()))
         self.radio.on_clicked(self.Selector)
@@ -221,6 +222,7 @@ class pulseFit:
 
         self.ax.cla()
         self.data = self.fluxes[label]
+        self.errors=array(self.fluxErrors[label])
         self.currentModelName=label
         self.tMaxSelector.Kill()
         
@@ -423,9 +425,9 @@ class pulseFit:
         # print fixPar
 
         #### Testing!!!!!
-        dT = array(map(lambda x: x[1] - x[0] ,self.tBins))
-        wErrors = self.errors*dT
-        wData = self.data*dT
+        #dT = array(map(lambda x: x[1] - x[0] ,self.tBins))
+        #wErrors = self.errors*dT
+        #wData = self.data*dT
         #fit = mpPulseFitEngine(func, array(map(mean,self.tBins))+self.timeOffset, self.data.tolist(), sigma=wErrors,p0=initialValues,fixed=fixPar,maxiter=400, limits=limits,tBins = self.tBins) 
 
 

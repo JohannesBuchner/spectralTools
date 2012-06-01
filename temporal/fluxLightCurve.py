@@ -107,7 +107,7 @@ class fluxLightCurve:
             #print modName
             for parName in z:
 
-                print parName
+                #print parName
                
 
                 def tmpFlux(currentPar):
