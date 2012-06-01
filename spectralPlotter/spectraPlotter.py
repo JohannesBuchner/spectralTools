@@ -14,7 +14,7 @@ colorTable = ["CornflowerBlue","DeepPink","Lime"]
 
 class spectraPlotter:
 
-    def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.):
+    def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None):
 
         if pht:
             self.phtFig = plt.figure(1)
@@ -42,6 +42,7 @@ class spectraPlotter:
         
         self.modelLookup = modelLookup
         self.multi = multi
+        self.uniModel = uniModel
 
         self.eMin = float(eMin)
         self.eMax = float(eMax)
@@ -58,11 +59,11 @@ class spectraPlotter:
         self.params=args
         
     def SetModel(self,modelName):
-        models = []
-        
+        models=[]
         for x in modelName:
-             models.append(self.modelLookup[x])
+            models.append(self.modelLookup[x])
         self.model=models
+
 
     def GetModel(self,energy):
         
@@ -70,12 +71,15 @@ class spectraPlotter:
         if self.multi:
             flux = []
             for x,y in zip(self.model,self.params):
+
+                
                 
                 if x == self.modelLookup["Total Test Synchrotron"]: # Have to do it bin my bin
                     tmpFlux =[]
                     for en in energy:
                         tmpFlux.append(x(en,*y[0][0]))
                     tmpFlux = array(tmpFlux)
+
                     flux.append(tmpFlux)
                     
                 else:
@@ -106,11 +110,22 @@ class spectraPlotter:
         
         fits = self.FitReader()
         for fit in fits:
-            modelName = fit.GetModelName()
-            self.SetModel(modelName)
-            params = fit.GetParams()
-            self.SetParams(params)
+            if self.uniModel == None:
+                modelName = fit.GetModelName()
+                self.SetModel(modelName)
+                params = fit.GetParams()
+                self.SetParams(params)
             #self.SetEnergies()
+            else:
+                
+                
+                modelName = fit.GetModelName()
+                modelIndex = modelName.index(self.uniModel)
+                modelName=[self.uniModel]
+
+                self.SetModel(modelName)
+                params = [fit.GetParams()[modelIndex]]
+                self.SetParams(params)
             
             if self.phtPlt:
                 self.PhotonPlot()
@@ -134,7 +149,22 @@ class spectraPlotter:
         photonSpectra = self.GetModel(energy)
 
         #for sp in photonSpectra
-        self.phtAx.loglog(energy,photonSpectra)
+        if self.multi:
+            #First we want to set some nice limits
+            mins=[]
+            for sp in photonSpectra:
+                mins.append(sp.min())
+            bottomLim = asarray(mins).max()
+            
+            for sp,cl  in zip(photonSpectra,colorTable):
+                self.phtAx.loglog(energy,sp,linewidth=2.5,color=cl)
+            self.phtAx.set_ylim(bottom = bottomLim)
+
+        else:
+            self.phtAx.loglog(energy,photonSpectra)
+        
+
+        
         self.phtAx.get_figure().canvas.draw()
 
     def EnergyPlot(self):
@@ -145,7 +175,28 @@ class spectraPlotter:
         energy = logspace(log10(eMin),log10(eMax),num=1000)
         energySpectra = energy*self.GetModel(energy)
 
-        self.energyAx.loglog(energy,energySpectra)
+
+
+        if self.multi:
+            #First we want to set some nice limits
+            mins=[]
+            for sp in energySpectra:
+                mins.append(sp.min())
+            bottomLim = asarray(mins).max()
+            
+            for sp,cl  in zip(energySpectra,colorTable):
+                self.energyAx.loglog(energy,sp,linewidth=2.5,color=cl)
+            self.energyAx.set_ylim(bottom = bottomLim)
+
+        else:
+            self.energyAx.loglog(energy,energySpectra)
+
+        self.energyAx.set_xlim(right=energy.max())
+
+        
+
+
+        
         self.energyAx.get_figure().canvas.draw()
 
     def vFvPlot(self):
@@ -165,16 +216,13 @@ class spectraPlotter:
             bottomLim = asarray(mins).max()
             
             for sp,cl  in zip(vFvSpectra,colorTable):
-                self.vFvAx.loglog(energy,sp,linewidth=2,color=cl)
+                self.vFvAx.loglog(energy,sp,linewidth=2.5,color=cl)
             self.vFvAx.set_ylim(bottom = bottomLim)
-
-            
-                
-        
 
         else:
             self.vFvAx.loglog(energy,vFvSpectra)
 
+        self.vFvAx.set_xlim(right=energy.max())
 
         self.vFvAx.get_figure().canvas.draw()
 
