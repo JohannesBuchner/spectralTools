@@ -7,37 +7,41 @@ import matplotlib.pyplot as plt
 
 
 from models import modelLookup
-from numpy import array, zeros, logspace, log10
+from numpy import array, zeros, logspace, log10, asarray
+
+colorTable = ["CornflowerBlue","DeepPink","Lime"]
+
 
 class spectraPlotter:
 
     def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.):
 
-        self.phtFig = plt.figure(1)
-        self.phtAx = self.phtFig.add_subplot(111)
-        self.phtAx.set_xlabel("Energy (keV)")
-        self.phtAx.set_ylabel("pht/s/cm2")
+        if pht:
+            self.phtFig = plt.figure(1)
+            self.phtAx = self.phtFig.add_subplot(111)
+            self.phtAx.set_xlabel("Energy (keV)")
+            self.phtAx.set_ylabel("pht/s/cm2")
 
-
-        self.energyFig = plt.figure(2)
-        self.energyAx = self.energyFig.add_subplot(111)
+        if energy:
+            self.energyFig = plt.figure(2)
+            self.energyAx = self.energyFig.add_subplot(111)
         
-        self.energyAx.set_xlabel("Energy (keV)")
-        self.energyAx.set_ylabel("ergs/s/cm2")
+            self.energyAx.set_xlabel("Energy (keV)")
+            self.energyAx.set_ylabel("ergs/s/cm2")
 
 
-
-        self.vFvFig = plt.figure(3)
-        self.vFvAx = self.vFvFig.add_subplot(111)
-        self.vFvAx.set_xlabel("Energy (keV)")
-        self.vFvAx.set_ylabel("E^2/s/cm2")
+        if vFv:
+            self.vFvFig = plt.figure(3)
+            self.vFvAx = self.vFvFig.add_subplot(111)
+            self.vFvAx.set_xlabel("Energy (keV)")
+            self.vFvAx.set_ylabel("E^2/s/cm2")
 
         self.energyPlt = energy
         self.phtPlt = pht
         self.vFvPlt = vFv
         
         self.modelLookup = modelLookup
-
+        self.multi = multi
 
         self.eMin = float(eMin)
         self.eMax = float(eMax)
@@ -62,23 +66,39 @@ class spectraPlotter:
 
     def GetModel(self,energy):
         
-        flux = zeros(len(energy))
-
         
+        if self.multi:
+            flux = []
+            for x,y in zip(self.model,self.params):
+                
+                if x == self.modelLookup["Total Test Synchrotron"]: # Have to do it bin my bin
+                    tmpFlux =[]
+                    for en in energy:
+                        tmpFlux.append(x(en,*y[0][0]))
+                    tmpFlux = array(tmpFlux)
+                    flux.append(tmpFlux)
+                    
+                else:
+                    flux.append(x(energy,*y[0][0]))
+            flux=array(flux)
 
 
-        
-        for x,y in zip(self.model,self.params):
-            
-            if x == self.modelLookup["Total Test Synchrotron"]: # Have to do it bin my bin
-                tmpFlux =[]
-                for en in energy:
-                    tmpFlux.append(x(en,*y[0][0]))
-                tmpFlux = array(tmpFlux)
-                flux = flux +tmpFlux
-            else:
-                flux = flux + x(energy,*y[0][0])
+
+        else:
+            flux = zeros( len(energy))
+                
+            for x,y in zip(self.model,self.params):
+                
+                if x == self.modelLookup["Total Test Synchrotron"]: # Have to do it bin my bin
+                    tmpFlux =[]
+                    for en in energy:
+                        tmpFlux.append(x(en,*y[0][0]))
+                    tmpFlux = array(tmpFlux)
+                    flux = flux +tmpFlux
+                else:
+                    flux = flux + x(energy,*y[0][0])
        
+        #self.test = flux
         return flux
 
         
@@ -113,6 +133,7 @@ class spectraPlotter:
         energy = logspace(log10(eMin),log10(eMax),num=1000)
         photonSpectra = self.GetModel(energy)
 
+        #for sp in photonSpectra
         self.phtAx.loglog(energy,photonSpectra)
         self.phtAx.get_figure().canvas.draw()
 
@@ -135,7 +156,26 @@ class spectraPlotter:
         energy = logspace(log10(eMin),log10(eMax),num=1000)
         vFvSpectra = energy*energy*self.GetModel(energy)
 
-        self.vFvAx.loglog(energy,vFvSpectra)
+
+        if self.multi:
+            #First we want to set some nice limits
+            mins=[]
+            for sp in vFvSpectra:
+                mins.append(sp.min())
+            bottomLim = asarray(mins).max()
+            
+            for sp,cl  in zip(vFvSpectra,colorTable):
+                self.vFvAx.loglog(energy,sp,linewidth=2,color=cl)
+            self.vFvAx.set_ylim(bottom = bottomLim)
+
+            
+                
+        
+
+        else:
+            self.vFvAx.loglog(energy,vFvSpectra)
+
+
         self.vFvAx.get_figure().canvas.draw()
 
 
