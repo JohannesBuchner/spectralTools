@@ -161,7 +161,7 @@ class spectraPlotter:
             self.phtAx.set_ylim(bottom = bottomLim)
 
         else:
-            self.phtAx.loglog(energy,photonSpectra)
+            self.phtAx.loglog(energy,photonSpectra,linewidth=2.5, color = "CornflowerBlue")
         
 
         
@@ -189,7 +189,7 @@ class spectraPlotter:
             self.energyAx.set_ylim(bottom = bottomLim)
 
         else:
-            self.energyAx.loglog(energy,energySpectra)
+            self.energyAx.loglog(energy,energySpectra,linewidth=2.5, color = "CornflowerBlue")
 
         self.energyAx.set_xlim(right=energy.max())
 
@@ -220,7 +220,7 @@ class spectraPlotter:
             self.vFvAx.set_ylim(bottom = bottomLim)
 
         else:
-            self.vFvAx.loglog(energy,vFvSpectra)
+            self.vFvAx.loglog(energy,vFvSpectra,linewidth=2.5, color = "CornflowerBlue")
 
         self.vFvAx.set_xlim(right=energy.max())
 
