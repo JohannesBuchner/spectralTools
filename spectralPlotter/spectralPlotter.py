@@ -12,7 +12,7 @@ from numpy import array, zeros, logspace, log10, asarray
 colorTable = ["CornflowerBlue","DeepPink","Lime"]
 
 
-class spectraPlotter:
+class spectralPlotter:
 
     def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None):
 

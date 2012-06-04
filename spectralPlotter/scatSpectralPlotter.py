@@ -1,7 +1,7 @@
-import spectraPlotter
+import spectralPlotter
 from scatReader import scatReader
 
-class scatSpectraPlotter(spectraPlotter.spectraPlotter):
+class scatSpectralPlotter(spectralPlotter.spectralPlotter):
 
     def FitReader(self):
       
@@ -16,7 +16,7 @@ class scatSpectraPlotter(spectraPlotter.spectraPlotter):
                 params.append(s.models[x]['values'])
             
 
-            fit = spectraPlotter.Fit(modelNames,params)
+            fit = spectralPlotter.Fit(modelNames,params)
             fits.append(fit)
 
         return fits
