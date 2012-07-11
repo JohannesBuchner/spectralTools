@@ -23,6 +23,8 @@ class funcFitter:
         self.guessColor="r"
         self.dataMarker="o"
         self.fitLineStyle="-"
+        self.errorbarThick=1.
+        self.fitLineThick=2.
         self.plotNum = 1000
 
         if self.interactive:
@@ -89,13 +91,17 @@ class funcFitter:
         
         return [array(logData),array(logErr)]  
 
-    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-"):
+    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1.):
 
+        print errorbarThick
+        print fitLineThick
         self.dataColor=dataColor
         self.fitColor=fitColor
         self.guessColor=guessColor
         self.dataMarker=dataMarker
         self.fitLineStyle=fitLineStyle
+        self.fitLineThick=fitLineThick
+        self.errorbarThick=errorbarThick
 
 
 
@@ -119,14 +125,14 @@ class funcFitter:
             resultAx.loglog(self.xData,self.yData,self.dataColor+self.dataMarker)
             if showGuess:
                     
-                resultAx.loglog(xRange,yGuess,self.guessColor+self.fitLineStyle)
+                resultAx.loglog(xRange,yGuess,self.guessColor+self.fitLineStyle,linewidth=self.fitLineThick)
         if showGuess:
             print "here"
             resultAx.plot(xRange,yGuess,self.guessColor+self.fitLineStyle)
                 
 
-        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
-            
+        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
+        
                 
 
         fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=0)
@@ -153,10 +159,10 @@ class funcFitter:
             
 
         if showLog:
-            resultAx.loglog(xRange,yResult,self.fitColor+self.fitLineStyle)
+            resultAx.loglog(xRange,yResult,self.fitColor+self.fitLineStyle,linewidth=self.fitLineThick)
                 
         else:
-            resultAx.plot(xRange,yResult,self.fitColor+self.fitLineStyle)
+            resultAx.plot(xRange,yResult,self.fitColor+self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
         resultAx.set_xlabel(self.xName)
         resultAx.set_ylabel(self.yName)

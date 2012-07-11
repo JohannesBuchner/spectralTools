@@ -28,6 +28,8 @@ class funcFitter2D(funcFitter):
         self.guessColor="r"
         self.dataMarker="o"
         self.fitLineStyle="-"
+        self.errorbarThick=1.
+        self.fitLineThick=2.
         self.plotNum=1000
         
 
@@ -70,7 +72,7 @@ class funcFitter2D(funcFitter):
         yGuess = self.fitFunc(xRange,*self.iVals)
 
         if showGuess:
-            resultAx.plot(xRange,yGuess,self.guessColor+self.fitLineStyle)
+            resultAx.plot(xRange,yGuess,self.guessColor+self.fitLineStyle,linewidth=self.fitLineThick)
 
         fixslope=False
         fixint=False
@@ -80,7 +82,8 @@ class funcFitter2D(funcFitter):
             fixint=True
 
 
-        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr)
+        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
+        
         fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint)
         params, errors = fit
 
@@ -99,7 +102,7 @@ class funcFitter2D(funcFitter):
         yResult = self.fitFunc(xRange,*params)
         self.result = array( zip(params,errors))
 
-        resultAx.plot(xRange,yResult,self.fitColor+self.fitLineStyle)
+        resultAx.plot(xRange,yResult,self.fitColor+self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr)
         resultAx.set_xlabel(self.xName)
         resultAx.set_ylabel(self.yName)
