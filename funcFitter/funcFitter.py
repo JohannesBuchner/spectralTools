@@ -122,16 +122,16 @@ class funcFitter:
             
         if showLog:
                 
-            resultAx.loglog(self.xData,self.yData,self.dataColor+self.dataMarker)
+            resultAx.loglog(self.xData,self.yData,color=self.dataColor,marker=self.dataMarker,linestyle='.')
             if showGuess:
                     
-                resultAx.loglog(xRange,yGuess,self.guessColor+self.fitLineStyle,linewidth=self.fitLineThick)
+                resultAx.loglog(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         if showGuess:
-            print "here"
-            resultAx.plot(xRange,yGuess,self.guessColor+self.fitLineStyle)
+            
+            resultAx.plot(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle)
                 
 
-        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
+        resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
         
                 
 
@@ -159,10 +159,10 @@ class funcFitter:
             
 
         if showLog:
-            resultAx.loglog(xRange,yResult,self.fitColor+self.fitLineStyle,linewidth=self.fitLineThick)
+            resultAx.loglog(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
                 
         else:
-            resultAx.plot(xRange,yResult,self.fitColor+self.fitLineStyle,linewidth=self.fitLineThick)
+            resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
         resultAx.set_xlabel(self.xName)
         resultAx.set_ylabel(self.yName)
