@@ -135,7 +135,7 @@ class funcFitter:
         
                 
 
-        fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=0)
+        fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=1)
         params, errors = [fit.params, fit.errors]
             
 
@@ -150,8 +150,9 @@ class funcFitter:
 
         xRange = linspace(self.xData.min(),self.xData.max(),100)
         yResult = self.fitFunc(xRange,*params)
-        self.result = array( zip(params,errors))
-            
+        self.result =  zip(params,errors)
+        self.result.append([fit.chi2,fit.dof])
+        self.result=array(self.result)
             
 
          
