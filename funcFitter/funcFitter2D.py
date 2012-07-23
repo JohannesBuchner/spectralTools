@@ -9,7 +9,7 @@ import inspect
 class funcFitter2D(funcFitter):
 
 
-    def __init__(self, dataLog=None):
+    def __init__(self, dataLog=None, rDisp=False):
 
 
         self.funcTable =  functionLookup
@@ -31,7 +31,8 @@ class funcFitter2D(funcFitter):
         self.errorbarThick=1.
         self.fitLineThick=2.
         self.plotNum=1000
-        
+        self.rDisp=rDisp
+        self.limits=None
 
 
     def SetXErr(self,xErr):
@@ -84,7 +85,7 @@ class funcFitter2D(funcFitter):
 
         resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
         
-        fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint)
+        fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint,limits=self.limits)
         params, errors = fit
 
         print "\nFit results: "
@@ -92,6 +93,9 @@ class funcFitter2D(funcFitter):
         try:
             for x,y,z in zip(self.params, params, errors):
                 print x+": "+str(y)+" +/- "+str(z)
+            if self.rDisp:
+                self._ResultsDisplay(resultAx,params,errors)
+
         except TypeError:
             print "-----------> FIT FAILED!!!!!"
             return

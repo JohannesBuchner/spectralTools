@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class funcFitter:
 
-    def __init__(self, interactive = False):
+    def __init__(self, interactive = False, rDisp = False):
 
         print "Start Up"
         self.interactive = interactive
@@ -26,6 +26,8 @@ class funcFitter:
         self.errorbarThick=1.
         self.fitLineThick=2.
         self.plotNum = 1000
+        self.rDisp = rDisp
+        self.limits=None
 
         if self.interactive:
             self.PrintFuncs()
@@ -104,6 +106,17 @@ class funcFitter:
         self.errorbarThick=errorbarThick
 
 
+    def _ResultsDisplay(self,ax,params,errors,paramsNames=None):
+        
+        
+        string = ""
+        for x,y,z in zip(self.params, params, errors):
+            tmp = "%s : %.3f $\pm$ %.3f\n" % (x,y,z)
+            string = string+tmp
+       
+        ax.text(.6,.8,r""+string,transform = ax.transAxes)
+        
+
 
 
     def Fit(self,showLog=False,showGuess=False):
@@ -135,7 +148,7 @@ class funcFitter:
         
                 
 
-        fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,quiet=1)
+        fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,limits=self.limits,quiet=1)
         params, errors = [fit.params, fit.errors]
             
 
@@ -143,8 +156,10 @@ class funcFitter:
         try:
             for x,y,z in zip(self.params, params, errors):
                 print x+": "+str(y)+" +/- "+str(z)
+            if self.rDisp:
+                self._ResultsDisplay(resultAx,params,errors)
         except TypeError:
-            print "-----------> FIT FAILED!!!!!"
+            print "\n\n\n-----------> FIT FAILED!!!!!\n\n\n"
             return
         
 
@@ -168,6 +183,7 @@ class funcFitter:
         resultAx.set_xlabel(self.xName)
         resultAx.set_ylabel(self.yName)
         resultAx.set_title(self.title)
+        
            
             
             
