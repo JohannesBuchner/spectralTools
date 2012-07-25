@@ -1,5 +1,6 @@
 
 from spectralTools.models import modelLookup
+from eFluxModels import modelLookup as eFluxLookup
 from spectralTools.scatReader import scatReader
 from scipy.integrate import quad, quadrature
 from numpy import array, sqrt, zeros, vstack
@@ -34,6 +35,7 @@ class fluxLightCurve:
         self.modelNames = scat.modelNames
 
         self.modelDict = modelLookup
+        self.eFluxModels = eFluxLookup
 
 
 
@@ -76,6 +78,23 @@ class fluxLightCurve:
     def CalculateFlux(self,modelName,params):
 
         model = self.modelDict[modelName]
+        
+        if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
+            
+            
+
+            val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
+            return val
+            
+
+        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(),epsabs=0., epsrel= 1.e-5 )
+
+        return val
+
+
+    def CalculateEnergyFlux(self,modelName,params):
+
+        model = self.eFluxModels[modelName]
         
         if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
             
@@ -147,6 +166,66 @@ class fluxLightCurve:
 
         errors =  tmp.dot(firstDerivates)
         return errors
+
+
+    def EnergyFluxError(self, params, covar, currentModel):
+        '''
+        Params is a list of the params from each models
+        [mod1,mod2,...]
+
+        '''
+
+
+        
+
+        firstDerivates = []
+        
+        for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
+
+            model = self.eFluxModels[modName]
+            #print modName
+            for parName in z:
+
+                #print parName
+               
+
+                def tmpFlux(currentPar):
+
+                    tmpParams = par.copy()
+                    #print "\nCurrent param:"
+                    #print currentPar
+
+  #                  print "\nTmp Params:"
+   #                 print tmpParams
+                    tmpParams[parName]=currentPar
+
+
+    #                print "\n New Tmp Params:"
+     #               print tmpParams
+
+                    return self.CalculateEnergyFlux(modName,tmpParams)
+
+
+
+
+                if modName == currentModel:
+                    #print "in currentModel"
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+
+                elif currentModel == "total":
+                    #print "in total"
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+                else:
+                    #print "not currentModel"
+                    firstDerivates.append(0.0)
+
+        #print firstDerivates
+    
+        firstDerivates = array(firstDerivates)
+        tmp = firstDerivates.dot(covar)
+
+        errors =  tmp.dot(firstDerivates)
+        return errors
   
 
 
@@ -180,40 +259,7 @@ class fluxLightCurve:
     
 
 
-
-    def CreateVariableLightCurve(self,eMin,eMax):
-
-        fluxes = []
-
-        for x in self.modelNames:
-
-            tmp = []
-
-            for pars,emin,emax in zip(self.scat.models[x]['values'],eMin,eMax):
-
-                self.eMin = emin 
-                self.eMax = emax 
-                flux = self.CalculateFlux(x,pars)
-                tmp.append(flux)
-
-
-            fluxes.append(tmp)
-
-       
-        fluxes = map(array,fluxes)
-
-        totFlux = zeros(len(fluxes[0]))
-
-        for x in fluxes:
-            totFlux+=x
-
-        fluxes.append(totFlux)
-
-        tmp = list(self.modelNames)
-        tmp.append('total')
-
-        self.fluxes = dict(zip(tmp,fluxes))
-        
+    
 
 
 
@@ -250,6 +296,40 @@ class fluxLightCurve:
         self.fluxes = dict(zip(tmp,fluxes))
 
 
+
+    def CreateEnergyLightCurve(self):
+
+
+        fluxes = []
+
+        for x in self.modelNames:
+
+            tmp = []
+
+            for pars in self.scat.models[x]['values']:
+
+                flux = self.CalculateEnergyFlux(x,pars)
+                tmp.append(flux)
+
+
+            fluxes.append(tmp)
+
+       
+        fluxes = map(array,fluxes)
+
+        totFlux = zeros(len(fluxes[0]))
+
+        for x in fluxes:
+            totFlux+=x
+
+        fluxes.append(totFlux)
+
+        tmp = list(self.modelNames)
+        tmp.append('total')
+
+        self.energyFluxes = dict(zip(tmp,fluxes))
+
+
         
 
 
@@ -281,7 +361,28 @@ class fluxLightCurve:
         self.fluxErrors=dict(zip(self.modelNames+['total'],individualFluxError))
 
             
+    def EnergyLightCurveErrors(self):
+
+        self.FormatCovarMat()
+
+        tmpParamArray = map(lambda x: [] ,self.tBins)
+        
+
+        individualFluxError=[]
+        for mod in self.modelNames:
             
+            
+            for x,row in zip(self.scat.models[mod]['values'],tmpParamArray):
+                row.append(x)
+
+        for mod in self.modelNames:
+            
+            individualFluxError.append(map(lambda par,cov:self.EnergyFluxError(par,cov,mod), tmpParamArray,self.covars  ))
+        
+        
+        individualFluxError.append ( map(lambda par,cov:self.EnergyFluxError(par,cov,"total"), tmpParamArray,self.covars  ))
+        #self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov,"total"), tmpParamArray,self.covars  )
+        self.energyFluxErrors=dict(zip(self.modelNames+['total'],individualFluxError))        
 
 
 
@@ -290,6 +391,15 @@ class fluxLightCurve:
 
         dicString=['fluxes','errors','tBins','energies']
         save = dict(zip(dicString,[self.fluxes,self.fluxErrors,self.tBins,[self.eMin,self.eMax]]))
+
+        pickle.dump(save,open(fileName,'w'))
+
+
+    def SaveEnergy(self,fileName='energyFluxSave.p'):
+
+
+        dicString=['energy fluxes','errors','tBins','energies']
+        save = dict(zip(dicString,[self.energyFluxes,self.energyFluxErrors,self.tBins,[self.eMin,self.eMax]]))
 
         pickle.dump(save,open(fileName,'w'))
         
