@@ -43,6 +43,26 @@ def RydeBPL(x, norm, indx1, indx2, breakTime ,delta, tn=1.):
     
     val = norm*power(x/tn,phi)*power( cosh(log10(x/breakTime)/delta)/cosh(log10(tn/breakTime)/delta),eps*delta*log(10.)  )
     return val
-    
+ 
+def Band( x, A, Ep, alpha, beta):
 
-functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL}
+	cond1 = x < (alpha-beta)*Ep/(2+alpha)
+	cond2 = x >= (alpha-beta)*Ep/(2+alpha)
+
+
+
+        band = piecewise(x, [cond1, cond2],\
+				    [lambda x: A*( power(x/100., alpha) * exp(-x*(2+alpha)/Ep) ), \
+					     lambda x:A* ( power( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*power(x/100.,beta))])
+
+        return band  
+
+def BlackBody(x,A,kT):
+
+	val = A*power(x,2)*power(exp(x/float64(kT))-1,-1)
+
+	return val
+ 
+
+functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody }
+

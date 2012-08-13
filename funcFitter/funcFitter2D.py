@@ -85,7 +85,7 @@ class funcFitter2D(funcFitter):
 
         resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
         
-        fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint,limits=self.limits)
+        fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint,limits=self.limits,quiet=1)
         params, errors, chi2, dof = fit
 
         print "\nFit results: "
