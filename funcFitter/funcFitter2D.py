@@ -110,6 +110,6 @@ class funcFitter2D(funcFitter):
 
         resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr)
-        resultAx.set_xlabel(self.xName)
-        resultAx.set_ylabel(self.yName)
+        resultAx.set_xlabel(self.xName,fontsize=16)
+        resultAx.set_ylabel(self.yName,fontsize=16)
         resultAx.set_title(self.title)
