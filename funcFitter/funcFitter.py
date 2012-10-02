@@ -144,7 +144,7 @@ class funcFitter:
             resultAx.plot(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle)
                 
 
-        resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
+        self.legData = resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
         
                 
 
@@ -180,9 +180,9 @@ class funcFitter:
         else:
             resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
-        resultAx.set_xlabel(self.xName,fontsize=16)
-        resultAx.set_ylabel(self.yName,fontsize=16)
-        resultAx.set_title(self.title)
+        resultAx.set_xlabel(self.xName,fontsize=20)
+        resultAx.set_ylabel(self.yName,fontsize=20)
+        resultAx.set_title(self.title,fontsize=24)
 
         self.ax= resultAx
         

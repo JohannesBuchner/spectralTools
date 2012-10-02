@@ -46,6 +46,7 @@ class spectralPlotter:
 
         self.eMin = float(eMin)
         self.eMax = float(eMax)
+    
 
 
     def FitReader(self):
