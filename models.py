@@ -4,6 +4,14 @@ from pygsl.sf import synchrotron_1
 import pygsl.errors
 from scipy.integrate import quad, quadrature
 
+
+#J. Michael burgess October 2011
+#
+# This file contains models defined in the way of RMFIT for the SCATReader
+# and other files to calculate errors and fluxes
+# for each new model the modelLookup dict needs to be updated
+#
+
 def Band( x, A, Ep, alpha, beta):
 
 	cond1 = x < (alpha-beta)*Ep/(2+alpha)

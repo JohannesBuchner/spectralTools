@@ -1,3 +1,5 @@
+# J. Michael Burgess ~April 2011
+
 
 from spectralTools.models import modelLookup
 from eFluxModels import modelLookup as eFluxLookup
@@ -6,7 +8,7 @@ from scipy.integrate import quad, quadrature
 from numpy import array, sqrt, zeros, vstack
 import pickle
 
-
+#numerical derivative 
 def deriv(f):
 
     def df(x, h=0.1e-7):
@@ -19,7 +21,16 @@ def deriv(f):
 
 
 class fluxLightCurve:
+    '''
+    The flux light curves are built from the scatReader. They can buikd both
+    energy and photon flux light curves. The energy range is entered in keV.
+    Light curves can be computed with or without errors but realize that the
+    lightcurve object will without the errors.
 
+    The lightcurve can be saved to a pickle file that is a dictionary.
+
+
+    '''
 
     def __init__(self,scat,eMin,eMax):
 

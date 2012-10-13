@@ -21,7 +21,21 @@ def f5(seq, idfun=None):
 
 
 class scatReader:
+    '''
+    SCATReadrer reads in a filename of an scat file made by RMFIT
+    and turns it into a python object. It stores the covariance matrix,
+    fit params, fluxes from RMFIT, and time bins for EACH model.
 
+    It can read single fits or batch fits.
+    
+    It interfaces with other progams for plotting and flux calculation
+
+    The add operator is overloaded so that two SCATReaders can be added.
+    At the moment the temporal ordering is based on you adding the files
+    in the proper order
+    
+
+    '''
     def __init__(self, fileName):
         
 
@@ -107,7 +121,12 @@ class scatReader:
 
 
     def GetParamArray(self, model,param):
-        
+        '''
+        Returns a paramerter array for that model. This is NOT a
+        structured list. The params are the first column and the 
+        errors are the last two columns.
+
+        '''
         paramArr = deepcopy(self.models[model]['values'][param])
         paramErrplus = deepcopy(self.models[model]['+'][param])
         paramErrminus = deepcopy(self.models[model]['-'][param])
