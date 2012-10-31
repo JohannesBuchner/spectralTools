@@ -93,6 +93,12 @@ class funcFitter:
         
         return [array(logData),array(logErr)]  
 
+    def ReconvertData(self,logData,logErr):
+        data = 10**(logData)
+        err = data*log(10)*logErr
+        
+        return [array(data),array(err)]
+
     def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1.):
 
         print errorbarThick

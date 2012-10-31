@@ -6,6 +6,14 @@ from numpy import array, linspace, log10, log, dtype
 import inspect
 
 
+def filt_neg_err(y, yerr, set_ymin=1e-6): 
+    ymin = y - yerr 
+    filt = ymin < 0 
+    yerr_pos = yerr.copy() 
+    yerr_neg = yerr.copy() 
+    yerr_neg[filt] =  y[filt] - set_ymin 
+    return array([yerr_neg, yerr_pos])
+
 class funcFitter2D(funcFitter):
 
 
@@ -82,8 +90,12 @@ class funcFitter2D(funcFitter):
         if self.fixed[1]==1.:
             fixint=True
 
-
-        resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
+        if self.dataLog == None:
+            resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
+        
+        
+        
+        #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
         
         fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint,limits=self.limits,quiet=1)
         params, errors, chi2, dof = fit
@@ -108,7 +120,40 @@ class funcFitter2D(funcFitter):
         self.result.append([chi2,dof])
         self.result=array(self.result)
 
-        resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+
+        if self.dataLog == None:
+            #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
+            resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+
+        elif self.dataLog == "x":
+             resultAx.set_xscale("log")
+             xDat, xErr = self.ReconvertData(self.xData,self.xErr) 
+             
+             tmpXerr = filt_neg_err(xDat,xErr)
+
+             resultAx.semilogx(10**(xRange),yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+             resultAx.errorbar(xDat,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=tmpXerr,elinewidth=self.errorbarThick)
+
+        elif self.dataLog == "y":
+            resultAx.set_yscale("log")
+            yDat, yErr = self.ReconvertData(self.yData,self.yErr)
+            tmpYerr = filt_neg_err(yDat,yErr) 
+            resultAx.semilogy((xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+            resultAx.errorbar((self.xData),yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=(self.xErr),elinewidth=self.errorbarThick)
+            
+
+        elif self.dataLog == "all":
+            xDat, xErr = self.ReconvertData(self.xData,self.xErr) 
+            tmpXerr = filt_neg_err(xDat,xErr)
+            yDat, yErr = self.ReconvertData(self.yData,self.yErr)
+            tmpYerr = filt_neg_err(yDat,yErr) 
+            resultAx.set_xscale("log",nonposx='clip')
+            resultAx.set_yscale("log",nonposy='clip')
+            resultAx.loglog(10**(xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+            resultAx.errorbar(xDat,yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=tmpXerr,elinewidth=self.errorbarThick)
+            
+
+        #resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr)
         resultAx.set_xlabel(self.xName,fontsize=20)
         resultAx.set_ylabel(self.yName,fontsize=20)
