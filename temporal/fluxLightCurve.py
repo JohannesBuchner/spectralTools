@@ -18,7 +18,7 @@ def deriv(f):
 
 
 
-
+keV2erg =1.60217646e-9
 
 class fluxLightCurve:
     '''
@@ -115,7 +115,7 @@ class fluxLightCurve:
 
         val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(),epsabs=0., epsrel= 1.e-5 )
 
-        return val
+        return val*keV2erg
 
 
    
@@ -176,7 +176,7 @@ class fluxLightCurve:
         tmp = firstDerivates.dot(covar)
 
         errors =  tmp.dot(firstDerivates)
-        return errors
+        return sqrt(errors)
 
 
     def EnergyFluxError(self, params, covar, currentModel):
@@ -236,7 +236,7 @@ class fluxLightCurve:
         tmp = firstDerivates.dot(covar)
 
         errors =  tmp.dot(firstDerivates)
-        return errors
+        return sqrt(errors)*keV2erg
   
 
 
