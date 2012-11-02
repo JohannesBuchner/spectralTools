@@ -110,12 +110,17 @@ class fluxLightCurve:
         if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
             
             val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
+            val = val*keV2erg
             return val
             
 
         val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(),epsabs=0., epsrel= 1.e-5 )
 
-        return val*keV2erg
+        
+        val = val*keV2erg
+        
+
+        return val
 
 
    
@@ -175,8 +180,8 @@ class fluxLightCurve:
         firstDerivates = array(firstDerivates)
         tmp = firstDerivates.dot(covar)
 
-        errors =  tmp.dot(firstDerivates)
-        return sqrt(errors)
+        errors =  sqrt( tmp.dot(firstDerivates) )
+        return errors
 
 
     def EnergyFluxError(self, params, covar, currentModel):
@@ -217,8 +222,7 @@ class fluxLightCurve:
                     return self.CalculateEnergyFlux(modName,tmpParams)
 
 
-
-
+                
                 if modName == currentModel:
                     #print "in currentModel"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
@@ -235,8 +239,9 @@ class fluxLightCurve:
         firstDerivates = array(firstDerivates)
         tmp = firstDerivates.dot(covar)
 
-        errors =  tmp.dot(firstDerivates)
-        return sqrt(errors)*keV2erg
+        errors =  sqrt(tmp.dot(firstDerivates))
+        #errors = errors*keV2erg
+        return errors
   
 
 
@@ -309,7 +314,7 @@ class fluxLightCurve:
 
 
     def CreateEnergyLightCurve(self):
-
+        
 
         fluxes = []
 
@@ -318,7 +323,7 @@ class fluxLightCurve:
             tmp = []
 
             for pars in self.scat.models[x]['values']:
-
+                
                 flux = self.CalculateEnergyFlux(x,pars)
                 tmp.append(flux)
 
