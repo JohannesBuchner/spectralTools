@@ -41,6 +41,7 @@ class funcFitter2D(funcFitter):
         self.plotNum=1000
         self.rDisp=rDisp
         self.limits=None
+        self.fontsize=10
 
 
     def SetXErr(self,xErr):
@@ -155,7 +156,7 @@ class funcFitter2D(funcFitter):
 
         #resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr)
-        resultAx.set_xlabel(self.xName,fontsize=20)
-        resultAx.set_ylabel(self.yName,fontsize=20)
-        resultAx.set_title(self.title,fontsize=24)
+        resultAx.set_xlabel(self.xName,fontsize=self.fontsize)
+        resultAx.set_ylabel(self.yName,fontsize=self.fontsize)
+        resultAx.set_title(self.title,fontsize=self.fontsize)
         self.ax = resultAx

@@ -7,9 +7,26 @@ import matplotlib.pyplot as plt
 
 
 from models import modelLookup
-from numpy import array, zeros, logspace, log10, asarray
+from numpy import array, zeros, logspace, log10, asarray, sqrt
 
 colorTable = ["CornflowerBlue","DeepPink","Lime"]
+
+fig_width_pt =245.26653  # Get this from LaTeX using \showthe\columnwidth
+inches_per_pt = 1.0/72.27               # Convert pt to inch
+golden_mean = (sqrt(5)-1.0)/2.0         # Aesthetic ratio
+fig_width = fig_width_pt*inches_per_pt  # width in inches
+fig_height = fig_width*golden_mean      # height in inches
+fig_size =  [fig_width,fig_height]
+params = {'backend': 'ps',
+          'axes.labelsize': 10,
+          'text.fontsize': 10,
+          'legend.fontsize': 10,
+          'xtick.labelsize': 8,
+          'ytick.labelsize': 8,
+          'text.usetex': True,
+          'figure.figsize': fig_size,
+          'font.family': 'serif'}
+plt.rcParams.update(params)
 
 
 class spectralPlotter:
@@ -20,21 +37,21 @@ class spectralPlotter:
             self.phtFig = plt.figure(1)
             self.phtAx = self.phtFig.add_subplot(111)
             self.phtAx.set_xlabel("Energy (keV)")
-            self.phtAx.set_ylabel("pht/s/cm2")
+            self.phtAx.set_ylabel(r"Flux $(photons\;s^{-1}\;cm^{-2})$")
 
         if energy:
             self.energyFig = plt.figure(2)
             self.energyAx = self.energyFig.add_subplot(111)
         
             self.energyAx.set_xlabel("Energy (keV)")
-            self.energyAx.set_ylabel("ergs/s/cm2")
+            self.energyAx.set_ylabel(r"$F_E\;(keV\;s^{-1}\;cm^{-2})$")
 
 
         if vFv:
             self.vFvFig = plt.figure(3)
             self.vFvAx = self.vFvFig.add_subplot(111)
             self.vFvAx.set_xlabel("Energy (keV)")
-            self.vFvAx.set_ylabel("E^2/s/cm2")
+            self.vFvAx.set_ylabel(r"$\nu F_{\nu}\;(keV^{2}\;s{-1}\;cm^{-2})$")
 
         self.energyPlt = energy
         self.phtPlt = pht
