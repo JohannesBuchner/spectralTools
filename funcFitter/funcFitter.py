@@ -70,15 +70,15 @@ class funcFitter:
 
 
     def SetXData(self, xData):
-        self.xData = xData
+        self.xData = array(xData)
 
     def SetYData(self, yData):
-        self.yData = yData
+        self.yData = array(yData)
 
 
     def SetYErr(self, yErr):
         
-        self.yErr = yErr
+        self.yErr = array(yErr)
 
     def SetXName(self,xName):
         self.xName = str(xName)
@@ -127,6 +127,20 @@ class funcFitter:
         
 
 
+    def GetFunction(self,xmin=None,xmax=None):
+
+        if xmin == None:
+            xmin = self.xData.min()
+        if xmax == None:
+            xmax = self.xData.max()
+
+        xRange = linspace(self.xData.min(),self.xData.max(),500)
+            
+        params = self.result[:-1,0]
+        yResult = self.fitFunc(xRange,*params)
+
+        return (xRange,yResult)
+    
 
     def Fit(self,showLog=False,showGuess=False):
         
@@ -171,7 +185,7 @@ class funcFitter:
             print "\n\n\n-----------> FIT FAILED!!!!!\n\n\n"
             return
         
-
+        
         xRange = linspace(self.xData.min(),self.xData.max(),100)
         yResult = self.fitFunc(xRange,*params)
         self.result =  zip(params,errors)
