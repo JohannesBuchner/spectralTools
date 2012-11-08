@@ -27,7 +27,7 @@ params = {'backend': 'ps',
           'figure.figsize': fig_size,
           'font.family': 'serif'}
 plt.rcParams.update(params)
-
+keV2erg =1.60217646e-9
 
 class spectralPlotter:
 
@@ -37,21 +37,21 @@ class spectralPlotter:
             self.phtFig = plt.figure(1)
             self.phtAx = self.phtFig.add_subplot(111)
             self.phtAx.set_xlabel("Energy (keV)")
-            self.phtAx.set_ylabel(r"$photons\;s^{-1}\;cm^{-2}$")
+            self.phtAx.set_ylabel(r"Flux (photons s$^{-1}$ cm$^{-2}$)")
 
         if energy:
             self.energyFig = plt.figure(2)
             self.energyAx = self.energyFig.add_subplot(111)
         
             self.energyAx.set_xlabel("Energy (keV)")
-            self.energyAx.set_ylabel("$keV\;s^{-1}\;cm^{-2}$")
+            self.energyAx.set_ylabel("$F_E$ (ergs s$^{-1}$ cm$^{-2}$)")
 
 
         if vFv:
             self.vFvFig = plt.figure(3)
             self.vFvAx = self.vFvFig.add_subplot(111)
             self.vFvAx.set_xlabel("Energy (keV)")
-            self.vFvAx.set_ylabel(r"$keV^2\;s^{-1}/cm2$")
+            self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (ergs$^2$ s$^{-1}$ cm$^{-2}$)")
 
         self.energyPlt = energy
         self.phtPlt = pht
@@ -176,11 +176,11 @@ class spectralPlotter:
             bottomLim = asarray(mins).max()
             
             for sp,cl  in zip(photonSpectra,colorTable):
-                self.phtAx.loglog(energy,sp,linewidth=2.5,color=cl)
+                self.phtAx.loglog(energy,sp,linewidth=1.5,color=cl)
             self.phtAx.set_ylim(bottom = bottomLim)
 
         else:
-            self.phtAx.loglog(energy,photonSpectra,linewidth=2.5, color = "CornflowerBlue")
+            self.phtAx.loglog(energy,photonSpectra,linewidth=1.5, color = "CornflowerBlue")
         
 
         
@@ -192,7 +192,7 @@ class spectralPlotter:
         eMax = self.eMax
 
         energy = logspace(log10(eMin),log10(eMax),num=1000)
-        energySpectra = energy*self.GetModel(energy)
+        energySpectra = keV2erg*energy*self.GetModel(energy)
 
 
 
@@ -204,11 +204,11 @@ class spectralPlotter:
             bottomLim = asarray(mins).max()
             
             for sp,cl  in zip(energySpectra,colorTable):
-                self.energyAx.loglog(energy,sp,linewidth=2.5,color=cl)
+                self.energyAx.loglog(energy,sp,linewidth=1.5,color=cl)
             self.energyAx.set_ylim(bottom = bottomLim)
 
         else:
-            self.energyAx.loglog(energy,energySpectra,linewidth=2.5, color = "CornflowerBlue")
+            self.energyAx.loglog(energy,energySpectra,linewidth=1.5, color = "CornflowerBlue")
 
         self.energyAx.set_xlim(right=energy.max())
 
@@ -224,7 +224,7 @@ class spectralPlotter:
         eMax = self.eMax
 
         energy = logspace(log10(eMin),log10(eMax),num=1000)
-        vFvSpectra = energy*energy*self.GetModel(energy)
+        vFvSpectra = (keV2erg)**2*energy*energy*self.GetModel(energy)
 
 
         if self.multi:
@@ -235,11 +235,11 @@ class spectralPlotter:
             bottomLim = asarray(mins).max()
             
             for sp,cl  in zip(vFvSpectra,colorTable):
-                self.vFvAx.loglog(energy,sp,linewidth=2.5,color=cl)
+                self.vFvAx.loglog(energy,sp,linewidth=1.5,color=cl,fillstyle='bottom')
             self.vFvAx.set_ylim(bottom = bottomLim)
 
         else:
-            self.vFvAx.loglog(energy,vFvSpectra,linewidth=2.5, color = "CornflowerBlue")
+            self.vFvAx.loglog(energy,vFvSpectra,linewidth=1.5, color = "CornflowerBlue")
 
         self.vFvAx.set_xlim(right=energy.max())
 
