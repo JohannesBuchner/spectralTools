@@ -36,12 +36,12 @@ def Exponential(x, norm, x0=0.,a=1., b=-1.):
     return val
     
     
-def RydeBPL(x, norm, indx1, indx2, breakTime ,delta, tn=1.):
+def RydeBPL(x, norm, indx1, indx2, breakTime ,delta, tn=1.,t0=0):
 
     eps=(indx2-indx1)/2
     phi=(indx2+indx1)/2
     
-    val = norm*power(x/tn,phi)*power( cosh(log10(x/breakTime)/delta)/cosh(log10(tn/breakTime)/delta),eps*delta*log(10.)  )
+    val = norm*power((x-t0)/tn,phi)*power( cosh(log10((x-t0)/breakTime)/delta)/cosh(log10(tn/breakTime)/delta),eps*delta*log(10.)  )
     return val
  
 def Band( x, A, Ep, alpha, beta):
