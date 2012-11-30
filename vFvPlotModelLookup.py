@@ -12,21 +12,14 @@ from scipy.integrate import quad, quadrature
 # for each new model the modelLookup dict needs to be updated
 #
 
+
 def Band( x, A, Ep, alpha, beta):
 
-	cond1 = x < (alpha-beta)*Ep/(2+alpha)
-	cond2 = x >= (alpha-beta)*Ep/(2+alpha)
-
-
-
-        band = np.piecewise(x, [cond1, cond2],\
-				    [lambda x: A*( power(x/100., alpha) * exp(-x*(2+alpha)/Ep) ), \
-					     lambda x:A* ( power( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*power(x/100.,beta))])
-
+	if x < (alpha-beta)*Ep/(2+alpha):
+		band = A*( power(x/100., alpha) * exp(-x*(2+alpha)/Ep) )
+	elif x >= (alpha-beta)*Ep/(2+alpha):
+		band = A* ( power( (alpha -beta)*Ep/(100.*(2+alpha)),alpha-beta)*exp(beta-alpha)*power(x/100.,beta))
         return band
-
-
-
 
 def BlackBody(x,A,kT):
 

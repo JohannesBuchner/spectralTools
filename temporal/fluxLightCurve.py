@@ -136,7 +136,7 @@ class fluxLightCurve:
 
         firstDerivates = []
         
-        for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
+        for modName, par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
 
             model = self.modelDict[modName]
             #print modName
@@ -148,11 +148,6 @@ class fluxLightCurve:
                 def tmpFlux(currentPar):
 
                     tmpParams = par.copy()
-                    #print "\nCurrent param:"
-                    #print currentPar
-
-  #                  print "\nTmp Params:"
-   #                 print tmpParams
                     tmpParams[parName]=currentPar
 
 
@@ -355,7 +350,7 @@ class fluxLightCurve:
 
     def LightCurveErrors(self):
 
-        self.FormatCovarMat()
+        #self.FormatCovarMat()
 
         tmpParamArray = map(lambda x: [] ,self.tBins)
         
@@ -379,7 +374,7 @@ class fluxLightCurve:
             
     def EnergyLightCurveErrors(self):
 
-        self.FormatCovarMat()
+        #self.FormatCovarMat()
 
         tmpParamArray = map(lambda x: [] ,self.tBins)
         

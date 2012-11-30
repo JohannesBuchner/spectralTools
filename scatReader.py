@@ -61,6 +61,7 @@ class scatReader:
         # I may take this out at some point
 
         self.ExtractModels()
+        self.FormatCovarMat()
 
 
 
@@ -187,6 +188,33 @@ class scatReader:
         del tmp2
 
   
+    def FormatCovarMat(self):
+
+
+        length = self.numParams
+        
+        covars = []
+        
+        for x in self.covars:
+            
+            covar = []
+            
+
+            for i in range(length):
+                
+
+                tmp = []
+
+                for j in range(length):
+                   
+
+                    #tmp.append(x[i*length+j])
+                    tmp.append(x[i][j])
+
+                covar.append(tmp)
+                    
+            covars.append(array(covar))
+        self.covars=covars
 
 
             
