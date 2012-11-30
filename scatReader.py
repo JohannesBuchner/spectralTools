@@ -138,6 +138,27 @@ class scatReader:
 
 
 
+    def __repr__(self):
+
+        info = "SCAT Models:\n"
+        for x in self.modelNames:
+            info = info+x+"\n"
+        info = info+"\n\n"
+
+        info = info+"Time Bins:\n"
+        for x in self.tBins:
+            info = info + str(x[0])+' : '+str(x[1])+'\n'
+
+        info = info+"\n\n"
+
+        
+
+
+
+
+        return info
+
+
     def ExtractModels(self):
 
 
