@@ -19,6 +19,8 @@ class scatSpectralPlotter(spectralPlotter.spectralPlotter):
             fit = spectralPlotter.Fit(modelNames,params)
             fits.append(fit)
 
+        
+
         return fits
 
 

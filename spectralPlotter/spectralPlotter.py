@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 
 
 from models import modelLookup
-from numpy import array, zeros, logspace, log10, asarray, sqrt
+from numpy import array, zeros, logspace, log10, asarray, sqrt, linspace, arange
 
-colorTable = ["CornflowerBlue","DeepPink","Lime"]
+
 
 fig_width_pt =245.26653  # Get this from LaTeX using \showthe\columnwidth
 inches_per_pt = 1.0/72.27               # Convert pt to inch
@@ -37,21 +37,21 @@ class spectralPlotter:
             self.phtFig = plt.figure(1)
             self.phtAx = self.phtFig.add_subplot(111)
             self.phtAx.set_xlabel("Energy (keV)")
-            self.phtAx.set_ylabel(r"Flux (photons s$^{-1}$ cm$^{-2}$)")
+            self.phtAx.set_ylabel(r"Flux (photons s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
 
         if energy:
             self.energyFig = plt.figure(2)
             self.energyAx = self.energyFig.add_subplot(111)
         
             self.energyAx.set_xlabel("Energy (keV)")
-            self.energyAx.set_ylabel("$F_E$ (ergs s$^{-1}$ cm$^{-2}$)")
+            self.energyAx.set_ylabel("$F_E$ (ergs s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
 
 
         if vFv:
             self.vFvFig = plt.figure(3)
             self.vFvAx = self.vFvFig.add_subplot(111)
             self.vFvAx.set_xlabel("Energy (keV)")
-            self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (ergs$^2$ s$^{-1}$ cm$^{-2}$)")
+            self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (ergs$^2$ s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
 
         self.energyPlt = energy
         self.phtPlt = pht
@@ -72,7 +72,15 @@ class spectralPlotter:
 
     def SetFitsFile(self, fName):
         self.fName = fName
-        print self.fName
+        
+        for f in fName:
+            print "reading: "+f
+
+        self.numFiles = len(fName)
+
+        print "finished reading "+str(self.numFiles)+ " files"
+        
+        #print "reading"self.fName
 
     def SetParams(self,args):
         self.params=args
@@ -128,16 +136,30 @@ class spectralPlotter:
     def ReadFits(self):
         
         fits = self.FitReader()
-        for fit in fits:
+
+        red = []
+        blue = []
+        for i in arange(float(self.numFiles),.9,-1):
+
+            colorNum = i/self.numFiles
+
+            red.append((1,colorNum,0.))
+            blue.append((0.,colorNum,1.))
+
+        #self.red=red
+        #self.blue=blue    
+
+        for fit,r,b in zip(fits,red,blue):
             if self.uniModel == None:
                 modelName = fit.GetModelName()
                 self.SetModel(modelName)
                 params = fit.GetParams()
                 self.SetParams(params)
+                self.colorTable = [r,b]
             #self.SetEnergies()
             else:
                 
-                
+                self.colorTable = [r,b]
                 modelName = fit.GetModelName()
                 modelIndex = modelName.index(self.uniModel)
                 modelName=[self.uniModel]
@@ -175,7 +197,7 @@ class spectralPlotter:
                 mins.append(sp.min())
             bottomLim = asarray(mins).max()
             
-            for sp,cl  in zip(photonSpectra,colorTable):
+            for sp,cl  in zip(photonSpectra,self.colorTable):
                 self.phtAx.loglog(energy,sp,linewidth=1.5,color=cl)
             self.phtAx.set_ylim(bottom = bottomLim)
 
@@ -203,7 +225,7 @@ class spectralPlotter:
                 mins.append(sp.min())
             bottomLim = asarray(mins).max()
             
-            for sp,cl  in zip(energySpectra,colorTable):
+            for sp,cl  in zip(energySpectra,self.colorTable):
                 self.energyAx.loglog(energy,sp,linewidth=1.5,color=cl)
             self.energyAx.set_ylim(bottom = bottomLim)
 
@@ -234,7 +256,7 @@ class spectralPlotter:
                 mins.append(sp.min())
             bottomLim = asarray(mins).max()
             
-            for sp,cl  in zip(vFvSpectra,colorTable):
+            for sp,cl  in zip(vFvSpectra,self.colorTable):
                 self.vFvAx.loglog(energy,sp,linewidth=1.5,color=cl,fillstyle='bottom')
             self.vFvAx.set_ylim(bottom = bottomLim)
 
