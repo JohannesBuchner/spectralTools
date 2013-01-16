@@ -108,7 +108,15 @@ class spectralPlotter:
                     tmpFlux = array(tmpFlux)
 
                     flux.append(tmpFlux)
-                    
+
+                elif x == self.modelLookup["Fast Synchrotron"]: # Have to do it bin my bin
+                    tmpFlux =[]
+                    for en in energy:
+                        tmpFlux.append(x(en,*y[0][0]))
+                    tmpFlux = array(tmpFlux)
+
+                    flux.append(tmpFlux)
+
                 else:
                     flux.append(x(energy,*y[0][0]))
             flux=array(flux)

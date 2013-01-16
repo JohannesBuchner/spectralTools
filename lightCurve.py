@@ -438,7 +438,7 @@ class lightCurve:
         while flag:
 
             t=lex.get_token()
-           
+            print t
             
             
             if t=='EBIN':

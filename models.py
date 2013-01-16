@@ -54,7 +54,7 @@ def TotalSynchrotron(x, A, eCrit, eta, index, gammaTh):
 	gammaTh = float(gammaTh)
 
 
-	val,err, = quad(Integrand, 1,inf, args=(x,A,eCrit,eta,index,gammaTh),epsabs=0., epsrel= 1.e-5 )
+	val,err, = quad(Integrand, 1.,inf, args=(x,A,eCrit,eta,index,gammaTh),epsabs=0., epsrel= 1.e-5 )
 	val= val/(x)
 
 	return val
@@ -108,5 +108,58 @@ def PowerLaw2Breaks(x, A, pivot, index1, breakE1, index1to2, breakE2, index2):
 
 
 
+def FastSynchrotron(x, A, gamma_pl, eStar, index):
+
+        A=float(A)
+        gamma_pl = float(gamma_pl)
+        eStar = float(eStar)
+        index = float(index)
+
+        val1, err1, = quad(fastInt, 1.0, inf, args= (x,A,gamma_pl, eStar, index), epsabs=0., epsrel= 1.e-5  )
+        #val2, err2 = quad(fastInt2, gamma_pl, inf , args= (x,A,gamma_pl, eStar, index),epsabs=0., epsrel= 1.e-5  )
+
+        val = val1/(x)
+
+        return val
+
+
+def fastInt(gamma, x, A, gamma_pl, eStar, index):
+
+        try:
+                val = fastEDist(A,gamma,gamma_pl,index) * synchrotron_1(x/(eStar*gamma*gamma))[0]
+	except pygsl.errors.gsl_Error, err:
+		print err
+		val = 0.
+	return val
+
+
+
+
+
+
+def fastEDist(A, gamma, gamma_pl, index):
+
+        cond1 = gamma <= gamma_pl
+	cond2 = gamma > gamma_pl
+
+	gamma=float(gamma)
+
+	if gamma<=gamma_pl:
+
+		val = A * 1./(gamma*gamma)
+	else:
+		val = A * ((gamma/gamma_pl)**( 1 - index))/(gamma * gamma)
+
+	return val
+
+        
+
+
+
 modelLookup = {"Power Law w. 2 Breaks":PowerLaw2Breaks, "Band's GRB, Epeak": Band, "Total Test Synchrotron": TotalSynchrotron, "Black Body": BlackBody,\
-		"Comptonized, Epeak": Compt, "Power Law": PowerLaw }
+		"Comptonized, Epeak": Compt, "Power Law": PowerLaw , "Fast Synchrotron": FastSynchrotron}
+
+
+
+
+
