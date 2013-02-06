@@ -31,7 +31,7 @@ keV2erg =1.60217646e-9
 
 class spectralPlotter:
 
-    def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None):
+    def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None,manualColor=None):
 
         if pht:
             self.phtFig = plt.figure(1)
@@ -52,6 +52,15 @@ class spectralPlotter:
             self.vFvAx = self.vFvFig.add_subplot(111)
             self.vFvAx.set_xlabel("Energy (keV)")
             self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (ergs$^2$ s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
+
+
+        if manualColor != None:
+
+            self.setColor = True
+            self.manualColor = manualColor
+        else:
+            self.setColor = False
+        
 
         self.energyPlt = energy
         self.phtPlt = pht
@@ -154,14 +163,20 @@ class spectralPlotter:
             red.append((1,colorNum,0.))
             blue.append((0.,colorNum,1.))
 
-        #self.red=red
-        #self.blue=blue    
 
+        if self.setColor:
+            red = self.manualColor
+
+
+     
         for fit,r,b in zip(fits,red,blue):
+            
+
             if self.uniModel == None:
                 modelName = fit.GetModelName()
                 self.SetModel(modelName)
                 params = fit.GetParams()
+               
                 self.SetParams(params)
                 self.colorTable = [r,b]
             #self.SetEnergies()
