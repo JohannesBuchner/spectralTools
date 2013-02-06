@@ -1,5 +1,5 @@
 import pyfits as pf
-from numpy import mean, dtype, float64, array, shape, concatenate, vstack, asarray
+from numpy import mean, dtype, float64, array, concatenate, asarray
 from copy import deepcopy
 
 def f5(seq, idfun=None):  
