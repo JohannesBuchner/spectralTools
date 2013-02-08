@@ -350,7 +350,7 @@ class fluxLightCurve:
 
     def LightCurveErrors(self):
 
-        #self.FormatCovarMat()
+        self.FormatCovarMat()
 
         tmpParamArray = map(lambda x: [] ,self.tBins)
         
@@ -374,7 +374,7 @@ class fluxLightCurve:
             
     def EnergyLightCurveErrors(self):
 
-        #self.FormatCovarMat()
+        self.FormatCovarMat()
 
         tmpParamArray = map(lambda x: [] ,self.tBins)
         
