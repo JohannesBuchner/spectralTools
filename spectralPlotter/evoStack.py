@@ -40,12 +40,14 @@ class evoStack:
             stackSize+=1
         
         self.fig = plt.figure(100)
-        
+        self.fig.subplots_adjust(hspace=0.001)
         self.axes = []
 
         for a in range(stackSize):
-            self.axes.append(self.fig.add_subplot(stackSize,1,a+1))
-        
+            if a==0:
+                self.axes.append(self.fig.add_subplot(stackSize,1,a+1))
+            else:
+                self.axes.append(self.fig.add_subplot(stackSize,1,a+1, sharex=self.axes[0]) )
         
         
         self.stackSize = stackSize
@@ -113,7 +115,7 @@ class evoStack:
 
 
         
-        print tBins
+        
         for f, e in zip(flux, errors):
 
             
@@ -128,7 +130,7 @@ class evoStack:
 
         
         ax = self.axes[0]
-        ax.set_xlabel("time (s)")
+        #ax.set_xlabel("time (s)")
         if self.pht:
             ax.set_ylabel("photons s$^{-1}$ cm$^{-2}$")
         else:
@@ -136,7 +138,7 @@ class evoStack:
 
         ax.set_xlim(left = tBins[0][0], right=tBins[-1][-1])
             
-        plt.draw()
+        #plt.draw()
 
 
     def _PlotParameters(self):
@@ -164,17 +166,41 @@ class evoStack:
 
 
             model, par, = p
-            print model
-            print par
-            val, err, _, =  scats[0].GetParamArray(model,par)
-
+            #print model
+            #print par
+            #print  scats[0].GetParamArray(model,par)
+            val =  scats[0].GetParamArray(model,par)[:,0]
+            err = scats[0].GetParamArray(model,par)[:,1]
+            
             ax = self.axes[i+1] 
             ax.errorbar(mTBins, val, yerr=err, color = 'k', fmt = '.')
+            ax.set_ylabel(par)
+            ax.set_yscale('log')
+            
             
             
 
+        
+
+
+    def Process(self):
+        
+        if self.files == []:
+
+            print "YOU HAVE NOT ADDED ANY FILES!!!!"
+            print "use .AddInputSCATFiles(<filename>)"
+            return
+        if self.lightcurve:
+            self._MakeLightCurve()
+        if self.params != []:
+            self._PlotParameters()
+
+
+        lastAx = self.axes[-1]
+
+        lastAx.set_xlabel("time (s)")
+        
         plt.draw()
-
 
 
 

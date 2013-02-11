@@ -180,7 +180,7 @@ class scatReader:
 
         # Now extract the parameters from the models
 
-        self.paramNames  =  map(lambda x: map(lambda y: y.comment.split(':')[1].strip() ,filter(lambda z: x in z.comment  ,header) ), self.modelNames)
+        self.paramNames  =  map(lambda x: map(lambda y: y.comment.split(':')[1].strip() ,filter(lambda z: x in z.comment, header) ), self.modelNames)
         
         tmpParam =  map( lambda x: map(lambda y: y.value ,filter(lambda z: x in z.comment  ,header) ), self.modelNames)
         tmp =  map( lambda x: array( map(lambda y: self.scat[2].data[y].tolist() ,x)).transpose().tolist()  , tmpParam)
@@ -198,6 +198,12 @@ class scatReader:
                 #z.dtype = dtype(y)
 
         dicString = ['values','-','+']
+        if len(tmp[0]) != len(dicString):
+            print "The error column is missing"
+            print "Duplicating 1-sided errors from batch fit!"
+            for t in tmp:
+                t.append(t[1])
+            
         
         tmp = map(lambda x: dict(zip(dicString,x))   ,tmp)
 
