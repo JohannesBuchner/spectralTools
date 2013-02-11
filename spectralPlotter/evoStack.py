@@ -8,7 +8,7 @@ from spectralTools.temporal.fluxLightCurve import fluxLightCurve
 class evoStack:
 
 
-    def __init__(self, lightcurve=True, params=[], pht=True, components=['total'], eMin=10, eMax=300 ):
+    def __init__(self, lightcurve=True, params=[], pht=True, components=['total'], eMin=10, eMax=600 ):
         '''
         Setup the plot for all the propoerties you want to show. 
         
