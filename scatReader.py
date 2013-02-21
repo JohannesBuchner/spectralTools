@@ -54,8 +54,8 @@ class scatReader:
         self.phtFluence = self.scat[2].data['PHTFLNC']
         self.covars = self.scat[2].data['COVARMAT']
         
-        self.dof = self.scat[2].data['CHSQDOF']
-        self.cstat = [self.scat[2].data['REDCHSQ'][0][1]*self.dof]
+        self.dof = array(map(float,(self.scat[2].data['CHSQDOF'])))
+        self.cstat = self.scat[2].data['REDCHSQ'][:,1]*self.dof
         
 
         # I may take this out at some point
