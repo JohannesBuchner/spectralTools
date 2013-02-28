@@ -74,29 +74,29 @@ class simView:
         
         
         binCenters = array(binCenters)
-        ax2.hlines(.68, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
-        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,.68,'1 $\sigma$')
+        ax2.hlines(1.-.68, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
+        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,1.-.68,' p = '+str(1-.68))
 
-        ax2.hlines(.05, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
-        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,.05,'3 $\sigma$')
+        ax2.hlines(1-.997, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
+        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,1-.997,' p = '+str(1-.999))
 
 
-        ax2.hlines(1e-5, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
-        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,1e-5,'5 $\sigma$')
+        #ax2.hlines(1.-.99999, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
+        #ax2.text(binCenters.mean()+.9*binCenters.mean()+1,1.-.99999,'5 $\sigma$')
 
         
         
-        ax2.semilogy(binCenters,frac,color='green')
+        ax2.semilogy(binCenters,frac,color='blue',linewidth=1.3)
         ax2.set_ylim(top=1.1,bottom=min(frac))
         if dCstat != None:
-            ax2.semilogy(binCenters[hIndex-1:],frac[hIndex-1:], color='r')
+            ax2.semilogy(binCenters[hIndex-1:],frac[hIndex-1:], color='r',linewidth=1.3)
             
 
         ax2.set_ylabel(r"frac > $\Delta_{\rm C-Stat}$")
         ax2.set_xlabel(r'$\Delta_{\rm C-Stat}$')
-
+        ax2.set_xlim(left=0)
        
-        ax2.hlines(.68, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
+        
 
 
 
@@ -113,7 +113,7 @@ class simView:
         accepted = n[hIndex-1:].sum()/float(len(deltaCstat))
 
         if dCstat != None:
-            print "Prob. to obtain D C-Stat by chance %s is %s "%(dCstat, accepted)
+            print "Prob. to obtain D C-Stat of %s by chance is %s "%(dCstat, accepted)
 
         
 
@@ -122,3 +122,25 @@ class simView:
         plt.draw()
 
           
+    def Goodness(self, fitStat):
+        '''
+        Examines the number of trials with the statistic
+        being less than the statistic achieved from 
+        the data. If the observed data comes from the model 
+        this number should be around 50
+        
+        '''
+        print "Make sure you fit the simulation"
+        print "with the model you simulated!"
+
+
+        cstat = self.scat.cstat
+        cstat = cstat[[isfinite(cstat)]]
+        truthtable = cstat < fitStat
+
+
+        numLess = len(cstat[truthtable])
+
+        percent = 100.* float(numLess)/float(len(cstat))
+
+        print '\n\n%s percent of the simulations were less than %s\n\n'%(percent,fitStat)
