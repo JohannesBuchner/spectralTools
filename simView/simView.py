@@ -144,3 +144,15 @@ class simView:
         percent = 100.* float(numLess)/float(len(cstat))
 
         print '\n\n%s percent of the simulations were less than %s\n\n'%(percent,fitStat)
+
+
+    def DisplayParameterDistributions(self):
+        '''
+        Plot histograms of the parameters from the simulations
+        This plots all parameters of the model
+
+        '''
+        
+
+        for mn,pn in zip(self.scat.modelNames,self.scat.paramNames):
+            for par in pn:
