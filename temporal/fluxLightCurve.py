@@ -138,7 +138,7 @@ class fluxLightCurve:
         
         for modName, par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
 
-            model = self.modelDict[modName]
+            
             #print modName
             for parName in z:
 
@@ -193,7 +193,7 @@ class fluxLightCurve:
         
         for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
 
-            model = self.eFluxModels[modName]
+            
             #print modName
             for parName in z:
 

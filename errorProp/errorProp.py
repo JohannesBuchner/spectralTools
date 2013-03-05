@@ -1,3 +1,6 @@
+#Author: J. michael burgess
+#Date 03/04/2013
+
 from inspect import getargspec
 from collections import OrderedDict
 from numpy import array, sqrt
@@ -64,25 +67,39 @@ class errorProp:
     '''
 
     def __init__(self):
+        self.covar = None
+        self.params = None
+        
+        
 
-
-        pass
-
-    def function(self):
-        pass
+    def _function(self):
+        return None
 
 
     def SetFunction(self, f):
-
-        self.function = f
+        '''
+        Sets the function that will be propogated into
+        '''
+        self._function = f
 
 
     def SetCovarianceMatrix(self, covar):
-
+        '''
+        Sets the covariance matrix which should
+        be a numpy array
+        '''
         self.covar = covar
 
 
     def SetBestFitParams(self, params):
+        '''
+        Sets the best fit params which should be entered
+        as an OrderedDict. It can be entered as an array
+        if the order of the numerical values matches the 
+        order of the function inputs. The length also has 
+        to be the same.
+
+        '''
 
         #If the best fit params are entered as an OrderedDict
         #then we are cool
@@ -92,40 +109,51 @@ class errorProp:
             
     
         #Otherwise we need to make one
-       
+            d=[]
  
-            for p,n in zip(params,getargspec(self.function).args):
+            for p,n in zip(params,getargspec(self._function).args):
                 d.append((n,p))
             self.params = d
 
 
     def Propogate(self):
-        if self.function == None:
-            print "ERROR: No function Set"
+        '''
+        Main calling function.
+        Outputs a tuple: (<value>, <error>)
+        
+        '''
+        if self._function() == None:
+            print "ERROR: No function set\n"
             return
         if self.params == None:
-            print "ERROR: Best fit params not set"
+            print "ERROR: Best fit params not set\n"
             return
         if self.covar == None:
-            print "ERROR: Covariance Matrix not set."
+            print "ERROR: Covariance Matrix not set\n"
 
         error = self._CalculateErrors()
 
         evalParams = []
-        args = getargspec(self.function).args
+        args = getargspec(self._function).args
         for a in args:
             evalParams.append(self.params[a])
 
-        value = self.function(*evalParams)
+        value = self._function(*evalParams)
 
         return (value,error)
 
 
 
     def _CalculateErrors(self):
+        '''
+        This function does the error propogation
+        by taking numerical first dirivatives and then 
+        performing the matrix operations that give you the 
+        error on the parameters.
+        '''
 
         shortFlag = False #Set only if the number of func args is less than params
-        args = getargspec(self.function).args
+        args = getargspec(self._function).args
 
         #Test a few things
         if self.covar.shape[0] != len(self.params.keys()): 
@@ -164,7 +192,7 @@ class errorProp:
 
                         tmpParams = shortParams.copy()
                         tmpParams[p]=currentParamValue
-                        return self.function(*tmpParams.values())
+                        return self._function(*tmpParams.values())
 
                 else:
 
@@ -172,7 +200,7 @@ class errorProp:
 
                         tmpParams = self.params.copy()
                         tmpParams[p]=currentParamValue
-                        return self.function(*tmpParams.values())
+                        return self._function(*tmpParams.values())
 
                 firstDerivatives.append( deriv(tmpFunction)(self.params[p]) )
 
