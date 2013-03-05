@@ -43,6 +43,9 @@ class funcFitter:
         args, varargs, varkw, defaults = inspect.getargspec(self.fitFunc)
         self.params = args[1:]
         args = args[2:]
+        print "The parameters of this function are:"
+        for a in self.params:
+            print a
         if self.interactive:
             
             print "\n\nSet initial values:\n"
@@ -191,7 +194,7 @@ class funcFitter:
         self.result =  zip(params,errors)
         self.result.append([fit.chi2,fit.dof])
         self.result=array(self.result)
-            
+        self.covar = fit.covar
 
          
 

@@ -69,7 +69,7 @@ class errorProp:
     def __init__(self):
         self.covar = None
         self.params = None
-        
+        self._function = None
         
 
     def _function(self):
@@ -122,7 +122,7 @@ class errorProp:
         Outputs a tuple: (<value>, <error>)
         
         '''
-        if self._function() == None:
+        if self._function == None:
             print "ERROR: No function set\n"
             return
         if self.params == None:
