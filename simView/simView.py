@@ -30,7 +30,7 @@ class simView:
         deltaCstat = self.scat.cstat - other.scat.cstat
         #Check for nan values (failed fits!)
         deltaCstat = deltaCstat[isfinite(deltaCstat)]
-
+        deltaCstat = deltaCstat[deltaCstat>=0.]
         n, bins, patches = ax.hist(deltaCstat, bins=nbins, histtype = 'bar', color = 'k', linewidth=.000001)
 
 
