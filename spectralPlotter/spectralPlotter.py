@@ -44,14 +44,14 @@ class spectralPlotter:
             self.energyAx = self.energyFig.add_subplot(111)
         
             self.energyAx.set_xlabel("Energy (keV)")
-            self.energyAx.set_ylabel("$F_E$ (ergs s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
+            self.energyAx.set_ylabel("$F_E$ (erg s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
 
 
         if vFv:
             self.vFvFig = plt.figure(3)
             self.vFvAx = self.vFvFig.add_subplot(111)
             self.vFvAx.set_xlabel("Energy (keV)")
-            self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (ergs$^2$ s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
+            self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (erg$^2$ s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
 
 
         if manualColor != None:

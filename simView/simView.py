@@ -29,8 +29,15 @@ class simView:
 
         deltaCstat = self.scat.cstat - other.scat.cstat
         #Check for nan values (failed fits!)
+        numInitialCstat = len(deltaCstat)
+
         deltaCstat = deltaCstat[isfinite(deltaCstat)]
+        print "Threw away %s bad D-Cstats due to NAN\n\n"%(numInitialCstat-len(deltaCstat))
+        numInitialCstat = len(deltaCstat)
+
         deltaCstat = deltaCstat[deltaCstat>=0.]
+
+        print "Threw away %s bad D-Cstats due to negative values\n\n"%(numInitialCstat-len(deltaCstat))
         n, bins, patches = ax.hist(deltaCstat, bins=nbins, histtype = 'bar', color = 'k', linewidth=.000001)
 
 
