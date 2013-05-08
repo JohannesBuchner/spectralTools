@@ -114,7 +114,7 @@ class fluxLightCurve:
             return val
             
 
-        val,err, = quad(model, self.eMin,self.eMax,args=params[0],epsabs=0., epsrel= 1.e-5 )
+        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(), epsabs=0., epsrel= 1.e-5 )
 
         
         val = val*keV2erg
