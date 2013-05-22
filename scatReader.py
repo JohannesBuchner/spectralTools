@@ -39,6 +39,7 @@ class scatReader:
     def __init__(self, fileName):
         
 
+        self.effArea = True
         if fileName == "summed":
             return
         
@@ -59,7 +60,7 @@ class scatReader:
         
 
         # I may take this out at some point
-
+        self.batchFit = False
         self.ExtractModels()
         self.FormatCovarMat()
 
@@ -166,21 +167,36 @@ class scatReader:
         
         # Sort out the models in the scat file
         tmp = filter (lambda x: type(x.value)==str ,header)
+        
         tmp1 = filter (lambda x:'FIT' not in x.value and  'PARAM' in  x.value ,tmp)
         self.numParams =  len(tmp1)
         
         tmp2 = map(lambda x: x.comment.split(':')[0].strip(), tmp1)
-
+       
         # Find the unique entries in the list 
         self.modelNames = f5(tmp2)
 
         del tmp
         del tmp1
         del tmp2
+        
+        if 'Eff. Area Corr.' in self.modelNames:
+            print "Awww snap. There's an effective area correction in here. "
+            print "It will be removed and the covariance matrix altered"
+            self.effArea = True
+            self.modelNames.remove('Eff. Area Corr.')
 
         # Now extract the parameters from the models
 
         self.paramNames  =  map(lambda x: map(lambda y: y.comment.split(':')[1].strip() ,filter(lambda z: x in z.comment, header) ), self.modelNames)
+       
+        if self.effArea:
+            np = 0
+            for x in self.paramNames:
+                np+=len(x)
+
+            self.numEffCor = (self.numParams - np)*-1
+            self.numParams = np
         
         tmpParam =  map( lambda x: map(lambda y: y.value ,filter(lambda z: x in z.comment  ,header) ), self.modelNames)
         tmp =  map( lambda x: array( map(lambda y: self.scat[2].data[y].tolist() ,x)).transpose().tolist()  , tmpParam)
@@ -201,6 +217,7 @@ class scatReader:
         if len(tmp[0]) != len(dicString):
             print "The error column is missing"
             print "Duplicating 1-sided errors from batch fit!"
+            self.batchFit = True
             for t in tmp:
                 t.append(t[1])
             
@@ -226,7 +243,7 @@ class scatReader:
             
             covar = []
             
-
+ 
             for i in range(length):
                 
 
@@ -241,6 +258,14 @@ class scatReader:
                 covar.append(tmp)
                     
             covars.append(array(covar))
+        #if self.effArea and not self.batchFit:
+        #    print "Correcting COVAR matrix"
+        #    print self.numEffCor
+            
+        #    for i in range(len(covars)):
+        #        print "test"
+                #covars[i] = covars[i][:self.numEffCor,:self.numEffCor]
+                #self.numParams = self.numParams - self.numEffCor
         self.covars=covars
 
 

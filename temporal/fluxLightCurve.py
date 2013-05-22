@@ -279,6 +279,10 @@ class fluxLightCurve:
 
         fluxes = []
 
+        numSteps = len(self.scat.meanTbins)
+
+        i=0
+
         for x in self.modelNames:
 
             tmp = []
@@ -287,7 +291,8 @@ class fluxLightCurve:
 
                 flux = self.CalculateFlux(x,pars)
                 tmp.append(flux)
-
+                i=i+1
+                print "Completed "+str(i)+" of "+str(numSteps)+" fluxes\n\n"
 
             fluxes.append(tmp)
 
@@ -312,6 +317,9 @@ class fluxLightCurve:
         
 
         fluxes = []
+        numSteps = len(self.scat.meanTbins)
+
+        i=0
 
         for x in self.modelNames:
 
@@ -321,7 +329,8 @@ class fluxLightCurve:
                 
                 flux = self.CalculateEnergyFlux(x,pars)
                 tmp.append(flux)
-
+                i=i+1
+                print "Completed "+str(i)+" of "+str(numSteps)+" fluxes\n\n"
 
             fluxes.append(tmp)
 
