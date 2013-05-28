@@ -155,7 +155,7 @@ class funcFitter:
         resultAx = resultFig.add_subplot(111)
             
 
-        xRange = linspace(self.xData.min(),self.xData.max(),100)
+        xRange = linspace(self.xData.min(),self.xData.max(),1000)
         yGuess = self.fitFunc(xRange,*self.iVals)
           
             

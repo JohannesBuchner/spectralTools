@@ -20,7 +20,7 @@ def BrokenPL(x, norm, indx1, breakPoint, indx2, t0=0., pivot=1):
 
     val = piecewise(x, [cond1, cond2],\
                                     [lambda x:norm * power((x-t0)/pivot ,indx1) , \
-                                             lambda x: norm * power( breakPoint / pivot ,indx1-indx2 ) * power((x-t0)/pivot, indx2)  ])
+                                             lambda x: norm * power( (breakPoint-t0) / pivot ,indx1-indx2 ) * power((x-t0)/pivot, indx2)  ])
     return val
 
 
