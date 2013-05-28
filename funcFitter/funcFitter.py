@@ -105,7 +105,7 @@ class funcFitter:
         
         return [array(data),array(err)]
 
-    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1.):
+    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1., fontSize = 10):
 
         print errorbarThick
         print fitLineThick
@@ -116,6 +116,7 @@ class funcFitter:
         self.fitLineStyle=fitLineStyle
         self.fitLineThick=fitLineThick
         self.errorbarThick=errorbarThick
+        self.fontsize = fontSize
 
 
     def _ResultsDisplay(self,ax,params,errors,paramsNames=None):
