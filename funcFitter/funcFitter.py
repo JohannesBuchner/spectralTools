@@ -29,6 +29,9 @@ class funcFitter:
         self.rDisp = rDisp
         self.limits=None
         self.fontsize=10
+        self.fontFam = 'serif'
+        self.fontWeight = 'normal'
+        self.twin = False
 
         if self.interactive:
             self.PrintFuncs()
@@ -105,7 +108,16 @@ class funcFitter:
         
         return [array(data),array(err)]
 
-    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1., fontSize = 10):
+    def SetTwinAx(self,ax):
+
+        print 'here'
+        self.twin = True
+        self.twinAx = ax
+        print 'here2'
+
+
+
+    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1., fontSize = 10, fWeight = 'normal', fFamily = 'serif'):
 
         print errorbarThick
         print fitLineThick
@@ -117,6 +129,8 @@ class funcFitter:
         self.fitLineThick=fitLineThick
         self.errorbarThick=errorbarThick
         self.fontsize = fontSize
+        self.fontFam=fFamily
+        self.fontWeight = fWeight
 
 
     def _ResultsDisplay(self,ax,params,errors,paramsNames=None):
@@ -153,8 +167,11 @@ class funcFitter:
 
 
         resultFig = plt.figure(self.plotNum)
-        resultAx = resultFig.add_subplot(111)
-            
+
+        if not self.twin:
+            resultAx = resultFig.add_subplot(111)
+        else:
+            resultAx = self.twinAx.twinx()
 
         xRange = linspace(self.xData.min(),self.xData.max(),1000)
         yGuess = self.fitFunc(xRange,*self.iVals)
@@ -187,6 +204,7 @@ class funcFitter:
                 self._ResultsDisplay(resultAx,params,errors)
         except TypeError:
             print "\n\n\n-----------> FIT FAILED!!!!!\n\n\n"
+            self.ax=resultAx
             return
         
         
@@ -207,9 +225,9 @@ class funcFitter:
         else:
             resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
-        resultAx.set_xlabel(self.xName,fontsize=self.fontsize)
-        resultAx.set_ylabel(self.yName,fontsize=self.fontsize)
-        resultAx.set_title(self.title,fontsize=self.fontsize)
+        resultAx.set_xlabel(self.xName,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
+        resultAx.set_ylabel(self.yName,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
+        resultAx.set_title(self.title,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
 
         self.ax= resultAx
         
