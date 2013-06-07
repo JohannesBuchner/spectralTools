@@ -77,7 +77,7 @@ class funcFitter2D(funcFitter):
 
         resultFig = plt.figure(self.plotNum)
         resultAx = resultFig.add_subplot(111)
-
+        self.ax = resultAx
         xRange = linspace(self.xData.min(),self.xData.max(),100)
         yGuess = self.fitFunc(xRange,*self.iVals)
 
