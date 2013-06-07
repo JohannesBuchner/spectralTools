@@ -99,7 +99,10 @@ class funcFitter2D(funcFitter):
         #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
         
         fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint,limits=self.limits,quiet=1)
-        params, errors, chi2, dof = fit
+        params, errors, chi2, dof, covar = fit
+
+
+        
 
         print "\nFit results: "
                 
@@ -117,6 +120,16 @@ class funcFitter2D(funcFitter):
 
         xRange = linspace(self.xData.min(),self.xData.max(),100)
         yResult = self.fitFunc(xRange,*params)
+
+        #if self.dataLog == 'y' or 'all':
+        #    print "Converting fit params into linear space"
+        #    params[1] = 10**(params[1])
+        #    errors[1] = params[1]*log(10)*errors[1]
+        
+
+        self.covar = covar
+
+
         self.result = zip(params,errors)
         self.result.append([chi2,dof])
         self.result=array(self.result)
