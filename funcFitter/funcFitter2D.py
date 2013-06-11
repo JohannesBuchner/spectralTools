@@ -42,6 +42,7 @@ class funcFitter2D(funcFitter):
         self.rDisp=rDisp
         self.limits=None
         self.fontsize=10
+        self.pivot = 1.
 
 
     def SetXErr(self,xErr):
@@ -49,11 +50,19 @@ class funcFitter2D(funcFitter):
         self.twoD_flag = True
         self.xErr = xErr
 
+    def SetPivot(self,pivot):
+        self.pivot=pivot
 
     def _PrepareData(self):
         
+
+        self.dataMin = self.xData.min()
+        self.dataMax = self.xData.max()
+        
         if self.dataLog == None:
             self.dataLog="No"
+            self.xData = self.xData/self.pivot
+           # self.xErr = self.xErr/self.pivot
             return
         
         elif self.dataLog == "x":
@@ -65,6 +74,8 @@ class funcFitter2D(funcFitter):
         elif self.dataLog == "all":
             self.yData, self.yErr = self.ConvertData2Log(self.yData,self.yErr)
             self.xData, self.xErr = self.ConvertData2Log(self.xData,self.xErr)
+            self.xData = self.xData - log10(self.pivot)
+            #self.xErr = self.xErr - log10(self.pivot)
 
         
 
@@ -74,11 +85,11 @@ class funcFitter2D(funcFitter):
         print "Fitting data with 2D Errors"
         print ">>>\t"+self.dataLog+" data has been converted to log10 space"
         
-
+        
         resultFig = plt.figure(self.plotNum)
         resultAx = resultFig.add_subplot(111)
         self.ax = resultAx
-        xRange = linspace(self.xData.min(),self.xData.max(),100)
+        xRange = linspace(self.dataMin,self.dataMax,100)
         yGuess = self.fitFunc(xRange,*self.iVals)
 
         if showGuess:
@@ -100,10 +111,14 @@ class funcFitter2D(funcFitter):
         
         fit = mpfitexy(self.xData,self.yData,self.xErr,self.yErr,guess=self.iVals,fixslope=fixslope,fixint=fixint,limits=self.limits,quiet=1)
         params, errors, chi2, dof, covar = fit
-
-
+        #params = params.tolist().append(self.pivot)
+        #errors = errors.tolist().append(0)
         
-
+        #params=array(params)
+        #errors = array(errors)
+        #print params
+        #print errors
+        #self.xData = self.xData*self.pivot
         print "\nFit results: "
                 
         try:
@@ -117,8 +132,9 @@ class funcFitter2D(funcFitter):
             return
 
 
+        
 
-        xRange = linspace(self.xData.min(),self.xData.max(),100)
+        xRange = linspace(self.dataMin,self.dataMax,100)
         yResult = self.fitFunc(xRange,*params)
 
         #if self.dataLog == 'y' or 'all':
@@ -157,13 +173,20 @@ class funcFitter2D(funcFitter):
             
 
         elif self.dataLog == "all":
-            xDat, xErr = self.ReconvertData(self.xData,self.xErr) 
+            xDat, xErr = self.ReconvertData(self.xData+(log10(self.pivot)),self.xErr) 
             tmpXerr = filt_neg_err(xDat,xErr)
             yDat, yErr = self.ReconvertData(self.yData,self.yErr)
             tmpYerr = filt_neg_err(yDat,yErr) 
+            
+            ### New code added here 
+            yResult = self.fitFunc(log10(xRange)-log10(self.pivot),*params)
+            self.xData = self.xData+log10(self.pivot)
+            
+            ###
+            
             resultAx.set_xscale("log",nonposx='clip')
             resultAx.set_yscale("log",nonposy='clip')
-            resultAx.loglog(10**(xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+            resultAx.loglog((xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
             resultAx.errorbar(xDat,yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=tmpXerr,elinewidth=self.errorbarThick)
             
 

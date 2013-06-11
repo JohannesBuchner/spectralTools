@@ -2,7 +2,7 @@ from numpy import power, exp, log, log10, sqrt, piecewise, cosh
 
 
 def Linear(x,m,b):
-    val = m*x+b 
+    val = m*(x)+b 
     return val
     
 

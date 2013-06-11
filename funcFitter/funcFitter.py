@@ -32,6 +32,7 @@ class funcFitter:
         self.fontFam = 'serif'
         self.fontWeight = 'normal'
         self.twin = False
+        self.pivot=None
 
         if self.interactive:
             self.PrintFuncs()

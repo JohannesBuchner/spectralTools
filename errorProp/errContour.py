@@ -17,7 +17,7 @@ class errContour:
     Class to plot the errorContour from a fit to data.
     '''
 
-    def __init__(self, fit,):
+    def __init__(self, fit):
 
         
         #if results == None:
@@ -32,11 +32,17 @@ class errContour:
         self.fitFunc = fit.fitFunc
         self.xMin = fit.xData.min()
         self.xMax = fit.xData.max()
-        self.dataLog = fit.dataLog
+        try:
+            self.dataLog = fit.dataLog
+        except AttributeError:
+            self.dataLog = 'False'
+            
         args, varargs, varkw, defaults = inspect.getargspec(self.fitFunc)
         self.parNames = args[1:]
+        self.pivot = fit.pivot
 
         self._GrabResults()
+        self._CreateContours()
             
 
  #   def SetFitFunc(self, func):
@@ -127,7 +133,7 @@ class errContour:
         self.contour = contour
 
 
-    def PlotComponent(self, ax, specLineStyle='-', specColor='b', specLineWidth=1, conLineStyle='-', conColor='b', conLineWidth=.5, filled=False,fillAlpha=.5):
+    def PlotContours(self, ax, specLineStyle='-', specColor='b', specLineWidth=1, conLineStyle='-', conColor='b', conLineWidth=.5, filled=False,fillAlpha=.5):
         '''
         This is the main command. The options are for controlling the plotting style.
         Must provide an axis to plot to!!!!!
@@ -137,7 +143,13 @@ class errContour:
         
         
         xspan = linspace(self.xMin, self.xMax, 500)
-        func = self.fitFunc(xspan,*self.params)
+        if self.pivot != None:
+            if (self.dataLog == 'x') or (self.dataLog == 'all'):
+                func = self.fitFunc(xspan-log10(self.pivot),*self.params)
+            else:
+                self.fitFunc(xspan-(self.pivot),*self.params)
+        else:
+            func = self.fitFunc(xspan,*self.params)
         
         self.contour = array(self.contour)
         func  = array(func)
