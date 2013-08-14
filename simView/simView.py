@@ -23,7 +23,7 @@ class simView:
         '''
 
 
-        fig=plt.figure(10)
+        fig=plt.figure(10,(4.,4.))
         ax=fig.add_subplot(111)
 
 
@@ -64,7 +64,7 @@ class simView:
 
 
 
-        fig2 = plt.figure(11)
+        fig2 = plt.figure(11,(4.,4.))
         ax2 = fig2.add_subplot(111)
 
         frac = []
@@ -82,10 +82,10 @@ class simView:
         
         binCenters = array(binCenters)
         ax2.hlines(1.-.68, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
-        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,1.-.68,' p = '+str(1-.68))
+        ax2.text(binCenters.mean()+.5*binCenters.mean(),1.-.58,' p = '+str(1-.68))
 
         ax2.hlines(1-.997, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
-        ax2.text(binCenters.mean()+.9*binCenters.mean()+1,1-.997,' p = '+str(1-.999))
+        ax2.text(binCenters.mean()+.5*binCenters.mean(),1-.995,' p = '+str(1-.999))
 
 
         #ax2.hlines(1.-.99999, binCenters.mean()-.9*binCenters.mean(), binCenters.mean()+.9*binCenters.mean()  )
@@ -171,3 +171,12 @@ class simView:
                 ax.set_ylabel('N')
 
                 figItr+=1
+
+
+    def PrintFigs(self, fName=''):
+
+
+        self.fracFig.savefig(fName+"fracFig.pdf",bbox_inches='tight')
+        self.dCstatFig.savefig(fName+"dcstat.pdf",bbox_inches='tight')
+
+        
