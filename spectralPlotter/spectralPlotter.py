@@ -31,16 +31,16 @@ keV2erg =1.60217646e-9
 
 class spectralPlotter:
 
-    def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None,manualColor=None):
+    def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None,manualColor=None,vFvNum=3,eneNum=2,phtNum=1):
 
         if pht:
-            self.phtFig = plt.figure(1)
+            self.phtFig = plt.figure(phtNum)
             self.phtAx = self.phtFig.add_subplot(111)
             self.phtAx.set_xlabel("Energy (keV)")
             self.phtAx.set_ylabel(r"Flux (photons s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
 
         if energy:
-            self.energyFig = plt.figure(2)
+            self.energyFig = plt.figure(eneNum)
             self.energyAx = self.energyFig.add_subplot(111)
         
             self.energyAx.set_xlabel("Energy (keV)")
@@ -48,7 +48,7 @@ class spectralPlotter:
 
 
         if vFv:
-            self.vFvFig = plt.figure(3)
+            self.vFvFig = plt.figure(vFvNum)
             self.vFvAx = self.vFvFig.add_subplot(111)
             self.vFvAx.set_xlabel("Energy (keV)")
             self.vFvAx.set_ylabel(r"$\nu F_{\nu}$ (erg$^2$ s$^{-1}$ cm$^{-2}$ keV$^{-1}$)")
@@ -72,7 +72,11 @@ class spectralPlotter:
 
         self.eMin = float(eMin)
         self.eMax = float(eMax)
+
+        self.figNum = 1
     
+
+   
 
 
     def FitReader(self):
@@ -269,7 +273,7 @@ class spectralPlotter:
         eMin = self.eMin
         eMax = self.eMax
 
-        energy = logspace(log10(eMin),log10(eMax),num=1000)
+        energy = logspace(log10(eMin),log10(eMax),num=200)
         vFvSpectra = (keV2erg)**2*energy*energy*self.GetModel(energy)
 
 
@@ -279,9 +283,14 @@ class spectralPlotter:
             for sp in vFvSpectra:
                 mins.append(sp.min())
             bottomLim = asarray(mins).max()
+            if len(vFvSpectra) == 1:
+                self.colorTable = [self.colorTable[1]]
             
             for sp,cl  in zip(vFvSpectra,self.colorTable):
-                self.vFvAx.loglog(energy,sp,linewidth=1.5,color=cl,fillstyle='bottom')
+                try:
+                    self.vFvAx.loglog(energy,sp,linewidth=1.5,color=cl,fillstyle='bottom')
+                except(ValueError):
+                    pass
             self.vFvAx.set_ylim(bottom = bottomLim)
 
         else:
