@@ -215,7 +215,8 @@ class funcFitter:
         self.result.append([fit.chi2,fit.dof])
         self.result=array(self.result)
         self.covar = fit.covar
-
+        self.chi2 = [fit.chi2,fit.dof]
+        self.redChi2 = fit.chi2/fit.dof
          
 
             
