@@ -129,6 +129,16 @@ class funcFitter2D(funcFitter):
 
         except TypeError:
             print "-----------> FIT FAILED!!!!!"
+            if self.dataLog == None:
+                resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=self.xErr,elinewidth=self.errorbarThick)
+            
+            if self.dataLog == "all":
+                xDat, xErr = self.ReconvertData(self.xData+(log10(self.pivot)),self.xErr) 
+                yDat, yErr = self.ReconvertData(self.yData,self.yErr)
+                tmpXerr = filt_neg_err(xDat,xErr)
+                tmpYerr = filt_neg_err(yDat,yErr)
+                resultAx.errorbar(xDat,yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=tmpXerr,elinewidth=self.errorbarThick)
+            
             return
 
 
