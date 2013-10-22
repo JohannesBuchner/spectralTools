@@ -1,6 +1,6 @@
-from mpfit import mpfit
-from mpfitexy import mpfitexy
-from mpCurveFit import mpCurveFit
+from spectralTools.fitting.mpfit import mpfit
+from spectralTools.fitting.mpfitexy import mpfitexy
+from spectralTools.fitting.mpCurveFit import mpCurveFit
 from functions import functionLookup
 import inspect
 from numpy import array, linspace, log10, log, dtype

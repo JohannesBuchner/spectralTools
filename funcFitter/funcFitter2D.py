@@ -1,5 +1,5 @@
 from funcFitter import funcFitter
-from mpfitexy import mpfitexy
+from spectralTools.fitting.mpfitexy import mpfitexy
 from functions import functionLookup
 import matplotlib.pyplot as plt
 from numpy import array, linspace, log10, log, dtype
