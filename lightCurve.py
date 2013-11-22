@@ -4,12 +4,12 @@ from numpy import arange, logical_and, array, zeros, genfromtxt
 from shlex import shlex
 import sys
 import operator
-from mpl_toolkits.axes_grid1 import AxesGrid, ImageGrid
+from mpl_toolkits.axes_grid1 import AxesGrid, ImageGrid, Grid
 from llePhaReader import llePhaReader
 
 class lightCurve:
 
-    def __init__(self, parFile):
+    def __init__(self, parFile,fignum=2):
         """
         A class
 
@@ -27,7 +27,7 @@ class lightCurve:
         self.save =False
         self.bkgFlag =False
         self.lleFlag=False
-
+        self.fignum =fignum
 
     def ImportData(self):
 
@@ -249,25 +249,41 @@ class lightCurve:
 
         timeAxis = tmp[:,1]
 
-        fig = plt.figure(2)
+        fig = plt.figure(self.fignum)
         
         #pltNum = numPlot*100 +11
+        print "HERE"
         
-        grid = AxesGrid(fig,111,nrows_ncols=(numPlot,1), axes_pad=0, aspect=False, direction='column' )
+        grid = Grid(fig,111,nrows_ncols=(numPlot,1), axes_pad=0,  direction='column' )
 
       
+        
         for i in xrange(numPlot):
       
             txtString= str(self.eBins[i][0])+' - '+str(self.eBins[i][1])+ ' keV'
-            pl, = grid[i].step(timeAxis,self.lc[i])
+            
+
+            pl, = grid[i].step(timeAxis,self.lc[i],color='k')
+            
             ax=pl.get_axes()
             #ax.set_hatch('/')
+            #plt.yticks(rotation=-25)
             ax.set_ylim(top=maxCounts)
-            ax.text(Xtxt,Ytxt,txtString)
-        plt.xlabel('Time (s)')
-        plt.ylabel('Counts')
-    
+            #ax.set_yticklables(ax.get_yticks(),rotation=-25)
+            yloc = plt.MaxNLocator(10,prune='lower')
+            ax.yaxis.set_major_locator(yloc)
+            #ax.text(Xtxt,Ytxt,txtString)  #uncomment later
+            
+            ax.set_ylabel(r"counts s$^{-1}$" )
+            ax.set_xlabel("Time [s]")
+            ax.set_xlim(right=maxTime,left=minTime)
+            
+        #plt.xlabel('Time (s)')
+        #plt.ylabel('Counts')
+        self.vlineLims = [0,maxCounts]
         self.f2=fig
+        self.grid = grid
+        #fig.tight_layout()
         if self.save:
             plt.savefig(self.fname+"_grid.pdf")
 
@@ -331,8 +347,8 @@ class lightCurve:
             #ax.set_hatch('/')
             ax.set_ylim(top=maxCounts,bottom = 0)
             ax.text(Xtxt,Ytxt,txtString)
-        plt.xlabel('Time (s)')
-        plt.ylabel('Counts')
+        #plt.xlabel('Time (s)')
+        #plt.ylabel('Counts')
     
         self.f4=fig
         if self.save:
