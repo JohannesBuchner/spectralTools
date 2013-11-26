@@ -1,6 +1,7 @@
 import pyfits as pf
 from numpy import mean, dtype, float64, array, concatenate, asarray
 from copy import deepcopy
+import gc
 
 def f5(seq, idfun=None):  
     # order preserving 
@@ -36,7 +37,7 @@ class scatReader:
     
 
     '''
-    def __init__(self, fileName):
+    def __init__(self, fileName, silent=True):
         
 
         self.effArea = True
@@ -46,7 +47,12 @@ class scatReader:
         self.modelNames = []
         self.models = []
 
-        self.scat  = pf.open(fileName)
+
+        self.silent=silent
+
+        self.scat  = pf.open(fileName,memmap=False)
+        if not self.silent:
+            print "Opening SCAT file: "+fileName
 
         self.tBins  = self.scat[2].data['TIMEBIN']
         self.meanTbins = map(mean,self.tBins)
@@ -63,6 +69,11 @@ class scatReader:
         self.batchFit = False
         self.ExtractModels()
         self.FormatCovarMat()
+        if not self.silent:
+            print "Closing SCAT file\n"
+        self.scat.close()
+        del self.scat
+        gc.collect()
 
 
 
@@ -181,8 +192,9 @@ class scatReader:
         del tmp2
         
         if 'Eff. Area Corr.' in self.modelNames:
-            print "Awww snap. There's an effective area correction in here. "
-            print "It will be removed and the covariance matrix altered"
+            if not self.silent:
+                print "Awww snap. There's an effective area correction in here. "
+                print "It will be removed and the covariance matrix altered"
             self.effArea = True
             self.modelNames.remove('Eff. Area Corr.')
 
@@ -210,13 +222,16 @@ class scatReader:
 
         for x,y in zip(tmp,tmp2):
             for z in x:
+                #print y
                 z.dtype = dtype(y)
+                
                 #z.dtype = dtype(y)
 
         dicString = ['values','-','+']
         if len(tmp[0]) != len(dicString):
-            print "The error column is missing"
-            print "Duplicating 1-sided errors from batch fit!"
+            if not self.silent:
+                print "The error column is missing"
+                print "Duplicating 1-sided errors from batch fit!"
             self.batchFit = True
             for t in tmp:
                 t.append(t[1])
@@ -226,7 +241,7 @@ class scatReader:
 
         self.models = dict(zip(self.modelNames,tmp))
 
-        
+        self.numModels = len(self.modelNames)
 
         del tmp
         del tmp2
