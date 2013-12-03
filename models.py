@@ -11,7 +11,7 @@ from numba import autojit
 # and other files to calculate errors and fluxes
 # for each new model the modelLookup dict needs to be updated
 #
-@autojit
+
 def Band( x, A, Ep, alpha, beta):
 
 	cond1 = x < (alpha-beta)*Ep/(2+alpha)
@@ -105,7 +105,15 @@ def PowerLaw2Breaks(x, A, pivot, index1, breakE1, index1to2, breakE2, index2):
 
 	return A*pl2b
 
+def BrokenPL(x, A, pivot, index1, breakE, index2):
+        cond1 = x <= breakE
+        cond2 = x > breakE
+	
+        bpl = np.piecewise(x, [cond1,cond2],\
+				    [lambda x: power(x/pivot,index1),lambda x: power(breakE/pivot,index1)*power(x/breakE,index2)])
 
+        return A*bpl
+        
 
 def FastSynchrotron(x, A, gamma_pl, eStar, index):
 
@@ -156,7 +164,7 @@ def fastEDist(A, gamma, gamma_pl, index):
 
 
 modelLookup = {"Power Law w. 2 Breaks":PowerLaw2Breaks, "Band's GRB, Epeak": Band, "Total Test Synchrotron": TotalSynchrotron, "Black Body": BlackBody,\
-		"Comptonized, Epeak": Compt, "Power Law": PowerLaw , "Fast Synchrotron": FastSynchrotron}
+		"Comptonized, Epeak": Compt, "Power Law": PowerLaw , "Fast Synchrotron": FastSynchrotron, "Black Body B": BlackBody, "Broken Power Law": BrokenPL}
 
 
 

@@ -104,7 +104,7 @@ class fluxLightCurve(object):
         
         model = self.modelDict[modelName]
         
-        if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
+        if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks') or (modelName =='Broken Power Law'):
             
             
 
@@ -121,14 +121,14 @@ class fluxLightCurve(object):
 
         model = self.eFluxModels[modelName]
         
-        if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
+        if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks') or (modelName =='Broken Power Law'):
             
-            val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
+            val,_, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
             val = val*keV2erg
             return val
             
 
-        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(), epsabs=0., epsrel= 1.e-5 )
+        val,_, = quad(model, self.eMin,self.eMax,args=params[0].tolist(), epsabs=0., epsrel= 1.e-5 )
 
         
         val = val*keV2erg

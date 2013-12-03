@@ -187,7 +187,7 @@ class scatReader:
        
         # Find the unique entries in the list 
         self.modelNames = f5(tmp2)
-
+        
         del tmp
         del tmp1
         del tmp2
