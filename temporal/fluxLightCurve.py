@@ -8,10 +8,23 @@ from scipy.integrate import quad, quadrature
 from numpy import array, sqrt, zeros, vstack
 import pickle
 
-#numerical derivative 
-def deriv(f):
 
-    def df(x, h=0.1e-7):
+
+#experimental
+
+from numba import double, autojit, jit, void, int_, c_string_type, float_, float64
+#from numba.decorators import jit, autojit
+
+
+
+
+
+#numerical derivative 
+@autojit
+def deriv(f):
+    @jit(double(double))
+    def df(x):
+        h=0.1e-7
         return ( f(x+h/2) - f(x-h/2) )/h
 
     return df
@@ -20,7 +33,8 @@ def deriv(f):
 
 keV2erg =1.60217646e-9
 
-class fluxLightCurve:
+#@autojit
+class fluxLightCurve(object):
     '''
     The flux light curves are built from the scatReader. They can buikd both
     energy and photon flux light curves. The energy range is entered in keV.
@@ -31,7 +45,7 @@ class fluxLightCurve:
 
 
     '''
-
+    
     def __init__(self,scat,eMin,eMax):
 
         
@@ -85,20 +99,20 @@ class fluxLightCurve:
 
 
  
-
+    #@double(c_string_type,float64[:,:])
     def CalculateFlux(self,modelName,params):
-
+        
         model = self.modelDict[modelName]
         
         if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks'):
             
             
 
-            val,err, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
+            val,_, = quadrature(model, self.eMin,self.eMax,args=params[0],tol=1.49e-10, rtol=1.49e-10, maxiter=200)
             return val
             
         
-        val,err, = quad(model, self.eMin,self.eMax,args=params[0].tolist(),epsabs=0., epsrel= 1.e-5 )
+        val,_, = quad(model, self.eMin,self.eMax,args=params[0].tolist(),epsabs=0., epsrel= 1.e-5 )
 
         return val
 
@@ -273,7 +287,7 @@ class fluxLightCurve:
     
 
 
-
+    #@void()
     def CreateLightCurve(self):
 
 
@@ -292,7 +306,7 @@ class fluxLightCurve:
                 flux = self.CalculateFlux(x,pars)
                 tmp.append(flux)
                 i=i+1
-                print "Completed "+str(i)+" of "+str(numSteps)+" fluxes\n\n"
+                print "Completed "+str(i)+" of "+str(numSteps)+" fluxes for "+x+"\n\n"
 
             fluxes.append(tmp)
 

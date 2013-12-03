@@ -3,7 +3,7 @@ from numpy import exp, power, float64, array, inf, logical_and
 from pygsl.sf import synchrotron_1 
 import pygsl.errors
 from scipy.integrate import quad, quadrature
-
+from numba import autojit
 
 #J. Michael burgess October 2011
 #
@@ -11,7 +11,7 @@ from scipy.integrate import quad, quadrature
 # and other files to calculate errors and fluxes
 # for each new model the modelLookup dict needs to be updated
 #
-
+@autojit
 def Band( x, A, Ep, alpha, beta):
 
 	cond1 = x < (alpha-beta)*Ep/(2+alpha)
@@ -44,7 +44,6 @@ def Compt(x,A,Ep,index,Epiv):
 
 
 #### Synchrotron with pygsl
-
 def TotalSynchrotron(x, A, eCrit, eta, index, gammaTh):
 
 	A=float(A)
@@ -54,7 +53,7 @@ def TotalSynchrotron(x, A, eCrit, eta, index, gammaTh):
 	gammaTh = float(gammaTh)
 
 
-	val,err, = quad(Integrand, 1.,inf, args=(x,A,eCrit,eta,index,gammaTh),epsabs=0., epsrel= 1.e-5 )
+	val,_, = quad(Integrand, 1.,inf, args=(x,A,eCrit,eta,index,gammaTh),epsabs=0., epsrel= 1.e-5 )
 	val= val/(x)
 
 	return val
@@ -65,18 +64,18 @@ def Integrand( gamma, x ,A, eCrit, eta, index, gammaTh):
 	try:
 		val = EDist(A,gamma,eta,gammaTh,index) * synchrotron_1(x/(eCrit*gamma*gamma))[0]
 	except pygsl.errors.gsl_Error, err:
-		print err
+		#print err
 		val = 0.
 	return val
 
-
+@autojit
 def EDist(A,gamma,eta, gammaTh, index):
 
 
 	
 	epsilon = (eta/gammaTh)**(2+index)*exp(-(eta/gammaTh))
-	cond1 = gamma <= eta
-	cond2 = gamma > eta
+	#cond1 = gamma <= eta
+	#cond2 = gamma > eta
 
 	gamma=float(gamma)
 

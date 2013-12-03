@@ -1,4 +1,5 @@
-import pyfits as pf
+#import pyfits as pf
+import astropy.io.fits as pf
 from numpy import mean, dtype, float64, array, concatenate, asarray
 from copy import deepcopy
 import gc
@@ -50,7 +51,7 @@ class scatReader:
 
         self.silent=silent
 
-        self.scat  = pf.open(fileName,memmap=False)
+        self.scat  = pf.open(fileName,memmap=False) #The false statement means the whole file is loaded in
         if not self.silent:
             print "Opening SCAT file: "+fileName
 
@@ -174,7 +175,7 @@ class scatReader:
     def ExtractModels(self):
 
 
-        header = self.scat[2].header.ascardlist()
+        header = self.scat[2].header.cards
         
         # Sort out the models in the scat file
         tmp = filter (lambda x: type(x.value)==str ,header)
