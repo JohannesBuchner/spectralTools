@@ -20,6 +20,7 @@ class fileDialog(Tkinter.Frame):
     # define buttons
     Tkinter.Button(self, text='Load TTE File', command=self.openTTE).pack(**button_opt)
     Tkinter.Button(self, text='Load Flux File', command=self.openFlux).pack(**button_opt)
+    Tkinter.Button(self, text='Load EFlux File', command=self.openEFlux).pack(**button_opt)
     Tkinter.Button(self, text='Save Pulse Fit', command=self.SaveFit).pack(**button_opt)
    
    #### TTE Settings
@@ -113,6 +114,20 @@ class fileDialog(Tkinter.Frame):
 #    return filename
     if filename:
       self.pf.LoadFlux(filename)
+      self.WriteThisDirectory(filename)
+
+  def openEFlux(self):
+
+    """Returns an opened file in read mode.
+    This time the dialog just returns a filename and the file is opened by your own code.
+    """
+
+    # get filename
+    filename = tkFileDialog.askopenfilename(**self.file_opt)
+
+#    return filename
+    if filename:
+      self.pf.LoadEFlux(filename)
       self.WriteThisDirectory(filename)
 
 

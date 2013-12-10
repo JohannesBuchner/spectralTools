@@ -145,6 +145,39 @@ class pulseFit:
         #self.FindMax() # Must happen after data is plotted!
 
 
+
+    def LoadEFlux(self,fileName):
+
+        flux  = pickle.load(open(fileName))
+        
+        self.fluxes = flux['energy fluxes']
+        self.fluxErrors = flux['errors']
+        self.tBins = flux['tBins']
+        
+        axcolor = 'lightgoldenrodyellow'
+
+
+ #       self.radioFig = plt.figure(2)
+
+        if self.radio:
+            #del self.radio
+            self.radioAx.cla()
+#
+        self.radioAx = plt.axes([.01, 0.7, 0.2, 0.32], axisbg=axcolor)
+
+        self.data = self.fluxes['total']
+        self.errors = self.fluxErrors['total']
+
+        self.radio = RadioButtons(self.radioAx,tuple(self.fluxes.keys()))
+        self.radio.on_clicked(self.Selector)
+        
+        self.PlotData()
+        #self.FindMax() # Must happen after data is plotted!
+
+
+
+
+
     def SetData(self, flux, errors, tBins):
         
         self.data = flux
