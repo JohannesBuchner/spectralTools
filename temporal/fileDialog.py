@@ -60,8 +60,8 @@ class fileDialog(Tkinter.Frame):
     # define options for opening or saving a file
     lastDir = open(".lastDir").readlines()[0].strip()
     self.file_opt = options = {}
-    options['defaultextension'] = '' # couldn't figure out how this works
-    options['filetypes'] = [('tte', '*tte*.fit'), ('flux', '*.p')]
+    #options['defaultextension'] = '' # couldn't figure out how this works
+    #options['filetypes'] = [ ('flux', '*.p'),('tte', '*tte*.fit')]
     options['initialdir'] =lastDir
     #options['initialfile'] = 'myfile.txt'
     options['parent'] = root
