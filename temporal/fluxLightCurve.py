@@ -12,7 +12,7 @@ import pickle
 
 #experimental
 
-from numba import double, autojit, jit, void, int_, c_string_type, float_, float64
+#from numba import double, autojit, jit, void, int_, c_string_type, float_, float64
 #from numba.decorators import jit, autojit
 
 
@@ -20,9 +20,9 @@ from numba import double, autojit, jit, void, int_, c_string_type, float_, float
 
 
 #numerical derivative 
-@autojit
+#@autojit
 def deriv(f):
-    @jit(double(double))
+#    @jit(double(double))
     def df(x):
         h=0.1e-7
         return ( f(x+h/2) - f(x-h/2) )/h

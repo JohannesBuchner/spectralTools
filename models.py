@@ -3,7 +3,7 @@ from numpy import exp, power, float64, array, inf, logical_and
 from pygsl.sf import synchrotron_1 
 import pygsl.errors
 from scipy.integrate import quad, quadrature
-from numba import autojit
+#vfrom numba import autojit
 
 #J. Michael burgess October 2011
 #
@@ -68,7 +68,7 @@ def Integrand( gamma, x ,A, eCrit, eta, index, gammaTh):
 		val = 0.
 	return val
 
-@autojit
+#@autojit
 def EDist(A,gamma,eta, gammaTh, index):
 
 

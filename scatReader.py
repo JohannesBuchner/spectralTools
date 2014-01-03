@@ -3,6 +3,7 @@ import astropy.io.fits as pf
 from numpy import mean, dtype, float64, array, concatenate, asarray
 from copy import deepcopy
 import gc
+from pandas import *
 
 def f5(seq, idfun=None):  
     # order preserving 
@@ -288,8 +289,57 @@ class scatReader:
 
             
 
+    def _CreatePandaTable(self):
+        '''
+        This function creates a panda table for easier data access
 
 
+        '''
+        p=[]
+        for x in self.paramNames:
+            p.extend(x)
+    
+
+        i=0
+        for x in self.paramNames:
+            for y in x:
+                test = p==y
+
+                if len(p[test])>1:
+                    j=1
+                    for t,z in zip(test,range(len(p))):
+                        if t:
+                            p[z]=y+"_"+str(j)
+                            print z
+                            j=j+1
+            i=i+1   
+    
+        
+        i=1
+        p=p.tolist()
+        lp=len(p)
+        while i<3*lp:
+            p.insert(i,p[i-1]+'-')
+            p.insert(i+1,p[i-1]+'+')
+        
+            i=i+3
+                
+        p.insert(0,'tstart')
+
+        tmp = []
+        for x,z in zip(self.modelNames,self.paramNames):
+            tmp2=[]
+            for y in z:
+
+                self.GetParamArray(x,y)
+
+            
+
+
+
+#
+ #       df = 
+    
 
     
 
