@@ -1,7 +1,7 @@
 from astroML.density_estimation import histtools, bayesian_blocks
 from astroML.plotting import hist 
 import astropy.io.fits as fits
-from numpy import linspace, arange
+from numpy import linspace, arange, array
 
 
 
@@ -33,6 +33,15 @@ class tteBinning(object):
 
         self.evts = evts[evts <= tStop]
         self.evts = self.evts[self.evts > tStart]
+
+
+    def __add__(self, other):
+
+
+        tmp = self.evts.tolist()
+        tmp.extend(other.evts)
+        self.evts = array(tmp)
+        self.evts.sort()
 
 
     def MakeBlocks(self, p0):
@@ -82,7 +91,7 @@ class tteBinning(object):
             start.append(self.fileEnd)
 
 
-        f=open(self.tteFile[:-3]+'.ti','w')
+        f=open(self.tteFile[:-3]+'ti','w')
         f.write(str(len(start))+'\n')
 
         for t in start:
