@@ -1,6 +1,11 @@
 from numpy import power, exp, log, log10, sqrt, piecewise, cosh
 
 
+def Poly2 (x,c0,c1,c2):
+    val = c0+x*c1+x**(2.)*c2
+
+    return val
+
 def Linear(x,m,b):
     val = m*(x)+b 
     return val
@@ -64,5 +69,5 @@ def BlackBody(x,A,kT):
 	return val
  
 
-functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody }
+functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody ,"Poly2": Poly2}
 

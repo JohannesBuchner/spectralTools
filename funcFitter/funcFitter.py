@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 
 class funcFitter:
 
-    def __init__(self, interactive = False, rDisp = False):
+    def __init__(self, interactive = False, rDisp = False,silent=True):
 
-        print "Start Up"
+        if silent:
+            print "Start Up"
         self.interactive = interactive
         #self.twoD_flag = False
         self.funcTable =  functionLookup
@@ -33,6 +34,7 @@ class funcFitter:
         self.fontWeight = 'normal'
         self.twin = False
         self.pivot=None
+        self.silent = silent
 
         if self.interactive:
             self.PrintFuncs()
@@ -47,9 +49,11 @@ class funcFitter:
         args, varargs, varkw, defaults = inspect.getargspec(self.fitFunc)
         self.params = args[1:]
         args = args[2:]
-        print "The parameters of this function are:"
+        if self.silent:
+            print "The parameters of this function are:"
         for a in self.params:
-            print a
+            if self.silent:
+                print a
         if self.interactive:
             
             print "\n\nSet initial values:\n"
@@ -68,7 +72,7 @@ class funcFitter:
     
 
     def PrintFuncs(self):
-
+        
         print "Functions to fit:"
         for x in self.funcTable.keys():
             print "\t\""+x+"\""
@@ -111,10 +115,10 @@ class funcFitter:
 
     def SetTwinAx(self,ax):
 
-        print 'here'
+       
         self.twin = True
         self.twinAx = ax
-        print 'here2'
+       
 
 
 
@@ -162,50 +166,54 @@ class funcFitter:
     
 
     def Fit(self,showLog=False,showGuess=False):
-        
-        print "Fitting with "+self.funcName 
+        if self.silent:
+            print "Fitting with "+self.funcName 
 
 
+        if self.silent:
+            resultFig = plt.figure(self.plotNum)
 
-        resultFig = plt.figure(self.plotNum)
-
-        if not self.twin:
-            resultAx = resultFig.add_subplot(111)
-        else:
-            resultAx = self.twinAx.twinx()
+            if not self.twin:
+                resultAx = resultFig.add_subplot(111)
+            else:
+                resultAx = self.twinAx.twinx()
 
         xRange = linspace(self.xData.min(),self.xData.max(),1000)
         yGuess = self.fitFunc(xRange,*self.iVals)
           
-            
-        if showLog:
-                
-            resultAx.loglog(self.xData,self.yData,color=self.dataColor,marker=self.dataMarker,linestyle='.')
-            if showGuess:
-                    
-                resultAx.loglog(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-        if showGuess:
-            
-            resultAx.plot(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle)
-                
+        if self.silent:
+            if showLog:
 
-        self.legData = resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
+                resultAx.loglog(self.xData,self.yData,color=self.dataColor,marker=self.dataMarker,linestyle='.')
+                if showGuess:
+
+                    resultAx.loglog(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+            if showGuess:
+
+                resultAx.plot(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle)
+
+
+            self.legData = resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
         
                 
 
         fit = mpCurveFit(self.fitFunc, self.xData, self.yData, p0 = self.iVals, sigma = self.yErr, fixed = self.fixed,limits=self.limits,quiet=1)
         params, errors = [fit.params, fit.errors]
             
-
-        print "\nFit results: "
+        if self.silent:
+            print "\nFit results: "
         try:
             for x,y,z in zip(self.params, params, errors):
-                print x+": "+str(y)+" +/- "+str(z)
+                if self.silent:
+                    print x+": "+str(y)+" +/- "+str(z)
             if self.rDisp:
                 self._ResultsDisplay(resultAx,params,errors)
         except TypeError:
             print "\n\n\n-----------> FIT FAILED!!!!!\n\n\n"
-            self.ax=resultAx
+            self.redChi2 = 1E3
+            self.chi2 = [1E4]
+            if self.silent:
+                self.ax=resultAx
             return
         
         
@@ -220,19 +228,19 @@ class funcFitter:
          
 
             
+        if self.silent:
+            if showLog:
+                resultAx.loglog(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
 
-        if showLog:
-            resultAx.loglog(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-                
-        else:
-            resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-        #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
-        resultAx.set_xlabel(self.xName,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
-        resultAx.set_ylabel(self.yName,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
-        resultAx.set_title(self.title,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
+            else:
+                resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
+            #resultAx.errorbar(self.xData,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr)
+            resultAx.set_xlabel(self.xName,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
+            resultAx.set_ylabel(self.yName,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
+            resultAx.set_title(self.title,fontsize=self.fontsize, weight = self.fontWeight, family = self.fontFam)
 
-        self.ax= resultAx
-        
+            self.ax= resultAx
+
            
             
             

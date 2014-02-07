@@ -17,9 +17,10 @@ def filt_neg_err(y, yerr, set_ymin=1e-6):
 class funcFitter2D(funcFitter):
 
 
-    def __init__(self, dataLog=None, rDisp=False):
+    def __init__(self, dataLog=None, rDisp=False,silent=False):
 
 
+        self.silent=silent
         self.funcTable =  functionLookup
         self.interactive =False
         self.fitFunc = self.funcTable["Linear"]
@@ -94,7 +95,7 @@ class funcFitter2D(funcFitter):
 
         if showGuess:
             resultAx.plot(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-
+    
         fixslope=False
         fixint=False
         if self.fixed[0]==1.:
@@ -196,6 +197,7 @@ class funcFitter2D(funcFitter):
             
             resultAx.set_xscale("log",nonposx='clip')
             resultAx.set_yscale("log",nonposy='clip')
+            
             resultAx.loglog((xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
             resultAx.errorbar(xDat,yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=tmpXerr,elinewidth=self.errorbarThick)
             

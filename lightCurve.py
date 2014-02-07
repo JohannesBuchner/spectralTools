@@ -1,11 +1,11 @@
-import pyfits as pf
+import astropy.io.fits as pf
 import matplotlib.pyplot as plt
 from numpy import arange, logical_and, array, zeros, genfromtxt
 from shlex import shlex
 import sys
 import operator
 from mpl_toolkits.axes_grid1 import AxesGrid, ImageGrid, Grid
-from llePhaReader import llePhaReader
+#from llePhaReader import llePhaReader
 
 class lightCurve:
 
@@ -252,7 +252,7 @@ class lightCurve:
         fig = plt.figure(self.fignum)
         
         #pltNum = numPlot*100 +11
-        print "HERE"
+        
         
         grid = Grid(fig,111,nrows_ncols=(numPlot,1), axes_pad=0,  direction='column' )
 
@@ -284,6 +284,7 @@ class lightCurve:
         self.f2=fig
         self.grid = grid
         #fig.tight_layout()
+        
         if self.save:
             plt.savefig(self.fname+"_grid.pdf")
 
@@ -390,7 +391,7 @@ class lightCurve:
             
         plt.xlabel('Time (s)')
         plt.ylabel('Counts')
-    
+        print "HERE"
         self.f3=fig
         if self.save:
             plt.savefig(self.fname+"_bkgGrid.pdf")
@@ -438,7 +439,7 @@ class lightCurve:
             self.GridSubPlot()
 
         
-        plt.show()
+        #plt.show()
     
 
     def Parser(self):

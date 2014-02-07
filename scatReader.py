@@ -57,7 +57,7 @@ class scatReader:
             print "Opening SCAT file: "+fileName
 
         self.tBins  = self.scat[2].data['TIMEBIN']
-        self.meanTbins = map(mean,self.tBins)
+        self.meanTbins = array(map(mean,self.tBins))
         #self.met=
 
         self.phtFlux = self.scat[2].data['PHTFLUX']
