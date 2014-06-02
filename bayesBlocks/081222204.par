@@ -1,0 +1,27 @@
+
+
+DIR = /Users/jburgess/Research/newSampl/081222204/
+TTE = glg_tte_n1_bn081222204_v01.fit
+TTE = glg_tte_b0_bn081222204_v01.fit
+
+
+
+
+NAI_E_RANGE = 8:300
+BGO_E_RANGE = 301:40000
+
+NCP_PRIOR=6
+
+
+DT = .01
+
+TMIN = -10.
+TMAX= 30.
+
+EBIN = 10:40000
+
+
+MERGE
+MAKE_TI
+
+PREVIEW
