@@ -1,7 +1,7 @@
 from astroML.density_estimation import histtools, bayesian_blocks
 from astroML.plotting import hist 
 import astropy.io.fits as fits
-from numpy import linspace, arange, array, logical_and, mean, sum, sqrt, logical_or, diff, sqrt, insert
+from numpy import linspace, arange, array, logical_and, mean, sum, sqrt, logical_or, diff, sqrt, insert, loadtxt
 import os,errno
 import warnings
 import scipy.optimize
@@ -82,6 +82,13 @@ class tteBinning(object):
 
 
 
+    def ReadTIFile(self,tiFile):
+
+        self.bins = loadtxt(tiFile)[1:]
+        self.binWidth = diff(self.bins)
+
+
+
     def MakeCustomBins(self,starts,stops):
 
 
@@ -94,7 +101,9 @@ class tteBinning(object):
 
         self.bins =starts
 
-        self.bins = insert(self.bins,len(self.bins),stops[-1]) 
+        self.bins = insert(self.bins,len(self.bins),stops[-1])
+
+        self.binWidth = diff(self.bins)
 
         self.bType = "cb"
 
@@ -105,13 +114,15 @@ class tteBinning(object):
 
         self.bins = arange(self.tStart,self.tStop,dt)
         self.bType='dt'
-
+        self.binWidth = diff(self.bins)
+        
     def MakeBlocks(self, p0):
 
 
         self.bins = bayesian_blocks(self.evts, p0 = p0)
         self.bType = "bb"
-
+        self.binWidth = diff(self.bins)
+        
     def MakeKnuth(self):
 
         if self.needAll:
@@ -126,6 +137,7 @@ class tteBinning(object):
 
         self.bins = histtools.scotts_bin_width(self.evts,return_bins=True)[1]
         self.bType = "sct"
+        self.binWidth = diff(self.bins)
 
     def MakeFreedman(self):
 
@@ -318,8 +330,8 @@ class tteBinning(object):
 
         ti =[]
 
-        start = (arange(self.fileStart,self.bins[0],.1)).tolist()
-        end = (arange(self.bins[-1],self.fileEnd, .1)).tolist()
+        start = (arange(self.fileStart,self.bins[0],1.)).tolist()
+        end = (arange(self.bins[-1],self.fileEnd, 1.)).tolist()
         
 
         start.extend(self.bins)
@@ -495,8 +507,8 @@ class tteBinning(object):
     def _MakeBackgroundSelections(self):
 
 
-        #First bin the data by the Knuth rule
-        self.MakeKnuth()
+        #First bin the data by the Knuth rule or something else
+        self.MakeConstantBins (.5)
         
 
         for i in xrange(len(self.bkgIntervals)):
@@ -556,6 +568,70 @@ class tteBinning(object):
         print "Optimal poly grade: %d"% self.optimalPolGrade
 
 
+    def MakeBackgroundSelectionsForDataBinner(self):
+
+
+      
+        
+
+        for i in xrange(len(self.bkgIntervals)):
+
+            diffs = abs(self.bins-self.bkgIntervals[i][0])
+            self.bkgIntervals[i][0] = self.bins[diffs == min(diffs)    ][0]
+            diffs = abs(self.bins-self.bkgIntervals[i][1])
+            self.bkgIntervals[i][1] = self.bins[diffs == min(diffs)    ][0]
+            
+
+
+
+
+
+        evts = self.allEvts
+        truthTables = []
+
+        
+
+
+
+
+
+
+        for sel in self.bkgIntervals:
+                
+            truthTables.append(logical_and(evts>= sel[0] , evts<= sel[1] ))
+                
+
+        tt = truthTables[0]
+        if len(truthTables)>1:
+                
+            for y in truthTables[1:]:
+                    
+                tt=logical_or(tt,y)
+
+
+        filteredEvts = evts[tt]
+
+        self.filteredEvts = filteredEvts
+       
+        
+
+
+        cnts,bins=histtools.histogram(filteredEvts,bins=self.bins)
+        tt=cnts>0
+        meanT=[]
+        for i in xrange(len(bins)-1):
+
+            m = mean((bins[i],bins[i+1]))
+            meanT.append(m)
+        meanT = array(meanT)
+        meanT = meanT
+        cnts = cnts/self.binWidth
+
+        
+        self.optimalPolGrade           = self._fitGlobalAndDetermineOptimumGrade(cnts[tt],meanT[tt])
+        print "Optimal poly grade: %d"% self.optimalPolGrade
+
+
      
         
 
@@ -567,7 +643,11 @@ class tteBinning(object):
 
 
         ## Seperate everything by energy channel
+        
 
+        
+
+        
         eneLcs = []
         for x in xrange(128):
 
@@ -589,8 +669,8 @@ class tteBinning(object):
                     
                     tt=logical_or(tt,y)
 
-            self.test=tt
-            self.test2 = evts
+            self.bkgRegion=tt
+            
             evts = evts[tt]
 
             eneLcs.append(evts)
@@ -609,10 +689,14 @@ class tteBinning(object):
                 meanT.append(m)
             meanT = array(meanT)
             cnts=cnts/self.binWidth
+        
 
-            thisPolynomial,cstat    = self._fitChannel(cnts[tt],bins[tt], self.optimalPolGrade)      
-            #print(thisPolynomial)
-            #print '{0:>20} {1:>6.2f} for {2:<5} d.o.f.'.format("logLikelihood = ",cstat,len(filteredData)-self.optimalPolGrade)
+            thisPolynomial,cstat    = self._fitChannel(cnts[tt],meanT[tt], self.optimalPolGrade)      
+
+
+            
+
+            
             polynomials.append(thisPolynomial)
         #pass
         self.polynomials          = polynomials
