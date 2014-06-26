@@ -112,9 +112,18 @@ class tteBinning(object):
     def MakeConstantBins(self,dt):
 
 
-        self.bins = arange(self.tStart,self.tStop,dt)
-        self.bType='dt'
-        self.binWidth = diff(self.bins)
+        if self.needAll:
+
+            self.bins=arange(self.fileStart,self.fileEnd,dt)
+            self.binWidth = diff(self.bins)
+            return
+        else:
+            self.bins = arange(self.tStart,self.tStop,dt)
+            self.bType='dt'
+            self.binWidth = diff(self.bins)
+
+        
+
         
     def MakeBlocks(self, p0):
 
@@ -508,7 +517,7 @@ class tteBinning(object):
 
 
         #First bin the data by the Knuth rule or something else
-        self.MakeConstantBins (.5)
+        self.MakeConstantBins (.1)
         
 
         for i in xrange(len(self.bkgIntervals)):
