@@ -1,13 +1,17 @@
 from astroML.density_estimation import histtools, bayesian_blocks
 from astroML.plotting import hist 
 import astropy.io.fits as fits
-from numpy import linspace, arange, array, logical_and, mean, sum, sqrt, logical_or, diff, sqrt, insert, loadtxt
+from numpy import linspace, arange, array, logical_and, mean, sum, sqrt, logical_or, diff, sqrt, insert, loadtxt, histogram, concatenate, histogram
 import os,errno
 import warnings
 import scipy.optimize
 from LogLikelihood import *
 from BayesianBlocks_python import BayesianBlocks
 from glob import glob
+import matplotlib.pyplot as plt
+from spectralTools.step import Step
+
+
 class tteBinning(object):
 
 
@@ -45,7 +49,7 @@ class tteBinning(object):
         self.tStop = tStop
         self.tStart = tStart
 
-       
+        self.bkgExists = False
         self.evtExt = fitsFile[2].data
 
         evts = evts - trigTime
@@ -85,7 +89,7 @@ class tteBinning(object):
     def ReadTIFile(self,tiFile):
 
         self.bins = loadtxt(tiFile)[1:]
-        self.binWidth = diff(self.bins)
+        self.binWidth = self.bins[1:]-self.bins[:-1]
 
 
 
@@ -250,14 +254,16 @@ class tteBinning(object):
         
 
 
-    def S2N(self,targetSN,minNumberOfEvents=5,maxBinSize=10000.0,significance=True):
+    def S2N(self,targetSN,minNumberOfEvents=5,maxBinSize=10000.0,significance=True,forceBkg=False):
 
         self.needAll = True
 
         #First fit the background
 
-        self._MakeBackgroundSelections()
-        self._FitBackground()
+        
+        if (not self.bkgExists) or forceBkg:
+            self._MakeBackgroundSelections()
+            self._FitBackground()
        
         
         sigStop = self.tStop
@@ -517,8 +523,8 @@ class tteBinning(object):
 
 
         #First bin the data by the Knuth rule or something else
-        self.MakeConstantBins (.1)
-        
+        self.MakeConstantBins (1.)
+        #self.MakeKnuth()
 
         for i in xrange(len(self.bkgIntervals)):
 
@@ -536,11 +542,6 @@ class tteBinning(object):
         truthTables = []
 
         
-
-
-
-
-
 
         for sel in self.bkgIntervals:
                 
@@ -625,7 +626,7 @@ class tteBinning(object):
         
 
 
-        cnts,bins=histtools.histogram(filteredEvts,bins=self.bins)
+        cnts,bins=histogram(filteredEvts,bins=self.bins)
         tt=cnts>0
         meanT=[]
         for i in xrange(len(bins)-1):
@@ -650,7 +651,7 @@ class tteBinning(object):
 
     def _FitBackground(self):
 
-
+        self.bkgExists = True
         ## Seperate everything by energy channel
         
 
@@ -687,9 +688,12 @@ class tteBinning(object):
         self.bkgCoeff = []
 
         polynomials               = []
+
+        self.shit1 =[]
+        self.shit2 = []
         for elc in eneLcs:
 
-            cnts,bins=histtools.histogram(elc["TIME"]-self.trigTime,bins=self.bins)
+            cnts,bins=histogram(elc["TIME"]-self.trigTime,bins=self.bins)
             tt=cnts>0
             meanT=[]
             for i in xrange(len(bins)-1):
@@ -698,8 +702,9 @@ class tteBinning(object):
                 meanT.append(m)
             meanT = array(meanT)
             cnts=cnts/self.binWidth
-        
-
+            
+            self.shit1.append(meanT[tt])
+            self.shit2.append(cnts[tt])
             thisPolynomial,cstat    = self._fitChannel(cnts[tt],meanT[tt], self.optimalPolGrade)      
 
 
@@ -883,7 +888,49 @@ class tteBinning(object):
 
     def Preview(self):
 
-        hist(self.evts,bins=self.bins,normed=True,histtype='stepfilled',alpha=.2)
+        plt.hist(self.evts,bins=self.bins,normed=True,histtype='stepfilled',alpha=.2)
+
+
+
+    def PlotData(self):
+
+
+        if  not self.bkgExists:
+            print "No bkg!"
+            return
+
+
+        #newBinsStart = arange(self.fileStart,self.bins[0],.5)
+        #newBinsMid = concatenate((newBinsStart,self.bins))
+        #newBinsEnd = arange(self.bins[-1],self.fileEnd,.5)
+        #newBins = concatenate((newBinsMid,newBinsEnd))
+        newBins = self.bins
+        tBins = []
+        for i in range(len(newBins)-1):
+    
+            tBins.append([newBins[i],newBins[i+1]])
+        tBins=array(tBins)
+
+
+        cnts,_ = histogram(self.allEvts,bins=newBins)
+
+        binWidth = diff(newBins)
+        fig=plt.figure(200)
+        ax=fig.add_subplot(111)
+
+        Step(ax,tBins,cnts/binWidth,"k",.5)
+
+        
+        bkg = []
+        for i in range(len(newBins)-1):
+    
+            b=0
+            for j in range(128):
+        
+                b+= self.polynomials[j].integral(newBins[i],newBins[i+1])/(newBins[i+1]-newBins[i])
+            bkg.append(b)
+        meanT = array(map(mean,tBins))
+        ax.plot(meanT,bkg,linewidth=2,color="r")
 
 def mkdir_p(path):
     try:
