@@ -694,13 +694,31 @@ class tteBinning(object):
         for elc in eneLcs:
 
             cnts,bins=histogram(elc["TIME"]-self.trigTime,bins=self.bins)
-            tt=cnts>0
+
+ 
+#            tt=cnts>=0
             meanT=[]
             for i in xrange(len(bins)-1):
 
                 m = mean((bins[i],bins[i+1]))
                 meanT.append(m)
             meanT = array(meanT)
+
+            truthTables = []
+            for sel in self.bkgIntervals:
+                
+                truthTables.append(logical_and(meanT>= sel[0] , meanT<= sel[1] ))
+                
+            
+            tt = truthTables[0]
+            if len(truthTables)>1:
+                                
+                for y in truthTables[1:]:
+                    
+                    tt=logical_or(tt,y)
+
+
+            
             cnts=cnts/self.binWidth
             
             self.shit1.append(meanT[tt])
