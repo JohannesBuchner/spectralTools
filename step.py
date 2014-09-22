@@ -1,4 +1,4 @@
-def Step(ax,tBins,y,col,lw,ls='-'):
+def Step(ax,tBins,y,col='k',lw=1,ls='-',fill=False):
 
     x=[]
     newY=[]
@@ -7,4 +7,7 @@ def Step(ax,tBins,y,col,lw,ls='-'):
         newY.append(v)
         x.append(t[1])
         newY.append(v)
-    ax.plot(x,newY,color=col,linewidth=lw,linestyle=ls)
+    if fill:
+        ax.fill_between(x,0,newY,color=col, alpha=.6, linestyle=ls, linewidth=lw )
+    else:
+        ax.plot(x,newY,color=col,linewidth=lw,linestyle=ls)

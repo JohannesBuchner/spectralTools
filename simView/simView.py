@@ -35,7 +35,7 @@ class simView:
         print "Threw away %s bad D-Cstats due to NAN\n\n"%(numInitialCstat-len(deltaCstat))
         numInitialCstat = len(deltaCstat)
 
-        deltaCstat = deltaCstat[deltaCstat>=0.]
+        #deltaCstat = deltaCstat[deltaCstat>=0.]
 
         print "Threw away %s bad D-Cstats due to negative values\n\n"%(numInitialCstat-len(deltaCstat))
         n, bins, patches = ax.hist(deltaCstat, bins=nbins, histtype = 'bar', color = 'k', linewidth=.000001)
@@ -101,7 +101,7 @@ class simView:
 
         ax2.set_ylabel(r"frac > $\Delta_{\rm C-Stat}$")
         ax2.set_xlabel(r'$\Delta_{\rm C-Stat}$')
-        ax2.set_xlim(left=0)
+        #ax2.set_xlim(left=0)
        
         
 
