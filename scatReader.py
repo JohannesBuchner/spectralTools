@@ -3,7 +3,7 @@ import astropy.io.fits as pf
 from numpy import mean, dtype, float64, array, concatenate, asarray
 from copy import deepcopy
 import gc
-from pandas import *
+from spectralTools.models import modelLookup
 
 def f5(seq, idfun=None):  
     # order preserving 
@@ -22,6 +22,7 @@ def f5(seq, idfun=None):
     return result
 
 
+keV2erg =1.60217646e-9
 
 class scatReader:
     '''
@@ -93,8 +94,8 @@ class scatReader:
         new.numParams = self.numParams
         new.paramNames = self.paramNames
 
-        new.tBins = concatenate((self.tBins,other.tBins))
-        new.meanTbins=map(mean,new.tBins)
+        new.tBins = array(concatenate((self.tBins,other.tBins)))
+        new.meanTbins=array(map(mean,new.tBins))
         
         new.phtFlux = concatenate((self.phtFlux,other.phtFlux))
 
@@ -287,59 +288,56 @@ class scatReader:
         self.covars=covars
 
 
-            
 
-    def _CreatePandaTable(self):
+
+
+    def _TimeIndex(self,t):
+
+        indx = self.meanTbins.searchsorted(t)
+        test=[abs(self.meanTbins[indx]-t),abs(self.meanTbins[indx-1]-t)]
+
+
+        val2 = min(test)
+
+
+
+        indx = indx-test.index(val2)
+        return indx
+
+
+
+    def _CalcModel(self,energy,params,modelName="Band's GRB, Epeak"):
         '''
-        This function creates a panda table for easier data access
-
+        Returns the photon flux of the model at a given energy
 
         '''
-        p=[]
-        for x in self.paramNames:
-            p.extend(x)
-    
 
-        i=0
-        for x in self.paramNames:
-            for y in x:
-                test = p==y
+        model = modelLookup[modelName]
 
-                if len(p[test])>1:
-                    j=1
-                    for t,z in zip(test,range(len(p))):
-                        if t:
-                            p[z]=y+"_"+str(j)
-                            print z
-                            j=j+1
-            i=i+1   
+        return model(energy,*params)
+
     
+           
+    def SpecificEnergyFlux(self,time, energy,modelName="Band's GRB, Epeak"):
+
+
+
+        tIndx = self._TimeIndex(time)
+
+
+        params = self.models[modelName]['values'][tIndx][0]
+
         
-        i=1
-        p=p.tolist()
-        lp=len(p)
-        while i<3*lp:
-            p.insert(i,p[i-1]+'-')
-            p.insert(i+1,p[i-1]+'+')
         
-            i=i+3
-                
-        p.insert(0,'tstart')
+        phtFlux = self._CalcModel(energy,params,modelName)
 
-        tmp = []
-        for x,z in zip(self.modelNames,self.paramNames):
-            tmp2=[]
-            for y in z:
-
-                self.GetParamArray(x,y)
-
-            
+        return energy*phtFlux*keV2erg
+        
 
 
 
-#
- #       df = 
-    
+
+        
 
     
 
