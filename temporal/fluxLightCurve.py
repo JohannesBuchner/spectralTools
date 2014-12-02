@@ -96,7 +96,7 @@ class fluxLightCurve(object):
           
 
 
-
+ 
 
  
     #@double(c_string_type,float64[:,:])
