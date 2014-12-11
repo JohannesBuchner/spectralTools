@@ -1,4 +1,4 @@
-from numpy import power, exp, log, log10, sqrt, piecewise, cosh
+from numpy import power, exp, log, log10, sqrt, piecewise, cosh, pi, logical_and
 
 
 def Poly2 (x,c0,c1,c2):
@@ -69,11 +69,59 @@ def BlackBody(x,A,kT):
 	return val
  
 
+def EpEvo(t,eta,g,E0=1.E50):
+
+        c = 2.99E10 #cm/s
+        mp = 938272   # keV ??
+
+        z=.2
+        q=1.E-3
+        Gamma0 = 300.
+
+        n0 = 1.E2
+
+        xd = ((3.-eta)*E0 / ( 4.*pi*n0*Gamma0**2. * mp  ) )**(1./3.)
+
+        td = (1.+z)*xd / (Gamma0**2. * c)
+
+        
+        ### Calculate X(t)  ###
+        test = (td/(2. * g + 1.) * Gamma0**(2.+1./g) + 2.*g)
+        #frac = t/td
+
+        condition1 = t<td
+        condition2 = logical_and(td<=t, t<=test)
+
+        
+        X = piecewise(t, [condition1, condition2],\
+                                    [lambda t: t/td, \
+                                             lambda t: ((2.*g+1.)*(t/td) - 2.*g)**(1./(2.*g+1.)) ])
+
+        ### Calculate X(t)  ###
+
+
+
+        ### Calculate Gamma(X)  ###
+
+
+
+        condition3 = X<1.
+        condition4 = logical_and(1.<=X, X<=Gamma0**(1./g))
+
+        Gamma = piecewise(X, [condition3, condition4],\
+                                    [lambda X: Gamma0, \
+                                             lambda X: Gamma0*X**(-g) ])
+
+        ### Calculate Gamma(X)  ###
+
+        
+        eE0 = 3.E-8 * n0**(.5)*q*Gamma0**4. /(1.+z)
+
+        return eE0*(Gamma/Gamma0)**4. * (X/xd)**(eta/2.)
 
 
 
 
 
-
-functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody ,"Poly2": Poly2}
+functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody ,"Poly2": Poly2, "EpEvo":EpEvo}
 

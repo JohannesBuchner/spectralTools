@@ -1905,6 +1905,7 @@ class mpfit:
 		for j in range(n):
 			r[j:n,j] = r[j,j:n]
 		x = numpy.diagonal(r)
+		x.setflags(write=True)
 		wa = qtb.copy()
 
 		# Eliminate the diagonal matrix d using a givens rotation
