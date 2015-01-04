@@ -117,6 +117,28 @@ class fluxLightCurve(object):
         return val
 
 
+    def CalculateFlux_vFvPeak(self,modelName,params):
+        
+        model = self.modelDict[modelName]
+        
+        if (modelName == "Band\'s GRB, Epeak"):
+            
+            peak = params[0][1]
+
+        elif (modelName == "Total Test Synchrotron"):
+
+            peak = params[0][1]*params[0][2]**2
+
+
+        else:
+            return 0.
+        
+        val = (peak**2)*keV2erg*model(peak,*(params[0].tolist()))     
+
+        return val
+
+
+    
     def CalculateEnergyFlux(self,modelName,params):
 
         model = self.eFluxModels[modelName]
@@ -135,6 +157,7 @@ class fluxLightCurve(object):
         
 
         return val
+
 
 
    
@@ -252,6 +275,59 @@ class fluxLightCurve(object):
         #errors = errors*keV2erg
         return errors
   
+    def vFv_FluxError(self, params, covar, currentModel):
+        '''
+        Params is a list of the params from each models
+        [mod1,mod2,...]
+
+        '''
+
+
+        
+
+        firstDerivates = []
+        
+        for modName, par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
+
+            
+            #print modName
+            for parName in z:
+
+                #print parName
+               
+
+                def tmpFlux(currentPar):
+
+                    tmpParams = par.copy()
+                    tmpParams[parName]=currentPar
+
+
+    #                print "\n New Tmp Params:"
+     #               print tmpParams
+
+                    return self.CalculateFlux_vFvPeak(modName,tmpParams)
+
+
+
+
+                if modName == currentModel:
+                    #print "in currentModel"
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+
+                elif currentModel == "total":
+                    #print "in total"
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+                else:
+                    #print "not currentModel"
+                    firstDerivates.append(0.0)
+
+        #print firstDerivates
+    
+        firstDerivates = array(firstDerivates)
+        tmp = firstDerivates.dot(covar)
+
+        errors =  sqrt( tmp.dot(firstDerivates) )
+        return errors
 
 
     def FormatCovarMat(self):
@@ -365,6 +441,42 @@ class fluxLightCurve(object):
 
 
         
+    def CreatePeakCurve(self):
+
+
+        fluxes = []
+
+        numSteps = len(self.scat.meanTbins)
+
+        i=0
+
+        for x in self.modelNames:
+
+            tmp = []
+
+            for pars in self.scat.models[x]['values']:
+
+                flux = self.CalculateFlux_vFvPeak(x,pars)
+                tmp.append(flux)
+                i=i+1
+                print "Completed "+str(i)+" of "+str(numSteps)+" fluxes for "+x+"\n\n"
+
+            fluxes.append(tmp)
+
+       
+        fluxes = map(array,fluxes)
+
+        totFlux = zeros(len(fluxes[0]))
+
+        for x in fluxes:
+            totFlux+=x
+
+        fluxes.append(totFlux)
+
+        tmp = list(self.modelNames)
+        tmp.append('total')
+
+        self.vFv_fluxes = dict(zip(tmp,fluxes))
 
 
 
@@ -394,7 +506,33 @@ class fluxLightCurve(object):
         #self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov,"total"), tmpParamArray,self.covars  )
         self.fluxErrors=dict(zip(self.modelNames+['total'],individualFluxError))
 
+
+    def vFv_LightCurveErrors(self):
+
+        self.FormatCovarMat()
+
+        tmpParamArray = map(lambda x: [] ,self.tBins)
+        
+
+        individualFluxError=[]
+        for mod in self.modelNames:
             
+            
+            for x,row in zip(self.scat.models[mod]['values'],tmpParamArray):
+                row.append(x)
+
+        for mod in self.modelNames:
+            
+            individualFluxError.append(map(lambda par,cov:self.vFv_FluxError(par,cov,mod), tmpParamArray,self.covars  ))
+        
+        
+        individualFluxError.append ( map(lambda par,cov:self.vFv_FluxError(par,cov,"total"), tmpParamArray,self.covars  ))
+        #self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov,"total"), tmpParamArray,self.covars  )
+        self.vFv_fluxErrors=dict(zip(self.modelNames+['total'],individualFluxError))
+
+
+
+                    
     def EnergyLightCurveErrors(self):
 
         self.FormatCovarMat()
@@ -425,6 +563,15 @@ class fluxLightCurve(object):
 
         dicString=['fluxes','errors','tBins','energies']
         save = dict(zip(dicString,[self.fluxes,self.fluxErrors,self.tBins,[self.eMin,self.eMax]]))
+
+        pickle.dump(save,open(fileName,'w'))
+
+
+    def SaveVFV(self,fileName='vFv_fluxSave.p'):
+
+
+        dicString=['fluxes','errors','tBins','energies']
+        save = dict(zip(dicString,[self.vFv_fluxes,self.vFv_fluxErrors,self.tBins,[self.eMin,self.eMax]]))
 
         pickle.dump(save,open(fileName,'w'))
 
