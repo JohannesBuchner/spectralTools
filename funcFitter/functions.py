@@ -69,55 +69,57 @@ def BlackBody(x,A,kT):
 	return val
  
 
-def EpEvo(t,eta,g,E0=1.E50):
+def EpEvo(t,A,eta,g,E0,Gamma0,n0,q):
 
-        c = 2.99E10 #cm/s
-        mp = 938272   # keV ??
+        #c = 2.99E10 #cm/s
+    c=1.
+    mp = 1.67E-26   # keV ??
 
-        z=.2
-        q=1.E-3
-        Gamma0 = 300.
+    z=1.
+    #q=1.E-3
+    #Gamma0 = 300.
 
-        n0 = 1.E2
+    #g = (3.-eta)/2.
+    #n0 = 1.E2
 
-        xd = ((3.-eta)*E0 / ( 4.*pi*n0*Gamma0**2. * mp  ) )**(1./3.)
+    #xd = ((3.-eta)*E0 / ( 4.*pi*n0*Gamma0**2. * mp  ) )**(1./3.)
+    xd = 2.6E16*((1.-eta/3.)*(E0/1.E54)/((n0/100.)*(Gamma0/300.)))**(1./3.)
+    #td = (1.+z)*xd / (Gamma0**2. * c)
+    td = 9.7*(1.+z)*((1.-eta/3.)*(E0/1.E54)/((n0/100.)*(Gamma0/300.)**8.))**(1./3.)
+        
+    ### Calculate X(t)  ###
+    test = (td/(2. * g + 1.) * Gamma0**(2.+1./g) + 2.*g)
+    #frac = t/td
 
-        td = (1.+z)*xd / (Gamma0**2. * c)
+    condition1 = t<td
+    condition2 = logical_and(td<=t, t<=test)
 
         
-        ### Calculate X(t)  ###
-        test = (td/(2. * g + 1.) * Gamma0**(2.+1./g) + 2.*g)
-        #frac = t/td
+    X = piecewise(t, [condition1, condition2],\
+    [lambda t: t/td, \
+    lambda t: ((2.*g+1.)*(t/td) - 2.*g)**(1./(2.*g+1.)) ])
 
-        condition1 = t<td
-        condition2 = logical_and(td<=t, t<=test)
-
-        
-        X = piecewise(t, [condition1, condition2],\
-                                    [lambda t: t/td, \
-                                             lambda t: ((2.*g+1.)*(t/td) - 2.*g)**(1./(2.*g+1.)) ])
-
-        ### Calculate X(t)  ###
+    ### Calculate X(t)  ###
 
 
 
-        ### Calculate Gamma(X)  ###
+    ### Calculate Gamma(X)  ###
 
 
 
-        condition3 = X<1.
-        condition4 = logical_and(1.<=X, X<=Gamma0**(1./g))
+    condition3 = X<1.
+    condition4 = logical_and(1.<=X, X<=Gamma0**(1./g))
 
-        Gamma = piecewise(X, [condition3, condition4],\
-                                    [lambda X: Gamma0, \
-                                             lambda X: Gamma0*X**(-g) ])
+    Gamma = piecewise(X, [condition3, condition4],\
+    [lambda X: Gamma0, \
+    lambda X: Gamma0*X**(-g) ])
 
-        ### Calculate Gamma(X)  ###
+    ### Calculate Gamma(X)  ###
 
         
-        eE0 = 3.E-8 * n0**(.5)*q*Gamma0**4. /(1.+z)
+    eE0 = 3.E-8 * n0**(.5)*q*Gamma0**4. /(1.+z)
 
-        return eE0*(Gamma/Gamma0)**4. * (X/xd)**(eta/2.)
+    return A*eE0*(Gamma/Gamma0)**4. * (X/xd)**(-eta/2.)
 
 
 

@@ -35,6 +35,8 @@ class funcFitter:
         self.fontWeight = 'normal'
         self.twin = False
         self.pivot=None
+        self.elinewidth = .8
+        self.capsize=3
         self.silent = silent
 
         if self.interactive:
@@ -123,7 +125,7 @@ class funcFitter:
 
 
 
-    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1., fontSize = 10, fWeight = 'normal', fFamily = 'serif'):
+    def SetPlotColors(self,dataColor="b",fitColor="g",guessColor="r",dataMarker="o",fitLineStyle="-", fitLineThick=2., errorbarThick=1., fontSize = 10, fWeight = 'normal', fFamily = 'serif',elinewidth=.9,capsize=3):
 
         print errorbarThick
         print fitLineThick
@@ -137,7 +139,8 @@ class funcFitter:
         self.fontsize = fontSize
         self.fontFam=fFamily
         self.fontWeight = fWeight
-
+        self.capsize=capsize
+        self.elinewidth = elinewidth
 
     def GetResultTab(self):
 
@@ -213,7 +216,7 @@ class funcFitter:
                 resultAx.plot(xRange,yGuess,color=self.guessColor,linestyle=self.fitLineStyle)
 
 
-            self.legData = resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick)
+            self.legData = resultAx.errorbar(self.xData,self.yData,linestyle='.',marker=self.dataMarker, color=self.dataColor,yerr=self.yErr,elinewidth=self.errorbarThick,capsize=self.capsize)
         
                 
 

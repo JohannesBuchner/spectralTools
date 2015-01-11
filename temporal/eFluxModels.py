@@ -56,7 +56,7 @@ def Integrand( gamma, x ,A, eCrit, eta, index, gammaTh):
 	try:
 		val = EDist(A,gamma,eta,gammaTh,index) * synchrotron_1(x/(eCrit*gamma*gamma))[0]
 	except pygsl.errors.gsl_Error, err:
-		print err
+#		print err
 		val = 0.
 	return val
 

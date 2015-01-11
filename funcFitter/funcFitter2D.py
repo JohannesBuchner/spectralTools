@@ -173,14 +173,14 @@ class funcFitter2D(funcFitter):
              tmpXerr = filt_neg_err(xDat,xErr)
 
              resultAx.semilogx(10**(xRange),yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-             resultAx.errorbar(xDat,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=tmpXerr,elinewidth=self.errorbarThick)
+             resultAx.errorbar(xDat,self.yData,fmt=self.dataMarker, color=self.dataColor,yerr=self.yErr,xerr=tmpXerr,elinewidth=self.errorbarThick,capsize=self.capsize)
 
         elif self.dataLog == "y":
             resultAx.set_yscale("log")
             yDat, yErr = self.ReconvertData(self.yData,self.yErr)
             tmpYerr = filt_neg_err(yDat,yErr) 
             resultAx.semilogy((xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-            resultAx.errorbar((self.xData),yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=(self.xErr),elinewidth=self.errorbarThick)
+            resultAx.errorbar((self.xData),yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=(self.xErr),elinewidth=self.errorbarThick,capsize=self.capsize)
             
 
         elif self.dataLog == "all":
@@ -199,7 +199,7 @@ class funcFitter2D(funcFitter):
             resultAx.set_yscale("log",nonposy='clip')
             
             resultAx.loglog((xRange),10**(yResult),color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
-            resultAx.errorbar(xDat,yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=tmpXerr,elinewidth=self.errorbarThick)
+            resultAx.errorbar(xDat,yDat,fmt=self.dataMarker, color=self.dataColor,yerr=tmpYerr,xerr=tmpXerr,elinewidth=self.errorbarThick,capsize=self.capsize)
             
 
         #resultAx.plot(xRange,yResult,color=self.fitColor,linestyle=self.fitLineStyle,linewidth=self.fitLineThick)
