@@ -46,12 +46,13 @@ class fluxLightCurve(object):
 
     '''
     
-    def __init__(self,scat,eMin,eMax):
+    def __init__(self,scat,eMin,eMax,z=1.):
 
         
         self.eMin = eMin
         self.eMax = eMax
-        
+
+        self.z=z
 
         self.scat = scat
 
@@ -160,6 +161,28 @@ class fluxLightCurve(object):
 
 
 
+
+    def CalculateEnergyFlux_kCor(self,modelName,params):
+
+        model = self.eFluxModels[modelName]
+        
+        if (modelName == 'Band\'s GRB, Epeak') or (modelName =='Power Law w. 2 Breaks') or (modelName =='Broken Power Law'):
+            
+            val,_, = quadrature(model, self.eMin,self.eMax,args=params[0].tolist(),tol=1.49e-10, rtol=1.49e-10, maxiter=200)
+            val = val*keV2erg
+            return val
+            
+
+        val,_, = quad(model, self.eMin/(1.+self.z),self.eMax/(1.+self.z),args=params[0].tolist(), epsabs=0., epsrel= 1.e-5 )
+
+        
+        val = val*keV2erg
+        
+
+        return val
+
+
+
    
     def FluxError(self, params, covar, currentModel):
         '''
@@ -222,59 +245,74 @@ class fluxLightCurve(object):
         [mod1,mod2,...]
 
         '''
-
-
-        
-
         firstDerivates = []
         
         for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
-
-            
-            #print modName
             for parName in z:
-
-                #print parName
-               
 
                 def tmpFlux(currentPar):
 
                     tmpParams = par.copy()
-                    #print "\nCurrent param:"
-                    #print currentPar
 
-  #                  print "\nTmp Params:"
-   #                 print tmpParams
                     tmpParams[parName]=currentPar
-
-
-    #                print "\n New Tmp Params:"
-     #               print tmpParams
 
                     return self.CalculateEnergyFlux(modName,tmpParams)
 
 
                 
                 if modName == currentModel:
-                    #print "in currentModel"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
 
                 elif currentModel == "total":
-                    #print "in total"
                     firstDerivates.append( deriv(tmpFlux)(par[parName]))
                 else:
-                    #print "not currentModel"
                     firstDerivates.append(0.0)
 
-        #print firstDerivates
-    
         firstDerivates = array(firstDerivates)
         tmp = firstDerivates.dot(covar)
 
         errors =  sqrt(tmp.dot(firstDerivates))
-        #errors = errors*keV2erg
         return errors
-  
+
+
+
+    def EnergyFluxError_kCor(self, params, covar, currentModel):
+        '''
+        Params is a list of the params from each models
+        [mod1,mod2,...]
+
+        '''
+        firstDerivates = []
+        
+        for modName,par, z  in zip(self.scat.modelNames,params, self.scat.paramNames):
+            for parName in z:
+
+                def tmpFlux(currentPar):
+
+                    tmpParams = par.copy()
+
+                    tmpParams[parName]=currentPar
+
+                    return self.CalculateEnergyFlux_kCor(modName,tmpParams)
+
+
+                
+                if modName == currentModel:
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+
+                elif currentModel == "total":
+                    firstDerivates.append( deriv(tmpFlux)(par[parName]))
+                else:
+                    firstDerivates.append(0.0)
+
+        firstDerivates = array(firstDerivates)
+        tmp = firstDerivates.dot(covar)
+
+        errors =  sqrt(tmp.dot(firstDerivates))
+        return errors
+
+
+      
     def vFv_FluxError(self, params, covar, currentModel):
         '''
         Params is a list of the params from each models
@@ -440,6 +478,42 @@ class fluxLightCurve(object):
         self.energyFluxes = dict(zip(tmp,fluxes))
 
 
+    def CreateEnergyLightCurve_kCor(self,z=1.):
+        
+
+        fluxes = []
+        numSteps = len(self.scat.meanTbins)
+
+        i=0
+
+        for x in self.modelNames:
+
+            tmp = []
+
+            for pars in self.scat.models[x]['values']:
+                
+                flux = self.CalculateEnergyFlux_kCor(x,pars)
+                tmp.append(flux)
+                i=i+1
+                print "Completed "+str(i)+" of "+str(numSteps)+" fluxes\n\n"
+
+            fluxes.append(tmp)
+
+       
+        fluxes = map(array,fluxes)
+
+        totFlux = zeros(len(fluxes[0]))
+
+        for x in fluxes:
+            totFlux+=x
+
+        fluxes.append(totFlux)
+
+        tmp = list(self.modelNames)
+        tmp.append('total')
+
+        self.energyFluxes_kCor = dict(zip(tmp,fluxes))
+
         
     def CreatePeakCurve(self):
 
@@ -558,6 +632,32 @@ class fluxLightCurve(object):
 
 
 
+
+    def EnergyLightCurveErrors_kCor(self):
+
+        self.FormatCovarMat()
+
+        tmpParamArray = map(lambda x: [] ,self.tBins)
+        
+
+        individualFluxError=[]
+        for mod in self.modelNames:
+            
+            
+            for x,row in zip(self.scat.models[mod]['values'],tmpParamArray):
+                row.append(x)
+
+        for mod in self.modelNames:
+            
+            individualFluxError.append(map(lambda par,cov:self.EnergyFluxError_kCor(par,cov,mod), tmpParamArray,self.covars  ))
+        
+        
+        individualFluxError.append ( map(lambda par,cov:self.EnergyFluxError_kCor(par,cov,"total"), tmpParamArray,self.covars  ))
+        #self.fluxErrors= map(lambda par,cov:self.FluxError(par,cov,"total"), tmpParamArray,self.covars  )
+        self.energyFluxErrors_kCor=dict(zip(self.modelNames+['total'],individualFluxError))        
+
+
+
     def Save(self,fileName='fluxSave.p'):
 
 
@@ -581,6 +681,14 @@ class fluxLightCurve(object):
 
         dicString=['energy fluxes','errors','tBins','energies']
         save = dict(zip(dicString,[self.energyFluxes,self.energyFluxErrors,self.tBins,[self.eMin,self.eMax]]))
+
+        pickle.dump(save,open(fileName,'w'))
+
+    def SaveEnergy_kCor(self,fileName='kCor_energyFluxSave.p'):
+
+
+        dicString=['energy fluxes','errors','tBins','energies']
+        save = dict(zip(dicString,[self.energyFluxes_kCor,self.energyFluxErrors_kCor,self.tBins,[self.eMin,self.eMax]]))
 
         pickle.dump(save,open(fileName,'w'))
         
