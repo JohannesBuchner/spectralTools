@@ -81,9 +81,9 @@ class variFilter(object):
 
 
 
-        self.RLC = RLC
+        self.RLC = array(RLC)
 
-        return [fGrid[:-1],R]
+        return [fGrid[:-1],array(R)]
 
 
     def _butter_coeff(self,cutoff):
