@@ -1,5 +1,5 @@
 import numpy as np
-from numpy import exp, power, float64, array, inf, logical_and
+from numpy import exp, power, float64, array, inf, logical_and, zeros, log10, log, logical_or, asarray
 from pygsl.sf import synchrotron_1 
 import pygsl.errors
 from scipy.integrate import quad, quadrature
@@ -58,7 +58,7 @@ def Integrand( gamma, x ,A, eCrit, eta, index, gammaTh):
 	try:
 		val = EDist(A,gamma,eta,gammaTh,index) * synchrotron_1(x/(eCrit*gamma*gamma))[0]
 	except pygsl.errors.gsl_Error, err:
-		print err
+#		print err
 		val = 0.
 	return val
 
@@ -100,6 +100,54 @@ def PowerLaw2Breaks(x, A, pivot, index1, breakE1, index1to2, breakE2, index2):
 	return A*pl2b
 
 
+def sbpl(ene, logN, pivot, indx1, breakE, breakScale, indx2):
+
+
+
+
+    B = (indx1 + indx2)/2.0
+    M = (indx2 - indx1)/2.0
+
+    arg_piv = log10(pivot/breakE)/breakScale
+
+    if arg_piv < -6.0:
+
+        pcosh_piv = M * breakScale * (-arg_piv-log(2.0))
+
+    elif arg_piv > 4.0:
+
+        pcosh_piv = M * breakScale * (arg_piv - log(2.0))
+
+    else:
+
+        pcosh_piv = M * breakScale * (log( (exp(arg_piv) + exp(-arg_piv))/2.0 ))
+
+
+
+    arg = log10(ene/breakE)/breakScale
+
+
+    if  arg < -6.0:
+        pcosh = M * breakScale * (-arg-log(2.0))
+
+    elif arg >  4.0:
+        pcosh = M * breakScale * (arg - log(2.0))
+
+    else:
+        pcosh = M * breakScale * (log( (exp(arg) + exp(-arg))/2.0 ))
+
+
+   
+
+    val = logN * power(ene/pivot,B)*power(10.,pcosh-pcosh_piv)
+
+    return val
+
+
+
+
+
+
 
 modelLookup = {"Power Law w. 2 Breaks":PowerLaw2Breaks, "Band's GRB, Epeak": Band, "Total Test Synchrotron": TotalSynchrotron, "Black Body": BlackBody,\
-		"Comptonized, Epeak": Compt, "Power Law": PowerLaw, "BlackBody2":BlackBody }
+		"Comptonized, Epeak": Compt, "Power Law": PowerLaw, "BlackBody2":BlackBody ,"Smoothly Broken Power Law":sbpl}

@@ -40,7 +40,7 @@ class lightCurve_data(lightCurve):
         self.eBins = [[emin,emax]]
 
 
-        self.ImportData()
+
         self.run()        
 
     def GetCounts(self):

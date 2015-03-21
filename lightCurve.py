@@ -32,8 +32,6 @@ class lightCurve:
     def ImportData(self):
 
         for x in self.inFiles:
-            #print x
-
             self.dataSets.append(pf.open(x))
 
 
@@ -78,13 +76,14 @@ class lightCurve:
             data = x[2].data
                                  
             energySelections = map(lambda eBin: data[self.SelectBin(eBin[0], eBin[1], pha ,hiFlag=True)] ,chans)
+            self.energySelections = energySelections
             timeSelections = map(lambda y:  array(map(lambda bins: len(y[self.SelectBin(bins[0]+self.trigTime, bins[1]+self.trigTime, y.field('TIME') )]) ,self.tBins)), energySelections)
-            
+            self.timeSelections = timeSelections
             for i,j in zip(self.lc,timeSelections):
                 i+=j
         
 
-       
+            
         # Background subtraction
         if self.bkgFlag:
 

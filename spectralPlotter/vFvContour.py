@@ -131,7 +131,7 @@ class vFvContour:
 
             for x,row in zip(self.scat.models[mod]['values'],tmpParamArray):
                 row.append(x)
-        print row
+        
         for mod in self.modelNames:
             contour = []
             for ene in energy:
@@ -209,7 +209,7 @@ class vFvContour:
         lower = []
 
         xlabel = r"Energy (keV)"
-        ylabel = r"$\nu F_{\nu}$ (ergs$^2$ s$^{-1}$ cm$^{-2}$)"
+        ylabel = r"$\nu F_{\nu}$ (erg$^2$ s$^{-1}$ cm$^{-2}$ keV$^-1$)"
 
         for s,c in zip(spec, contour):
             upper.append(s+c)
