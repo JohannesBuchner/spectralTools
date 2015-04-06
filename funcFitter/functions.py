@@ -12,6 +12,25 @@ def Linear(x,m,b):
     
 
 
+def ElectronChange(x,a,b,alpha):
+
+
+    val = a*x**alpha
+    val/=(x**alpha + b*x)
+
+    return val
+
+def ElectronChange2(x,a,b,alpha):
+
+
+    val = (b/x**alpha) + a
+    
+
+    return val
+
+
+
+
 def PowerLaw(x, norm, index, t0=0., pivot=1.):
 
     val = norm * power((x-t0)/pivot,index)
@@ -125,5 +144,5 @@ def EpEvo(t,A,eta,g,E0,Gamma0,n0,q):
 
 
 
-functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody ,"Poly2": Poly2, "EpEvo":EpEvo}
+functionLookup = {"PowerLaw": PowerLaw, "BrokenPL": BrokenPL, "Gaussian": Gaussian, "Exponential" : Exponential, "Linear": Linear, "RydeBPL": RydeBPL, "Band" : Band, "BlackBody" : BlackBody ,"Poly2": Poly2, "EpEvo":EpEvo,"ElectronChange":ElectronChange, "ElectronChange2":ElectronChange2}
 

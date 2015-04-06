@@ -5,6 +5,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import matplotlib.pyplot as plt
 
+import brewer2mpl
+
 
 from models import modelLookup
 from numpy import array, zeros, logspace, log10, asarray, sqrt, linspace, arange
@@ -32,6 +34,9 @@ keV2erg =1.60217646e-9
 class spectralPlotter:
 
     def __init__(self, multi=True,pht=False,energy=False,vFv=False,eMin=10.,eMax=40000.,uniModel=None,manualColor=None,vFvNum=3,eneNum=2,phtNum=1):
+
+
+        self.useBrewer = False
 
         if pht:
             self.phtFig = plt.figure(phtNum)
@@ -154,7 +159,16 @@ class spectralPlotter:
         #self.test = flux
         return flux
 
-        
+    def SetCMAP(self,map,type,num):
+
+
+        bmap = brewer2mpl.get_map(map,type,num)
+        self.bmap = bmap
+
+
+        self. useBrewer = True 
+
+            
     def ReadFits(self):
         
         fits = self.FitReader()
@@ -163,12 +177,22 @@ class spectralPlotter:
         blue = []
         for i in arange(float(self.numFiles),.9,-1):
 
-            colorNum = i/self.numFiles
+            colorNum = float(i)/float(self.numFiles)
 
             red.append((1,colorNum,0.))
             blue.append((0.,colorNum,1.))
 
 
+            if self.useBrewer:
+                red = []
+                blue= []
+                for i in arange(float(self.numFiles),.9,-1):
+
+                    colorNum = float(i)/float(self.numFiles)
+                    red.append(self.bmap.mpl_colormap(colorNum))
+                    blue.append(self.bmap.mpl_colormap(colorNum))
+    
+            
         if self.setColor:
             red = self.manualColor
 
