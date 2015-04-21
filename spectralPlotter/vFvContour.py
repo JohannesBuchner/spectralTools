@@ -209,7 +209,7 @@ class vFvContour:
         lower = []
 
         xlabel = r"Energy (keV)"
-        ylabel = r"$\nu F_{\nu}$ (erg$^2$ s$^{-1}$ cm$^{-2}$ keV$^-1$)"
+        ylabel = r"$\nu F_{\nu}$ (erg$^2$ s$^{-1}$ cm$^{-2}$ keV$^{-1}$)"
 
         for s,c in zip(spec, contour):
             upper.append(s+c)
