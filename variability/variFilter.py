@@ -1,8 +1,8 @@
 from scipy.signal import butter, lfilter, freqz
 from scipy.stats import pearsonr
 
-from spectralTools.lightCurve_data import lightCurve_data as LCD
-
+#from spectralTools.lightCurve_data import lightCurve_data as LCD
+from spectralTools.binning.lightcurveMaker import ProcessedLightCurve
 
 from numpy import logspace, array, log10, sqrt, r_, zeros, arange, log, log10
 from numpy.random import normal
@@ -10,7 +10,7 @@ from numpy.random import normal
 class variFilter(object):
 
 
-    def __init__(self,dataFile,tstart=0.,tstop=10.,dt=.1,emin=8.,emax=300.,order=3,fType="lowpass",fmin=1E-3,fmax=1.):
+    def __init__(self,dataFile,tstart=0.,tstop=10.,emin=8.,dt=.1,emax=300.,order=3,fType="lowpass",fmin=1E-3,fmax=1.):
 
 
 
@@ -40,12 +40,13 @@ class variFilter(object):
 
         
 
-        lc = LCD(self.dataFile,self.dt,self.tstart,self.tstop,self.emin,self.emax)
+        plc = ProcessedLightCurve(self.dataFile)
+        plc.SetTime(self.tstart,self.tstop)
+        
 
+        self._counts = plc.GetSourceSummedLC(self.emin,self.emax)
 
-        self._counts = lc.GetCounts()
-
-        self._time = lc.GetTime()
+        #self._time = lc.GetTime()
 
 
     def CalcVari(self,recalc=False,ret=True):
