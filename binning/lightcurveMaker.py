@@ -379,6 +379,7 @@ class ProcessedLightCurve(object):
 
 
 
+            
 
         
     def _MakeTimeSelections(self):
